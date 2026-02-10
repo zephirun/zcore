@@ -1,0 +1,87 @@
+:root {
+    /* ZEPHCORE Palette */
+    --color-primary: #1E88E5;
+    /* ZEPHCORE Blue */
+    --color-primary-hover: #1976D2;
+    --color-green-topbar: #26C6DA;
+    /* Cyan Accent */
+    --color-secondary: #000000;
+    /* Dark text/footer */
+    --color-accent: #26C6DA;
+    /* Cyan Accent */
+    --color-zephcore-blue: #1565C0;
+    /* Deep Blue */
+
+    --bg-main: #FAFAFA;
+    /* Light gray background */
+    --bg-card: #FFFFFF;
+    --bg-input: #FFFFFF;
+
+    --text-main: #1A1A1A;
+    --text-muted: #666666;
+    --text-light: #FFFFFF;
+
+    --border-color: #E5E7EB;
+
+    --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --radius: 4px;
+    /* More square, like GMAD */
+    --radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-menu: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utilities */
+.text-primary {
+    color: var(--color-primary);
+}
+
+.text-green {
+    color: var(--color-accent);
+}
+
+.bg-primary {
+    background-color: var(--color-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Global Button Styles to match */
+button {
+    font-family: var(--font-main);
+}
