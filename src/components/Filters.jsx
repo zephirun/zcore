@@ -1,8 +1,16 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SearchableSelect from './SearchableSelect';
+import { useData } from '../context/DataContext';
 
-const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
+const Filters = ({ rightElement }) => {
+    const {
+        salesData,
+        globalFilters,
+        setGlobalFilters,
+        userRole,
+        allowedVendor
+    } = useData();
     const location = useLocation();
 
     // Dynamic Filter Options based on current selection
@@ -11,25 +19,26 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
         const clients = new Set(['Selecionar Todos']);
 
         // Determine active filters
-        const activeVendor = selectedFilters.vendor && selectedFilters.vendor !== 'Selecionar Todos' ? selectedFilters.vendor : null;
-        const activeClient = selectedFilters.client && selectedFilters.client !== 'Selecionar Todos' ? selectedFilters.client : null;
+        const activeVendor = globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' ? globalFilters.vendor : null;
+        const activeClient = globalFilters.client && globalFilters.client !== 'Selecionar Todos' ? globalFilters.client : null;
 
-        if (!data) return { vendors: [], clients: [] };
+        if (!salesData) return { vendors: [], clients: [] };
 
-        data.forEach(row => {
-            const rowVendor = row.client.vendor;
-            const rowClient = row.client.name;
+        salesData.forEach(row => {
+            const rowVendor = row.client?.vendor || '';
+            const rowClient = row.client?.name || '';
 
             // Logic for Vendors Dropdown:
-            // Include if no Client selected OR if row matches selected Client
             if (!activeClient || rowClient === activeClient) {
                 if (rowVendor) vendors.add(rowVendor);
             }
 
             // Logic for Clients Dropdown:
-            // Include if no Vendor selected OR if row matches selected Vendor
             if (!activeVendor || rowVendor === activeVendor) {
-                if (rowClient) clients.add(rowClient);
+                if (rowClient) {
+                    const clientId = row.client.id || '';
+                    clients.add(clientId ? `${rowClient} - ${clientId}` : rowClient);
+                }
             }
         });
 
@@ -37,31 +46,17 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
             vendors: Array.from(vendors).sort(),
             clients: Array.from(clients).sort()
         };
-    }, [data, selectedFilters]);
-
-    const handleChange = (key, value) => {
-        onFilterChange({ ...selectedFilters, [key]: value });
-    };
+    }, [salesData, globalFilters]);
 
     const isActive = (path) => location.pathname === path;
 
-    const navLinkStyle = (path) => ({
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: isActive(path) ? '600' : '500',
-        color: isActive(path) ? '#2e7d32' : '#666',
-        padding: '8px 16px',
-        borderRadius: '4px',
-        background: isActive(path) ? '#e8f5e9' : 'transparent',
-        transition: 'all 0.2s',
-        display: 'inline-block'
-    });
+    const isVendorRestricted = userRole !== 'admin' && allowedVendor;
 
     return (
         <div className="filters-container" style={{
             padding: '15px 40px',
-            background: '#f8f9fa',
-            borderBottom: '1px solid #ddd'
+            background: 'var(--bg-input)',
+            borderBottom: '1px solid var(--border-color)'
         }}>
             {/* Title and Tabs Header */}
             <div style={{
@@ -69,26 +64,26 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
                 gridTemplateColumns: '1fr auto 1fr',
                 alignItems: 'center',
                 marginBottom: '20px',
-                borderBottom: '1px solid #e0e0e0',
+                borderBottom: '1px solid var(--border-color)',
                 paddingBottom: '15px'
             }}>
-                {/* Left: Title (Optional or secondary) */}
+                {/* Left: Title */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <h2 style={{ fontSize: '18px', color: '#2c3e50', fontWeight: '700', margin: 0 }}>
+                    <h2 style={{ fontSize: '18px', color: 'var(--text-main)', fontWeight: '700', margin: 0 }}>
                         Faturamento Trimestral
                     </h2>
                 </div>
 
                 {/* Center: Tabs */}
-                <nav style={{ display: 'flex', gap: '5px', background: '#e2e8f0', padding: '4px', borderRadius: '8px' }}>
+                <nav style={{ display: 'flex', gap: '5px', background: 'var(--bg-main)', padding: '4px', borderRadius: '8px' }}>
                     <Link to="/sales/dashboard" style={{
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: isActive('/sales/dashboard') ? '600' : '500',
-                        color: isActive('/sales/dashboard') ? '#1e40af' : '#64748b',
+                        color: isActive('/sales/dashboard') ? 'var(--color-primary)' : 'var(--text-muted)',
                         padding: '6px 20px',
                         borderRadius: '6px',
-                        background: isActive('/sales/dashboard') ? 'white' : 'transparent',
+                        background: isActive('/sales/dashboard') ? 'var(--bg-card)' : 'transparent',
                         boxShadow: isActive('/sales/dashboard') ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                         transition: 'all 0.2s',
                         display: 'inline-block'
@@ -99,10 +94,10 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: isActive('/sales/report') ? '600' : '500',
-                        color: isActive('/sales/report') ? '#1e40af' : '#64748b',
+                        color: isActive('/sales/report') ? 'var(--color-primary)' : 'var(--text-muted)',
                         padding: '6px 20px',
                         borderRadius: '6px',
-                        background: isActive('/sales/report') ? 'white' : 'transparent',
+                        background: isActive('/sales/report') ? 'var(--bg-card)' : 'transparent',
                         boxShadow: isActive('/sales/report') ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                         transition: 'all 0.2s',
                         display: 'inline-block'
@@ -119,36 +114,34 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
 
             {/* Filters Row */}
             <div style={{
-                display: 'flex',
-                gap: '20px',
-                alignItems: 'flex-end',
-                flexWrap: 'wrap'
+                display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap'
             }}>
                 {/* Vendor Filter */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '250px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#555', textTransform: 'uppercase' }}>Vendedor</label>
+                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Vendedor</label>
                     <SearchableSelect
-                        options={options.vendors}
-                        value={selectedFilters.vendor}
-                        onChange={(val) => handleChange('vendor', val)}
+                        options={isVendorRestricted ? [allowedVendor] : options.vendors}
+                        value={isVendorRestricted ? allowedVendor : globalFilters.vendor}
+                        onChange={(val) => setGlobalFilters(prev => ({ ...prev, vendor: val, client: 'Selecionar Todos' }))}
                         placeholder="Selecione o Vendedor"
+                        disabled={isVendorRestricted}
                     />
                 </div>
 
                 {/* Client Filter */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '300px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#555', textTransform: 'uppercase' }}>Cliente</label>
+                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cliente</label>
                     <SearchableSelect
                         options={options.clients}
-                        value={selectedFilters.client}
-                        onChange={(val) => handleChange('client', val)}
+                        value={globalFilters.client}
+                        onChange={(val) => setGlobalFilters(prev => ({ ...prev, client: val }))}
                         placeholder="Selecione o Cliente"
                     />
                 </div>
 
                 {/* Ranking/Extremes Filter */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '220px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#555', textTransform: 'uppercase' }}>Destaques / Ranking</label>
+                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Destaques / Ranking</label>
                     <SearchableSelect
                         options={[
                             'Sem Ordenação',
@@ -159,29 +152,50 @@ const Filters = ({ data, onFilterChange, selectedFilters, rightElement }) => {
                             'Maior Prazo',
                             'Menor Prazo'
                         ]}
-                        value={selectedFilters.ranking}
-                        onChange={(val) => handleChange('ranking', val)}
+                        value={globalFilters.ranking}
+                        onChange={(val) => setGlobalFilters(prev => ({ ...prev, ranking: val }))}
                         placeholder="Filtrar Extremos"
                     />
                 </div>
 
                 {/* Reset Button */}
-                <button
-                    onClick={() => onFilterChange({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', ranking: 'Sem Ordenação' })}
-                    style={{
-                        padding: '8px 16px',
-                        background: '#95a5a6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        height: '35px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                    }}
-                >
-                    LIMPAR FILTROS
-                </button>
+                {!isVendorRestricted && (
+                    <button
+                        onClick={() => setGlobalFilters({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', ranking: 'Sem Ordenação' })}
+                        style={{
+                            padding: '8px 16px',
+                            background: 'var(--bg-input)',
+                            color: 'var(--text-main)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            height: '35px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        LIMPAR FILTROS
+                    </button>
+                )}
+
+                {isVendorRestricted && (
+                    <button
+                        onClick={() => setGlobalFilters(prev => ({ ...prev, client: 'Selecionar Todos', ranking: 'Sem Ordenação' }))}
+                        style={{
+                            padding: '8px 16px',
+                            background: 'var(--bg-input)',
+                            color: 'var(--text-main)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            height: '35px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        LIMPAR FILTROS
+                    </button>
+                )}
             </div>
         </div>
     );

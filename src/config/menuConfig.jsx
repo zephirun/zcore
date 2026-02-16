@@ -19,6 +19,36 @@ export const allModules = [
         path: '/sales/dashboard'
     },
     {
+        id: 'client-records',
+        title: 'Ficha de Clientes',
+        subtitle: 'Histórico e Observações',
+        category: 'vendas',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        ),
+        path: '/sales/client-records'
+    },
+    {
+        id: 'team-records',
+        title: 'Ficha de Equipe',
+        subtitle: 'Metas e Histórico',
+        category: 'vendas',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        ),
+        path: '/sales/team-records'
+    },
+    {
         id: 'synthetic-sales-summary',
         title: 'Resumo Sintético de Vendas',
         subtitle: 'Visão Geral e KPIs',
@@ -47,6 +77,20 @@ export const allModules = [
         ),
         path: '/sales/smart-catalog',
         status: 'coming-soon'
+    },
+    {
+        id: 'sales-intelligence',
+        title: 'Radar Estratégico',
+        subtitle: 'Inteligência e Predição',
+        category: 'vendas',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m16 12-4-4-4 4"></path>
+                <path d="m12 8v8"></path>
+            </svg>
+        ),
+        path: '/sales/intelligence'
     },
     {
         id: 'cost-center',
@@ -183,67 +227,6 @@ export const allModules = [
             </svg>
         ),
         path: '/customer-service/rnc',
-        status: 'coming-soon'
-    },
-    // SGI Modules
-    {
-        id: 'quality',
-        title: 'Qualidade',
-        subtitle: 'Gestão da Qualidade (SGQ)',
-        category: 'sgi',
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        ),
-        path: '/sgi/quality',
-        status: 'coming-soon'
-    },
-    {
-        id: 'environment',
-        title: 'Meio Ambiente',
-        subtitle: 'Gestão Ambiental (SGA)',
-        category: 'sgi',
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                <line x1="6" y1="1" x2="6" y2="4"></line>
-                <line x1="10" y1="1" x2="10" y2="4"></line>
-                <line x1="14" y1="1" x2="14" y2="4"></line>
-            </svg>
-        ),
-        path: '/sgi/environment',
-        status: 'coming-soon'
-    },
-    {
-        id: 'safety',
-        title: 'Segurança e Saúde',
-        subtitle: 'Segurança do Trabalho (SSMA)',
-        category: 'sgi',
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-        ),
-        path: '/sgi/safety',
-        status: 'coming-soon'
-    },
-    {
-        id: 'social-responsibility',
-        title: 'Resp. Social',
-        subtitle: 'Responsabilidade Social',
-        category: 'sgi',
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-        ),
-        path: '/sgi/social-responsibility',
         status: 'coming-soon'
     },
     // AI & Agents Modules
@@ -483,6 +466,20 @@ export const allModules = [
         status: 'coming-soon'
     },
     {
+        id: 'purchasing-intelligence',
+        title: 'Inteligência de Compras',
+        subtitle: 'Lead Time e Performance',
+        category: 'compras',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+        ),
+        path: '/purchases/intelligence'
+    },
+    {
         id: 'warehouse-management',
         title: 'Gerenciamento de Armazém',
         subtitle: 'Gestão de Almoxarifado',
@@ -533,29 +530,28 @@ export const allModules = [
     {
         id: 'serasa-spc',
         title: 'Serasa/SPC',
-        subtitle: 'Consultas de Crédito',
+        subtitle: 'Consulta e Gestão de Crédito',
         category: 'financeiro',
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-            </svg>
-        ),
-        path: '/logistics/warehouse-training',
-        status: 'coming-soon'
-    },
-    {
-        id: 'credit-auth',
-        title: 'Autorização de Crédito',
-        subtitle: 'Análise e Aprovação',
-        category: 'financeiro',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
         ),
         path: '/financial/serasa-spc',
         status: 'coming-soon'
+    },
+    {
+        id: 'financial-intelligence',
+        title: 'Inteligência Financeira',
+        subtitle: 'Cash Flow e Saúde do Caixa',
+        category: 'financeiro',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+        ),
+        path: '/financial/intelligence'
     },
     {
         id: 'marketing-schedule',
@@ -599,7 +595,36 @@ export const allModules = [
             </svg>
         ),
         path: '/it/assets',
-        status: 'coming-soon'
+    },
+    {
+        id: 'team-portal',
+        title: 'Portal da Equipe',
+        subtitle: 'Comunicação e Engajamento',
+        category: 'equipe',
+        size: 'large',
+        health: 'stable',
+        icon: (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 6.1H3" />
+                <path d="M21 12.1H3" />
+                <path d="M15.1 18.1H3" />
+            </svg>
+        ),
+        path: '/equipe'
+    },
+    {
+        id: 'admin-audit',
+        title: 'Auditoria de Usuários',
+        subtitle: 'Logs e Comportamento',
+        category: 'ti',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M12 8v4"></path>
+                <path d="M12 16h.01"></path>
+            </svg>
+        ),
+        path: '/admin/audit'
     }
 ];
 
@@ -610,10 +635,10 @@ export const categories = [
         name: 'Vendas',
         description: 'Análises e relatórios de vendas',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
         ),
         color: '#2e7d32',
@@ -624,10 +649,11 @@ export const categories = [
         name: 'Logística e Operações',
         description: 'Gestão de Armazenagem e Distribuição',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="16" height="13" x="2" y="6" rx="2" />
+                <path d="M22 14h-4V8l4 1v5Z" />
+                <path d="M16 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
+                <path d="M6 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
             </svg>
         ),
         color: '#0288d1',
@@ -638,10 +664,10 @@ export const categories = [
         name: 'Compras',
         description: 'Gestão de pedidos e fornecedores',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.56-7.43H5.21" />
             </svg>
         ),
         color: '#d84315',
@@ -652,9 +678,9 @@ export const categories = [
         name: 'Financeiro',
         description: 'Controle de custos e orçamentos',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2" />
+                <line x1="2" x2="22" y1="10" y2="10" />
             </svg>
         ),
         color: '#00897b',
@@ -665,16 +691,8 @@ export const categories = [
         name: 'Centro de Serviço',
         description: 'Gestão de insumos e produção',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="14" width="20" height="6" rx="1"></rect>
-                <circle cx="16" cy="8" r="5"></circle>
-                <circle cx="16" cy="8" r="2"></circle>
-                <line x1="16" y1="3" x2="16" y2="6"></line>
-                <line x1="16" y1="10" x2="16" y2="13"></line>
-                <line x1="11" y1="8" x2="14" y2="8"></line>
-                <line x1="18" y1="8" x2="21" y2="8"></line>
-                <path d="M5 14V10"></path>
-                <path d="M9 14V10"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
             </svg>
         ),
         color: '#37474f',
@@ -685,12 +703,11 @@ export const categories = [
         name: 'SAC e Logística Reversa',
         description: 'Devoluções e não conformidades',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                <polyline points="9 14 4 9 9 4"></polyline>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8Z" />
+                <path d="M10 12h.01" />
+                <path d="M16 12h.01" />
+                <path d="M4 12h.01" />
             </svg>
         ),
         color: '#f57c00',
@@ -701,9 +718,9 @@ export const categories = [
         name: 'Diretoria',
         description: 'Gestão Executiva e DRE',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
             </svg>
         ),
         color: '#1a237e',
@@ -714,9 +731,12 @@ export const categories = [
         name: 'IA e Agentes',
         description: 'Inteligência Artificial e Automação',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
-                <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                <path d="M5 3v4" />
+                <path d="M3 5h4" />
+                <path d="M21 17v4" />
+                <path d="M19 19h4" />
             </svg>
         ),
         color: '#0061ff',
@@ -727,16 +747,11 @@ export const categories = [
         name: 'Processos',
         description: 'Gestão e automação de processos',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6"></path>
-                <path d="M12 17v6"></path>
-                <path d="M4.22 4.22l4.24 4.24"></path>
-                <path d="M15.54 15.54l4.24 4.24"></path>
-                <path d="M1 12h6"></path>
-                <path d="M17 12h6"></path>
-                <path d="M4.22 19.78l4.24-4.24"></path>
-                <path d="M15.54 8.46l4.24-4.24"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="6" x2="6" y1="3" y2="15" />
+                <circle cx="18" cy="6" r="3" />
+                <circle cx="6" cy="18" r="3" />
+                <path d="M18 9a9 9 0 0 1-9 9" />
             </svg>
         ),
         color: '#7b1fa2',
@@ -747,11 +762,11 @@ export const categories = [
         name: 'Recursos Humanos',
         description: 'Gestão de Pessoas',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
         ),
         color: '#d81b60',
@@ -762,10 +777,10 @@ export const categories = [
         name: 'TI',
         description: 'Tecnologia da Informação',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="14" x="2" y="3" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
         ),
         color: '#283593',
@@ -776,28 +791,29 @@ export const categories = [
         name: 'Marketing e Eventos',
         description: 'Gestão de Marketing e Eventos',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                <path d="M2 2l7.586 7.586"></path>
-                <circle cx="11" cy="11" r="2"></circle>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 15h2a2 2 0 1 0 0-4h-2v4Z" />
+                <path d="m4 16 4.586-4.586a2 2 0 0 1 2.828 0L16 16" />
+                <path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Z" />
             </svg>
         ),
         color: '#673ab7',
         bgColor: '#ede7f6'
     },
     {
-        id: 'sgi',
-        name: 'SGI',
-        description: 'Sistema de Gestão Integrado',
+        id: 'equipe',
+        name: 'Equipe',
+        description: 'Comunicação e Colaboração Interna',
         icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M9 21v-2a4 4 0 0 0-3-3.87" />
+                <circle cx="9" cy="7" r="4" />
+                <circle cx="17" cy="11" r="3" />
             </svg>
         ),
-        color: '#5d4037',
-        bgColor: '#efebe9'
+        color: '#3B82F6',
+        bgColor: '#EFF6FF'
     }
 ];

@@ -1,20 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import logoGmad from '../../assets/logo.png';
-import Header from '../../components/Header';
 import KPICards from '../../components/KPICards';
-import Footer from '../../components/Footer';
 import SalesTable from '../../components/SalesTable';
 import Filters from '../../components/Filters';
 import ExportActions from '../../components/ExportActions';
 import QuarterSelector from '../../components/QuarterSelector';
 import { useData } from '../../context/DataContext';
 import { useNavigate } from 'react-router-dom';
+import InsightsPanel from '../../components/insights/InsightsPanel';
+import { generateInsights } from '../../utils/insightsEngine';
 
 const Report = () => {
     const { salesData, quarterData, selectedQuarter, updateQuarter, userRole, activeUnit, globalFilters, setGlobalFilters } = useData();
     const navigate = useNavigate();
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [showInsights, setShowInsights] = useState(false);
     const rowsPerPage = 50;
 
     const filteredData = useMemo(() => {
@@ -24,10 +25,12 @@ const Report = () => {
 
         let filtered = salesData.filter(row => {
             const vendorRow = row.client?.vendor || '';
-            const clientRow = row.client?.name || '';
+            const clientName = row.client?.name || '';
+            const clientId = row.client?.id || '';
+            const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
 
             const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow === globalFilters.vendor;
-            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientRow === globalFilters.client;
+            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted === globalFilters.client;
 
             return vendorMatch && clientMatch;
         });
@@ -105,11 +108,48 @@ const Report = () => {
 
     const isBlankState = !globalFilters.vendor && !globalFilters.client;
 
+    // Generate insights (comparing months within the quarter)
+    const insights = useMemo(() => {
+        if (!filteredData || filteredData.length === 0) {
+            return { critical: [], warning: [], positive: [], informational: [] };
+        }
+
+        // Split data into previous months (0,1) and current month (2) for comparison
+        const previousMonthsData = [];
+        const currentMonthData = [];
+
+        filteredData.forEach(row => {
+            if (row.months && row.months.length >= 3) {
+                // Previous months (first 2 months of quarter)
+                for (let i = 0; i < 2; i++) {
+                    if (row.months[i] && row.months[i].amount > 0) {
+                        previousMonthsData.push({
+                            client: row.client,
+                            total: row.months[i]
+                        });
+                    }
+                }
+
+                // Current month (last month of quarter)
+                if (row.months[2] && row.months[2].amount > 0) {
+                    currentMonthData.push({
+                        client: row.client,
+                        total: row.months[2]
+                    });
+                }
+            }
+        });
+
+        // Generate insights comparing current month vs previous months
+        return generateInsights(currentMonthData, previousMonthsData);
+    }, [filteredData]);
+
     return (
         <div className="report-container" style={{
             maxWidth: '100%',
             minHeight: '100vh',
-            background: 'white',
+            background: 'var(--bg-main)',
+            color: 'var(--text-main)',
             fontFamily: 'var(--font-main)'
         }}>
             <div className="print-only" style={{ padding: '0 40px' }}>
@@ -146,16 +186,37 @@ const Report = () => {
                 </div>
             </div>
 
-            <div style={{ position: 'relative' }}>
-                <Header filters={globalFilters} />
-            </div>
 
-            <div className="no-print" style={{ background: '#f8f9fa' }}>
+
+            <div className="no-print" style={{ background: 'var(--bg-input)' }}>
                 <Filters
-                    data={salesData}
-                    selectedFilters={globalFilters}
-                    onFilterChange={setGlobalFilters}
-                    rightElement={<ExportActions data={filteredData} />}
+                    rightElement={
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button
+                                onClick={() => setShowInsights(true)}
+                                className="btn-insights"
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                }}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9 18h6"></path>
+                                    <path d="M10 22h4"></path>
+                                    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                                </svg>
+                                Insights
+                            </button>
+                            <ExportActions data={filteredData} />
+                        </div>
+                    }
                 />
             </div>
 
@@ -163,10 +224,10 @@ const Report = () => {
                 <div style={{
                     padding: '80px',
                     textAlign: 'center',
-                    color: '#7f8c8d',
-                    background: '#fafafa'
+                    color: 'var(--text-muted)',
+                    background: 'var(--bg-card)'
                 }}>
-                    <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Bem-vindo ao Relatório</h1>
+                    <h1 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Bem-vindo ao Relatório</h1>
                     <p style={{ fontSize: '18px' }}>
                         Para visualizar os dados, selecione um <strong>Vendedor</strong>, um <strong>Cliente</strong><br />
                         ou escolha a opção <strong>"Selecionar Todos"</strong> nos filtros acima.
@@ -203,7 +264,15 @@ const Report = () => {
                     </div>
                 </>
             )}
-            <Footer />
+
+            {/* Insights Modal */}
+            {showInsights && (
+                <InsightsPanel
+                    insights={insights}
+                    onClose={() => setShowInsights(false)}
+                />
+            )}
+
         </div>
     );
 };

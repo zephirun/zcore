@@ -82,11 +82,9 @@ const ExportActions = ({ data }) => {
         <div style={{ display: 'flex', gap: '10px' }}>
             <button
                 onClick={handlePrint}
+                className="btn-export-print"
                 style={{
                     padding: '8px 16px',
-                    background: 'white',
-                    color: '#334155',
-                    border: '1px solid #e2e8f0',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '13px',
@@ -94,16 +92,7 @@ const ExportActions = ({ data }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    transition: 'all 0.2s',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                }}
-                onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = '#cbd5e1';
-                    e.currentTarget.style.background = '#f8fafc';
-                }}
-                onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.background = 'white';
                 }}
             >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -116,11 +105,9 @@ const ExportActions = ({ data }) => {
 
             <button
                 onClick={handleExportExcel}
+                className="btn-export-excel"
                 style={{
                     padding: '8px 16px',
-                    background: 'white',
-                    color: '#16a34a',
-                    border: '1px solid #bbf7d0',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '13px',
@@ -128,14 +115,7 @@ const ExportActions = ({ data }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    transition: 'all 0.2s',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                }}
-                onMouseEnter={e => {
-                    e.currentTarget.style.background = '#f0fdf4';
-                }}
-                onMouseLeave={e => {
-                    e.currentTarget.style.background = 'white';
                 }}
             >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

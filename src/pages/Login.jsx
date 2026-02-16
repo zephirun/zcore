@@ -46,7 +46,7 @@ const Login = () => {
             padding: '20px'
         }}>
             <div style={{
-                background: 'white',
+                background: 'var(--bg-card)',
                 borderRadius: '12px',
                 boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
                 width: '100%',
@@ -58,7 +58,7 @@ const Login = () => {
                 {/* LEFT COLUMN: Branding & Slogan */}
                 <div style={{
                     flex: '1',
-                    background: 'white',
+                    background: 'var(--bg-card)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -79,7 +79,7 @@ const Login = () => {
                     <h1 style={{
                         fontSize: '32px',
                         fontWeight: '800',
-                        color: '#1A1A1A',
+                        color: 'var(--text-main)',
                         marginBottom: '16px',
                         letterSpacing: '-0.02em',
                         lineHeight: '1.1'
@@ -108,7 +108,7 @@ const Login = () => {
                         <h2 style={{
                             fontSize: '24px',
                             fontWeight: '800',
-                            color: '#1A1A1A',
+                            color: 'var(--text-main)',
                             marginBottom: '8px'
                         }}>
                             Bem-vindo de volta!
@@ -143,8 +143,8 @@ const Login = () => {
                                     border: '1px solid #E5E7EB',
                                     borderRadius: '8px',
                                     fontSize: '15px',
-                                    background: '#white',
-                                    color: '#1A1A1A',
+                                    background: 'var(--bg-input)',
+                                    color: 'var(--text-main)',
                                     outline: 'none',
                                     transition: 'all 0.2s',
                                     fontFamily: 'var(--font-main)'
@@ -181,8 +181,8 @@ const Login = () => {
                                     border: '1px solid #E5E7EB',
                                     borderRadius: '8px',
                                     fontSize: '15px',
-                                    background: '#white',
-                                    color: '#1A1A1A',
+                                    background: 'var(--bg-input)',
+                                    color: 'var(--text-main)',
                                     outline: 'none',
                                     transition: 'all 0.2s',
                                     fontFamily: 'var(--font-main)'

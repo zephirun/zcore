@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/Header';
+
 import { useData } from '../../context/DataContext';
 import { fetchDeliveries, saveDelivery, deleteDelivery } from '../../services/api';
 import logoGmad from '../../assets/logo.png';
@@ -288,7 +288,7 @@ const DeliverySchedule = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#e8ecef' }}>
-            <Header />
+
 
             <div style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
                 {/* Page Header */}

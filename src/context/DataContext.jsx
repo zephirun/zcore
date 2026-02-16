@@ -12,13 +12,32 @@ export const DataProvider = ({ children }) => {
     const [userRole, setUserRole] = useState('viewer'); // 'admin' | 'viewer'
     const [username, setUsername] = useState(''); // Store current username
     const [name, setName] = useState(''); // Store Real Name
+    const [group, setGroup] = useState(''); // Store User Group
+    const [avatarUrl, setAvatarUrl] = useState(''); // Store Avatar URL
     const [allowedUnit, setAllowedUnit] = useState(null); // Store Allowed Unit
+    const [allowedVendor, setAllowedVendor] = useState(null); // Store Allowed Vendor
     const [allowedModules, setAllowedModules] = useState([]); // Store Allowed Modules
     const [users, setUsers] = useState([]);; // List of users
+    const [clientRecords, setClientRecords] = useState([]); // Client Metadata (Payment, Terms, etc)
 
     const [selectedQuarter, setSelectedQuarter] = useState(0); // Q1 by default
     const [quarterData, setQuarterData] = useState([]);
     const [globalFilters, setGlobalFilters] = useState({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', ranking: 'Sem Ordenação' });
+    const [theme, setTheme] = useState(() => localStorage.getItem('gmad_theme') || 'dark'); // Load from local storage
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Sidebar state
+
+    const toggleTheme = () => {
+        setTheme(prev => {
+            const newTheme = prev === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('gmad_theme', newTheme);
+            return newTheme;
+        });
+    };
+
+    // Apply Theme to DOM
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
     // Dynamic Available Units
     const ALL_UNITS = React.useMemo(() => [
@@ -27,9 +46,20 @@ export const DataProvider = ({ children }) => {
     ], []);
 
     const AVAILABLE_UNITS = React.useMemo(() => {
-        return (userRole === 'admin' || !allowedUnit)
-            ? ALL_UNITS
-            : ALL_UNITS.filter(u => u.id === allowedUnit);
+        if (userRole === 'admin' || !allowedUnit) return ALL_UNITS;
+
+        let allowedList = [];
+        try {
+            // Try to parse as JSON array (e.g., '["madville", "curitiba"]')
+            allowedList = JSON.parse(allowedUnit);
+        } catch (e) {
+            // Fallback: Check if it's a single string or comma-separated
+            allowedList = allowedUnit.split ? allowedUnit.split(',') : [allowedUnit];
+        }
+
+        if (!Array.isArray(allowedList)) allowedList = [allowedUnit];
+
+        return ALL_UNITS.filter(u => allowedList.includes(u.id));
     }, [userRole, allowedUnit, ALL_UNITS]);
 
     // Centralized Modules List - Grouped by Category
@@ -41,7 +71,8 @@ export const DataProvider = ({ children }) => {
                 { id: 'sales-analysis', name: 'Análise Trimestral de Vendas' },
                 { id: 'synthetic-sales-summary', name: 'Resumo Sintético de Vendas' },
                 { id: 'smart-catalog', name: 'Catálogo Inteligente' },
-                { id: 'sales-campaigns', name: 'Campanhas de Vendas' }
+                { id: 'sales-campaigns', name: 'Campanhas de Vendas' },
+                { id: 'sales-intelligence', name: 'Radar Estratégico' }
             ]
         },
         {
@@ -55,7 +86,8 @@ export const DataProvider = ({ children }) => {
                 { id: 'gifts-control', name: 'Controle de Brindes' },
                 { id: 'material-request', name: 'Solicitação de Materiais' },
                 { id: 'central-area', name: 'Área Central GMAD' },
-                { id: 'supplier-campaigns', name: 'Campanhas Fornecedores' }
+                { id: 'supplier-campaigns', name: 'Campanhas Fornecedores' },
+                { id: 'purchasing-intelligence', name: 'Inteligência de Compras' }
             ]
         },
         {
@@ -63,8 +95,9 @@ export const DataProvider = ({ children }) => {
             name: 'Logística',
             modules: [
                 { id: 'delivery-schedule', name: 'Agendamento de Entrega' },
-                { id: 'warehouse-management', name: 'Gerenciamento de Armazém (Gestão de Almoxarifado)' },
-                { id: 'warehouse-training', name: 'Treinamentos' }
+                { id: 'warehouse-management', name: 'Gerenciamento de Armazém' },
+                { id: 'warehouse-training', name: 'Treinamentos' },
+                { id: 'fleet-management', name: 'Gestão de Frota' }
             ]
         },
         {
@@ -73,7 +106,8 @@ export const DataProvider = ({ children }) => {
             modules: [
                 { id: 'cost-center', name: 'Centro de Custo' },
                 { id: 'serasa-spc', name: 'Serasa/SPC' },
-                { id: 'credit-auth', name: 'Autorização de Crédito' }
+                { id: 'credit-auth', name: 'Autorização de Crédito' },
+                { id: 'financial-intelligence', name: 'Inteligência Financeira' }
             ]
         },
         {
@@ -109,17 +143,9 @@ export const DataProvider = ({ children }) => {
             ]
         },
         {
-            id: 'logistica-geral',
-            name: 'Operações',
-            modules: [
-                { id: 'fleet-management', name: 'Gestão de Frota' }
-            ]
-        },
-        {
             id: 'processos',
             name: 'Processos',
             modules: [
-                { id: 'processes', name: 'Processos' },
                 { id: 'process-docs', name: 'Documentação' },
                 { id: 'process-pop', name: 'POP' },
                 { id: 'process-flowchart', name: 'Fluxograma' }
@@ -144,17 +170,15 @@ export const DataProvider = ({ children }) => {
             id: 'marketing',
             name: 'Marketing',
             modules: [
+                { id: 'marketing-schedule', name: 'Cronograma' },
                 { id: 'marketing-offers', name: 'Ofertas' }
             ]
         },
         {
-            id: 'sgi',
-            name: 'SGI',
+            id: 'equipe',
+            name: 'Equipe',
             modules: [
-                { id: 'quality', name: 'Qualidade' },
-                { id: 'environment', name: 'Meio Ambiente' },
-                { id: 'safety', name: 'Segurança e Saúde' },
-                { id: 'social-responsibility', name: 'Responsabilidade Social' }
+                { id: 'team-portal', name: 'Portal da Equipe' }
             ]
         }
     ], []);
@@ -162,16 +186,18 @@ export const DataProvider = ({ children }) => {
     // Flat list for backward compatibility
     const AVAILABLE_MODULES = React.useMemo(() => MODULE_CATEGORIES.flatMap(cat => cat.modules), [MODULE_CATEGORIES]);
 
+    // Refactor loadUsers to be accessible
+    const refreshUserList = async () => {
+        const dbUsers = await api.fetchUsers();
+        if (dbUsers && dbUsers.length > 0) {
+            setUsers(dbUsers);
+        }
+    };
+
     // Load Initial Data (Auth + Users + Sales)
     useEffect(() => {
         // 1. Load Users from DB
-        const loadUsers = async () => {
-            const dbUsers = await api.fetchUsers();
-            if (dbUsers && dbUsers.length > 0) {
-                setUsers(dbUsers);
-            }
-        };
-        loadUsers();
+        refreshUserList();
 
         // 2. Check Auth Persistence
         const storedAuth = localStorage.getItem('gmad_auth');
@@ -179,6 +205,8 @@ export const DataProvider = ({ children }) => {
         const storedRole = localStorage.getItem('gmad_user_role');
         const storedUsername = localStorage.getItem('gmad_username');
         const storedName = localStorage.getItem('gmad_name'); // Load Name
+        const storedGroup = localStorage.getItem('gmad_group'); // Load Group
+        const storedAvatarUrl = localStorage.getItem('gmad_avatar_url'); // Load Avatar
         const storedAllowedUnit = localStorage.getItem('gmad_allowed_unit');
         const storedAllowedModules = localStorage.getItem('gmad_allowed_modules');
 
@@ -188,18 +216,57 @@ export const DataProvider = ({ children }) => {
             if (storedRole) setUserRole(storedRole);
             if (storedUsername) setUsername(storedUsername);
             if (storedName) setName(storedName);
+            if (storedGroup) setGroup(storedGroup);
+            if (storedAvatarUrl) setAvatarUrl(storedAvatarUrl);
             if (storedAllowedUnit) setAllowedUnit(storedAllowedUnit === 'null' ? null : storedAllowedUnit);
+            if (localStorage.getItem('gmad_allowed_vendor')) setAllowedVendor(localStorage.getItem('gmad_allowed_vendor') === 'null' ? null : localStorage.getItem('gmad_allowed_vendor'));
             if (storedAllowedModules) setAllowedModules(JSON.parse(storedAllowedModules));
 
             loadServerData();
         }
     }, [activeUnit]); // Refresh if active unit changes if needed
 
+    // --- PRESENCE HEARTBEAT ---
+    useEffect(() => {
+        let heartbeatInterval;
+        let refreshUsersInterval;
+
+        if (isAuthenticated && username) {
+            // 1. Initial Presence Update
+            api.updateUserPresence(username);
+
+            // 2. Heartbeat (every 30s)
+            heartbeatInterval = setInterval(() => {
+                api.updateUserPresence(username);
+            }, 30000);
+
+            // 3. Refresh Other Users (every 60s)
+            refreshUsersInterval = setInterval(() => {
+                refreshUserList();
+            }, 60000);
+        }
+
+        return () => {
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            if (refreshUsersInterval) clearInterval(refreshUsersInterval);
+        };
+    }, [isAuthenticated, username]);
+
     const loadServerData = async (unit) => {
         try {
             const targetUnit = unit || activeUnit;
             const data = await import('../services/api').then(module => module.fetchSalesData(targetUnit));
-            setSalesData(data);
+
+            // Filter data by vendor if restricted
+            const finalData = (userRole !== 'admin' && allowedVendor)
+                ? data.filter(item => item.client?.vendor === allowedVendor)
+                : data;
+
+            setSalesData(finalData);
+
+            // Load Client Records
+            const records = await api.fetchClientRecords(targetUnit);
+            setClientRecords(records);
         } catch (e) {
             console.error("Failed to load server data", e);
         }
@@ -214,7 +281,10 @@ export const DataProvider = ({ children }) => {
             setUserRole(foundUser.role);
             setUsername(foundUser.username);
             setName(foundUser.name || foundUser.username); // Set Name
+            setGroup(foundUser.group || ''); // Set Group
+            setAvatarUrl(foundUser.avatarUrl || ''); // Set Avatar
             setAllowedUnit(foundUser.allowedUnit || null);
+            setAllowedVendor(foundUser.allowedVendor || null);
             setAllowedModules(foundUser.allowedModules || []);
 
             // Persist session
@@ -223,8 +293,14 @@ export const DataProvider = ({ children }) => {
             localStorage.setItem('gmad_user_role', foundUser.role);
             localStorage.setItem('gmad_username', foundUser.username);
             localStorage.setItem('gmad_name', foundUser.name || foundUser.username);
+            localStorage.setItem('gmad_group', foundUser.group || '');
+            localStorage.setItem('gmad_avatar_url', foundUser.avatarUrl || '');
             localStorage.setItem('gmad_allowed_unit', foundUser.allowedUnit || 'null');
+            localStorage.setItem('gmad_allowed_vendor', foundUser.allowedVendor || 'null');
             localStorage.setItem('gmad_allowed_modules', JSON.stringify(foundUser.allowedModules || []));
+
+            // Log activity
+            api.logActivity(foundUser.username, 'LOGIN');
 
             loadServerData(activeUnit);
             return { success: true, user: foundUser }; // Return Full User Object
@@ -240,62 +316,88 @@ export const DataProvider = ({ children }) => {
         localStorage.removeItem('gmad_user_role');
         localStorage.removeItem('gmad_username');
         localStorage.removeItem('gmad_name');
+        localStorage.removeItem('gmad_group');
+        localStorage.removeItem('gmad_avatar_url');
         localStorage.removeItem('gmad_allowed_unit');
+        localStorage.removeItem('gmad_allowed_vendor');
         localStorage.removeItem('gmad_allowed_modules');
 
         setSalesData([]);
         setUserRole('viewer');
         setUsername('');
         setName('');
+        setGroup('');
+        setAvatarUrl('');
         setAllowedUnit(null);
+        setAllowedVendor(null);
         setAllowedModules([]);
         setActiveUnit('madville');
     };
 
     // User Management Functions
-    const registerUser = async (newName, newUser, newPass, newRole, newAllowedUnit, newAllowedModules) => {
+    const registerUser = async (newName, newUser, newPass, newRole, newAllowedUnit, newAllowedModules, newAllowedVendor, newGroup) => {
         const result = await api.registerUserApi({
             name: newName,
             username: newUser,
             password: newPass,
             role: newRole,
+            group: newGroup,
             allowedUnit: newAllowedUnit,
+            allowedVendor: newAllowedVendor || null,
             allowedModules: newAllowedModules
         });
 
         if (result && result.success) {
-            const updatedUsers = await api.fetchUsers();
-            setUsers(updatedUsers);
-            return true;
+            await refreshUserList();
+            return { success: true };
         }
-        return false;
+        return { success: false, error: result?.error || 'Erro desconhecido' };
     };
 
     const updateUser = async (targetUsername, updates) => {
         const result = await api.updateUserApi(targetUsername, updates);
 
         if (result && result.success) {
-            const updatedUsers = await api.fetchUsers();
-            setUsers(updatedUsers);
+            await refreshUserList();
 
             // Update current session if editing self
             if (username === targetUsername) {
                 if (updates.name) setName(updates.name);
-                localStorage.setItem('gmad_name', updates.name);
+                if (updates.group) setGroup(updates.group);
+                if (updates.avatarUrl) setAvatarUrl(updates.avatarUrl);
+
+                localStorage.setItem('gmad_name', updates.name || name);
+                if (updates.group) localStorage.setItem('gmad_group', updates.group);
+                if (updates.avatarUrl) localStorage.setItem('gmad_avatar_url', updates.avatarUrl);
             }
-            return true;
+            return { success: true };
         }
-        return false;
+        return { success: false, error: result?.error || 'Erro desconhecido' };
     };
 
     const deleteUser = async (targetUsername) => {
         const result = await api.deleteUserApi(targetUsername);
         if (result && result.success) {
-            const updatedUsers = await api.fetchUsers();
-            setUsers(updatedUsers);
+            await refreshUserList();
             return true;
         }
         return false;
+    };
+
+    // Client Records Functions
+    const saveClientRecord = async (record) => {
+        const payload = {
+            ...record,
+            unit: activeUnit
+        };
+        const result = await api.saveClientRecord(payload);
+        if (result.success) {
+            // Optimistic update or refresh
+            const records = await api.fetchClientRecords(activeUnit);
+            setClientRecords(records);
+            return { success: true };
+        }
+        return { success: false, error: result.error };
     };
 
     const switchUnit = (unit) => {
@@ -380,6 +482,15 @@ export const DataProvider = ({ children }) => {
         }
     }, [salesData, selectedQuarter]);
 
+    const uniqueVendors = React.useMemo(() => {
+        if (!salesData) return [];
+        const vendors = new Set();
+        salesData.forEach(item => {
+            if (item.client?.vendor) vendors.add(item.client.vendor);
+        });
+        return Array.from(vendors).sort();
+    }, [salesData]);
+
     return (
         <DataContext.Provider value={{
             salesData,
@@ -390,8 +501,14 @@ export const DataProvider = ({ children }) => {
             userRole,
             username,
             name,
+            group,
+            avatarUrl,
             allowedUnit,
+            allowedVendor,
             allowedModules,
+            clientRecords,
+            saveClientRecord,
+            uniqueVendors,
             AVAILABLE_UNITS,
             ALL_UNITS,
             MODULE_CATEGORIES,
@@ -405,10 +522,15 @@ export const DataProvider = ({ children }) => {
             saveReportData,
             clearData,
             refreshData,
+            refreshUserList, // EXPOSED HERE
             updateQuarter,
             switchUnit,
             globalFilters,
-            setGlobalFilters
+            setGlobalFilters,
+            theme,
+            toggleTheme,
+            sidebarCollapsed,
+            setSidebarCollapsed
         }}>
             {children}
         </DataContext.Provider>

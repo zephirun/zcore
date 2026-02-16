@@ -267,7 +267,7 @@ const CarrierScheduling = () => {
                 </form>
 
                 <p style={{ textAlign: 'center', marginTop: '30px', color: '#94a3b8', fontSize: '12px' }}>
-                    ZEPHCORE - Plataforma de Gestão de Dados
+                    ZCORE - Plataforma de Gestão de Dados
                 </p>
             </div>
         </div>

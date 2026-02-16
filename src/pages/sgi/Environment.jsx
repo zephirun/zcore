@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../../components/Header';
+
 import { useData } from '../../context/DataContext';
 
 const Environment = () => {
@@ -7,7 +7,7 @@ const Environment = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'var(--font-main)' }}>
-            <Header />
+
             <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
                 <h2 style={{ color: '#2c3e50', marginBottom: '20px', borderBottom: '2px solid #2ecc71', paddingBottom: '10px', display: 'inline-block' }}>
                     Gestão Ambiental (SGA)

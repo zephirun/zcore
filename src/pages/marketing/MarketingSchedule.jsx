@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../../components/Header';
+
 import { useData } from '../../context/DataContext';
 
 const MarketingSchedule = () => {
@@ -106,7 +106,7 @@ const MarketingSchedule = () => {
 
     return (
         <div style={containerStyle}>
-            <Header />
+
 
             <div style={{ padding: '0 20px' }}>
                 <div style={glassCardStyle}>

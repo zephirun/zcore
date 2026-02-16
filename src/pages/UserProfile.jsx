@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import * as api from '../services/api';
 
 const UserProfile = () => {
-    const { username, name, updateUser } = useData();
+    const { username, name, avatarUrl, updateUser, userRole } = useData();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -14,6 +16,11 @@ const UserProfile = () => {
     });
 
     const [status, setStatus] = useState({ type: '', message: '' });
+
+    // Image Upload State
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         if (name) {
@@ -26,7 +33,15 @@ const UserProfile = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus({ type: '', message: '' });
 
@@ -38,6 +53,20 @@ const UserProfile = () => {
         const updates = {
             name: formData.displayName
         };
+
+        // Upload Image if selected
+        if (selectedImage) {
+            setUploading(true);
+            const uploadRes = await api.uploadProfilePicture(selectedImage, username);
+            setUploading(false);
+
+            if (uploadRes.success) {
+                updates.avatarUrl = uploadRes.url;
+            } else {
+                setStatus({ type: 'error', message: 'Erro ao fazer upload da imagem: ' + uploadRes.error });
+                return;
+            }
+        }
 
         if (formData.newPassword) {
             if (formData.newPassword !== formData.confirmPassword) {
@@ -52,7 +81,7 @@ const UserProfile = () => {
         }
 
         try {
-            updateUser(username, updates);
+            await updateUser(username, updates);
             setStatus({ type: 'success', message: 'Perfil atualizado com sucesso!' });
             setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
 
@@ -66,209 +95,298 @@ const UserProfile = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f5f7fa', display: 'flex', flexDirection: 'column' }}>
-            <Header />
+        <div style={{ display: 'flex', height: '100vh', background: 'var(--bg-main)', fontFamily: 'var(--font-main)' }}>
+            <Sidebar />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <Header title="Meu Perfil" />
 
-            <div style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '40px 20px'
-            }}>
                 <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.05), 0 10px 15px rgba(0,0,0,0.1)',
-                    width: '100%',
-                    maxWidth: '500px',
-                    padding: '30px',
-                    border: '1px solid #e1e4e8'
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '40px 20px',
+                    overflowY: 'auto'
                 }}>
-                    <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                    <div style={{
+                        background: 'var(--bg-card)',
+                        borderRadius: '24px',
+                        boxShadow: 'var(--shadow-lg)',
+                        width: '100%',
+                        maxWidth: '550px',
+                        padding: '40px',
+                        border: '1px solid var(--border-color)',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}>
+                        {/* Decorative background element */}
                         <div style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            background: '#3498db',
-                            color: 'white',
-                            fontSize: '32px',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 15px auto',
-                            boxShadow: '0 4px 10px rgba(52, 152, 219, 0.3)'
-                        }}>
-                            {name ? name.charAt(0).toUpperCase() : (username ? username.charAt(0).toUpperCase() : 'U')}
-                        </div>
-                        <h2 style={{ margin: 0, color: '#2c3e50', fontSize: '24px' }}>Meu Perfil</h2>
-                        <p style={{ margin: '5px 0 0 0', color: '#7f8c8d', fontSize: '14px' }}>Gerencie suas informações pessoais</p>
-                    </div>
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0,
+                            height: '120px',
+                            background: 'linear-gradient(135deg, var(--color-primary) 0%, #1565C0 100%)',
+                            opacity: 0.1,
+                            zIndex: 0
+                        }}></div>
 
-                    {status.message && (
-                        <div style={{
-                            padding: '12px',
-                            borderRadius: '8px',
-                            marginBottom: '20px',
-                            fontSize: '14px',
-                            textAlign: 'center',
-                            fontWeight: '500',
-                            background: status.type === 'error' ? '#ffebee' : '#e8f5e9',
-                            color: status.type === 'error' ? '#c62828' : '#2e7d32',
-                            border: `1px solid ${status.type === 'error' ? '#ffcdd2' : '#c8e6c9'}`
-                        }}>
-                            {status.message}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-                        {/* Username (Read Only) */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: '600', color: '#34495e', textTransform: 'uppercase' }}>
-                                Usuário (Login)
-                            </label>
-                            <input
-                                type="text"
-                                value={username || ''}
-                                disabled
-                                style={{
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #e0e0e0',
-                                    background: '#f9f9f9',
-                                    color: '#7f8c8d',
-                                    fontSize: '15px',
-                                    cursor: 'not-allowed'
-                                }}
-                            />
-                        </div>
-
-                        {/* Name */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: '600', color: '#34495e', textTransform: 'uppercase' }}>
-                                Nome de Exibição
-                            </label>
-                            <input
-                                type="text"
-                                name="displayName"
-                                value={formData.displayName}
-                                onChange={handleChange}
-                                placeholder="Seu nome completo"
-                                style={{
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #dcdfe6',
-                                    fontSize: '15px',
-                                    color: '#2c3e50',
-                                    outline: 'none',
-                                    transition: 'border-color 0.2s'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                                onBlur={(e) => e.target.style.borderColor = '#dcdfe6'}
-                            />
-                        </div>
-
-                        <div style={{ height: '1px', background: '#eee', margin: '5px 0' }}></div>
-
-                        {/* New Password */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: '600', color: '#34495e', textTransform: 'uppercase' }}>
-                                Nova Senha (Opcional)
-                            </label>
-                            <input
-                                type="password"
-                                name="newPassword"
-                                value={formData.newPassword}
-                                onChange={handleChange}
-                                placeholder="Deixe em branco para manter a atual"
-                                style={{
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #dcdfe6',
-                                    fontSize: '15px',
-                                    color: '#2c3e50',
-                                    outline: 'none',
-                                    transition: 'border-color 0.2s'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                                onBlur={(e) => e.target.style.borderColor = '#dcdfe6'}
-                            />
-                        </div>
-
-                        {/* Confirm Password */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: '600', color: '#34495e', textTransform: 'uppercase' }}>
-                                Confirmar Nova Senha
-                            </label>
-                            <input
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                placeholder="Repita a nova senha"
-                                disabled={!formData.newPassword}
-                                style={{
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #dcdfe6',
-                                    fontSize: '15px',
-                                    color: '#2c3e50',
-                                    outline: 'none',
-                                    background: !formData.newPassword ? '#f9f9f9' : 'white',
-                                    transition: 'border-color 0.2s'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                                onBlur={(e) => e.target.style.borderColor = '#dcdfe6'}
-                            />
-                        </div>
-
-                        <div style={{ marginTop: '10px', display: 'flex', gap: '15px' }}>
-                            <button
-                                type="button"
-                                onClick={() => navigate(-1)}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #dcdfe6',
-                                    background: 'white',
-                                    color: '#555',
-                                    fontSize: '15px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseOver={(e) => e.target.style.background = '#f5f7fa'}
-                                onMouseOut={(e) => e.target.style.background = 'white'}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    background: '#3498db',
+                        <div style={{ textAlign: 'center', marginBottom: '30px', position: 'relative', zIndex: 1 }}>
+                            <div style={{
+                                width: '130px',
+                                height: '130px',
+                                borderRadius: '50%',
+                                background: 'var(--bg-card)',
+                                padding: '6px',
+                                margin: '0 auto 20px auto',
+                                boxShadow: 'var(--shadow-md)'
+                            }}>
+                                <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-primary)',
                                     color: 'white',
-                                    fontSize: '15px',
+                                    fontSize: '52px',
                                     fontWeight: '600',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 4px 12px rgba(52, 152, 219, 0.3)',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseOver={(e) => e.target.style.background = '#2980b9'}
-                                onMouseOut={(e) => e.target.style.background = '#3498db'}
-                            >
-                                Salvar Alterações
-                            </button>
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    overflow: 'hidden',
+                                    position: 'relative'
+                                }}>
+                                    {imagePreview || avatarUrl ? (
+                                        <img
+                                            src={imagePreview || avatarUrl}
+                                            alt="Profile"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        name ? name.charAt(0).toUpperCase() : (username ? username.charAt(0).toUpperCase() : 'U')
+                                    )}
+
+                                    <label htmlFor="avatar-upload" style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        background: 'rgba(0,0,0,0.6)',
+                                        color: 'white',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        padding: '6px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backdropFilter: 'blur(4px)'
+                                    }}>
+                                        {uploading ? '...' : 'ALTERAR'}
+                                    </label>
+                                    <input
+                                        id="avatar-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        style={{ display: 'none' }}
+                                    />
+                                </div>
+                            </div>
+                            <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: '26px', fontWeight: '800' }}>{formData.displayName || name}</h2>
+                            <p style={{ margin: '6px 0 0 0', color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>
+                                {userRole === 'admin' ? 'Administrador do Sistema' : 'Usuário'}
+                            </p>
                         </div>
-                    </form>
+
+                        {status.message && (
+                            <div style={{
+                                padding: '14px',
+                                borderRadius: '12px',
+                                marginBottom: '24px',
+                                fontSize: '14px',
+                                textAlign: 'center',
+                                fontWeight: '600',
+                                background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                                color: status.type === 'error' ? '#ef4444' : '#22c55e',
+                                border: `1px solid ${status.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)'}`
+                            }}>
+                                {status.message}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 1 }}>
+
+                            {/* Username (Read Only) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Usuário (Login)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={username || ''}
+                                    disabled
+                                    style={{
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-color)',
+                                        background: 'var(--bg-input)',
+                                        color: 'var(--text-muted)',
+                                        fontSize: '15px',
+                                        fontWeight: '500',
+                                        cursor: 'not-allowed'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Name */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Nome de Exibição
+                                </label>
+                                <input
+                                    type="text"
+                                    name="displayName"
+                                    value={formData.displayName}
+                                    onChange={handleChange}
+                                    placeholder="Seu nome completo"
+                                    style={{
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-input)',
+                                        background: 'var(--bg-input)',
+                                        fontSize: '15px',
+                                        color: 'var(--text-main)',
+                                        outline: 'none',
+                                        transition: 'all 0.2s',
+                                        fontWeight: '500'
+                                    }}
+                                    className="input-focus"
+                                />
+                            </div>
+
+                            <div style={{ height: '1px', background: 'var(--border-color)', margin: '10px 0', opacity: 0.5 }}></div>
+
+                            {/* New Password */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Nova Senha (Opcional)
+                                </label>
+                                <input
+                                    type="password"
+                                    name="newPassword"
+                                    value={formData.newPassword}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    style={{
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-input)',
+                                        background: 'var(--bg-input)',
+                                        fontSize: '15px',
+                                        color: 'var(--text-main)',
+                                        outline: 'none',
+                                        transition: 'all 0.2s',
+                                        fontWeight: '500'
+                                    }}
+                                    className="input-focus"
+                                />
+                            </div>
+
+                            {/* Confirm Password */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Confirmar Nova Senha
+                                </label>
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    disabled={!formData.newPassword}
+                                    style={{
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-input)',
+                                        background: 'var(--bg-input)',
+                                        fontSize: '15px',
+                                        color: 'var(--text-main)',
+                                        outline: 'none',
+                                        opacity: !formData.newPassword ? 0.6 : 1,
+                                        transition: 'all 0.2s',
+                                        fontWeight: '500'
+                                    }}
+                                    className="input-focus"
+                                />
+                            </div>
+
+                            <div style={{ marginTop: '20px', display: 'flex', gap: '16px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/menu')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-color)',
+                                        background: 'var(--bg-card)',
+                                        color: 'var(--text-main)',
+                                        fontSize: '15px',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                        boxShadow: 'var(--shadow-sm)'
+                                    }}
+                                    onMouseOver={(e) => {
+                                        e.target.style.background = 'var(--bg-input)';
+                                        e.target.style.transform = 'translateY(-2px)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.target.style.background = 'var(--bg-card)';
+                                        e.target.style.transform = 'translateY(0)';
+                                    }}
+                                >
+                                    Voltar
+                                </button>
+                                <button
+                                    type="submit"
+                                    style={{
+                                        flex: 2,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        border: 'none',
+                                        background: 'var(--color-primary)',
+                                        color: 'white',
+                                        fontSize: '15px',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(30, 136, 229, 0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => {
+                                        e.target.style.opacity = '0.9';
+                                        e.target.style.transform = 'translateY(-2px)';
+                                        e.target.style.boxShadow = '0 6px 16px rgba(30, 136, 229, 0.4)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.target.style.opacity = '1';
+                                        e.target.style.transform = 'translateY(0)';
+                                        e.target.style.boxShadow = '0 4px 12px rgba(30, 136, 229, 0.3)';
+                                    }}
+                                >
+                                    Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <style>{`
+                .input-focus:focus {
+                    border-color: var(--color-primary) !important;
+                    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+                }
+            `}</style>
         </div>
     );
 };

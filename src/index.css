@@ -1,7 +1,7 @@
 :root {
-    /* ZEPHCORE Palette */
+    /* ZCORE Palette */
     --color-primary: #1E88E5;
-    /* ZEPHCORE Blue */
+    /* ZCORE Blue */
     --color-primary-hover: #1976D2;
     --color-green-topbar: #26C6DA;
     /* Cyan Accent */
@@ -9,19 +9,26 @@
     /* Dark text/footer */
     --color-accent: #26C6DA;
     /* Cyan Accent */
-    --color-zephcore-blue: #1565C0;
+    --color-zcore-blue: #1565C0;
     /* Deep Blue */
 
-    --bg-main: #FAFAFA;
-    /* Light gray background */
-    --bg-card: #FFFFFF;
-    --bg-input: #FFFFFF;
+    /* Light Mode (Default) */
+    --bg-main: #f5f7fa;
+    /* Light Gray Background */
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-header: rgba(255, 255, 255, 0.85);
+    /* Light Header */
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    /* Hover State */
 
-    --text-main: #1A1A1A;
-    --text-muted: #666666;
-    --text-light: #FFFFFF;
+    --text-main: #2c3e50;
+    /* Dark Text for Light Mode */
+    --text-muted: #607d8b;
+    --text-light: #333333;
 
-    --border-color: #E5E7EB;
+    --border-color: #e0e0e0;
+    --border-input: #cfd8dc;
 
     --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --radius: 4px;
@@ -31,6 +38,119 @@
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-menu: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* Glassmorphism Tokens (Default/Light) */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    /* Frosted glass for light mode */
+    --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    --glass-blur: blur(20px);
+    --glass-radius: 24px;
+}
+
+[data-theme='dark'] {
+    /* Dark Mode Overrides - Antigravity Lighter Palette */
+    /* --bg-main: #202020;  REPLACED WITH GRADIENT BELOW */
+    --bg-main: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000000 100%);
+
+    /* Glassmorphism Tokens (Dark) */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+    /* Standard UI Tokens mapped to Glass */
+    --bg-card: var(--glass-bg);
+    --bg-input: rgba(0, 0, 0, 0.3);
+    /* Darker semi-transparent for inputs */
+    --bg-header: var(--glass-bg);
+    /* Match Card */
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    /* Hover State Dark */
+
+    --text-main: #e0e0e0;
+    /* Brighter Text */
+    --text-muted: #a0a0a0;
+    /* Lighter Muted */
+    --text-light: #ffffff;
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    /* Visible but subtle border */
+    --border-input: rgba(255, 255, 255, 0.1);
+}
+
+/* --- NEBULA BACKGROUND ANIMATION --- */
+.nebula-bg-container {
+    background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.nebula-blob {
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    filter: blur(80px);
+    /* Slightly sharper blur for more definition */
+    opacity: 0.6;
+    /* Increased opacity from 0.4 */
+    mix-blend-mode: screen;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.blob-1 {
+    background: radial-gradient(circle, #0ea5e9 0%, transparent 70%);
+    top: -10%;
+    left: -10%;
+    animation: nebula-float 25s infinite alternate ease-in-out;
+}
+
+.blob-2 {
+    background: radial-gradient(circle, #1e3a8a 0%, transparent 70%);
+    bottom: -20%;
+    right: -10%;
+    animation: nebula-float 30s infinite alternate-reverse ease-in-out;
+}
+
+.blob-3 {
+    background: radial-gradient(circle, #312e81 0%, transparent 70%);
+    top: 20%;
+    right: 15%;
+    animation: nebula-float 20s infinite alternate-reverse ease-in-out;
+}
+
+.nebula-star-layer {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 1px),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 1px);
+    background-size: 100px 100px;
+    opacity: 0.3;
+}
+
+@keyframes nebula-float {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate3d(5vw, 8vh, 0) scale(1.1);
+    }
+
+    100% {
+        transform: translate3d(-3vw, -5vh, 0) scale(0.9);
+    }
+}
+
+@media (max-width: 768px) {
+    .nebula-blob {
+        width: 100vw;
+        height: 100vw;
+    }
 }
 
 * {
@@ -39,14 +159,30 @@
     padding: 0;
 }
 
+html {
+    background: var(--bg-main);
+    background-attachment: fixed;
+    /* Ensure gradient doesn't scroll away */
+}
+
 body {
     margin: 0;
     padding: 0;
     font-family: var(--font-main);
-    background-color: var(--bg-main);
+    background: var(--bg-main);
+    background-attachment: fixed;
     color: var(--text-main);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    transition: background-color 0.3s ease;
+    /* Smooth transition */
+
+    /* Noise Texture - Disabled for Flat "Antigravity" Look */
+    /* background-image: url('/noise.svg');
+    background-repeat: repeat;
+    background-size: 100px 100px;
+    background-blend-mode: overlay; */
 }
 
 /* Utilities */
@@ -81,7 +217,328 @@ body {
     background: #a8a8a8;
 }
 
+/* Hide Scrollbar Utility */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 /* Global Button Styles to match */
 button {
     font-family: var(--font-main);
+}
+
+/* Print Styles */
+@media screen {
+    .print-only {
+        display: none !important;
+    }
+}
+
+@media print {
+    @page {
+        size: landscape;
+        margin: 5mm;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Container adjustments */
+    .print-only {
+        display: block !important;
+        /* Ensure print-only elements are visible */
+    }
+
+    .print-only,
+    .print-only .table-container {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* KPI Section Print Optimization */
+    .kpi-section {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+        padding: 10px 0 !important;
+        background: none !important;
+        border: none !important;
+        break-inside: avoid !important;
+    }
+
+    .kpi-section>div {
+        flex: 1 !important;
+        padding: 10px !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+
+    /* Optimize Table for Print */
+    .print-only table {
+        width: 100% !important;
+        font-size: 11px !important;
+        /* Larger font as requested */
+        border: 1px solid #000 !important;
+    }
+
+    .print-only th,
+    .print-only td {
+        padding: 4px 6px !important;
+        /* Slightly more padding */
+        border: 1px solid #999 !important;
+        font-size: 11px !important;
+        /* Consistent larger font */
+        white-space: nowrap !important;
+        /* Prevent wrapping if possible */
+    }
+
+    /* Allow wrapping for Name column only */
+    .print-only td:first-child {
+        white-space: normal !important;
+        max-width: 180px !important;
+    }
+
+    /* Ensure specific headers/cells override inline styles */
+    .print-only th {
+        background-color: #666 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Ensure background colors are printed */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        background: white;
+        font-size: 11pt;
+    }
+}
+
+/* Export Buttons */
+.btn-export-print {
+    background: white !important;
+    color: #334155 !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s;
+}
+
+.btn-export-print:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .btn-export-print {
+    background: #000000 !important;
+    color: white !important;
+    border: 1px solid #333 !important;
+}
+
+[data-theme='dark'] .btn-export-print:hover {
+    background: #333 !important;
+    border-color: #555 !important;
+}
+
+.btn-export-excel {
+    background: white !important;
+    color: #16a34a !important;
+    border: 1px solid #bbf7d0 !important;
+    transition: all 0.2s;
+}
+
+.btn-export-excel:hover {
+    background: #f0fdf4 !important;
+}
+
+[data-theme='dark'] .btn-export-excel {
+    background: #000000 !important;
+    color: #2ecc71 !important;
+    /* Brighter green for dark mode */
+    border: 1px solid #333 !important;
+}
+
+[data-theme='dark'] .btn-export-excel:hover {
+    background: #333 !important;
+    border-color: #555 !important;
+}
+
+/* Insights Button */
+.btn-insights {
+    padding: 8px 16px !important;
+    background: var(--color-primary) !important;
+    color: white !important;
+    border: 1px solid var(--color-primary) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.btn-insights:hover {
+    transform: translateY(-2px);
+}
+
+[data-theme='dark'] .btn-insights {
+    background: #7c3aed !important;
+    color: white !important;
+    border: 1px solid #7c3aed !important;
+}
+
+[data-theme='dark'] .btn-insights:hover {
+    background: #6d28d9 !important;
+    border-color: #6d28d9 !important;
+}
+
+/* React Grid Layout Styles */
+.react-grid-layout {
+    position: relative;
+    transition: height 200ms ease;
+}
+
+.react-grid-item {
+    transition: all 200ms ease;
+    transition-property: left, top;
+}
+
+.react-grid-item img {
+    pointer-events: none;
+    user-select: none;
+}
+
+.react-grid-item.cssTransforms {
+    transition-property: transform;
+}
+
+.react-grid-item.resizing {
+    z-index: 100;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.react-grid-item.react-grid-placeholder {
+    background: rgba(37, 99, 235, 0.2) !important;
+    opacity: 0.5;
+    border-radius: 24px;
+    z-index: 2;
+}
+
+.react-resizable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+    z-index: 10;
+}
+
+.react-resizable-handle::after {
+    content: "";
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid rgba(0, 0, 0, 0.4);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .react-resizable-handle::after {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Edit Mode Overlay */
+.grid-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px dashed #2563EB;
+    border-radius: 24px;
+    pointer-events: none;
+    z-index: 5;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 768px) {
+
+    /* 1. Header Adjustments */
+    .header-container {
+        left: 0 !important;
+        width: 100% !important;
+        padding-left: 15px !important;
+    }
+
+    .mobile-menu-toggle {
+        display: block !important;
+    }
+
+    /* 2. Sidebar Adjustments */
+    .sidebar-container {
+        position: fixed !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 2100 !important;
+        /* Above everything */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        width: 280px !important;
+        /* Fixed drawer width */
+        min-width: 280px !important;
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Closed State on Mobile */
+    .sidebar-container.sidebar-collapsed {
+        transform: translateX(-100%) !important;
+        width: 280px !important;
+    }
+
+    /* Open State on Mobile */
+    .sidebar-container.sidebar-expanded {
+        transform: translateX(0) !important;
+    }
+
+    /* Overlay Backdrop using ::before on layout or body might be better, 
+       but let's try styling sidebar itself or sibling. 
+       Actually, `Sidebar` component doesn't have an overlay element.
+       I will rely on clicking outside (which Header logic might handle if we add a ref).
+    */
+
+    /* 3. Content Adjustments */
+    .post-auth-layout {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 60px !important;
+    }
+
+    /* 4. Menu Grid Adjustments (Safety Net) */
+    .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        /* 3 columns on mobile */
+    }
+
+    /* 5. Table Adjustments - Ensure tables scroll horizontally */
+    .table-container {
+        padding: 10px !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }

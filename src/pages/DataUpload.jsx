@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -180,7 +180,7 @@ const DataUpload = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#f1f5f9' }}>
-            <Header />
+
 
             <div style={{ padding: '40px 20px', maxWidth: '1000px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '32px' }}>

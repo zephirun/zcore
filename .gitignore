@@ -43,3 +43,5 @@ Project_Structure.pdf
 generate_structure_pdf_CODE.pdf
 temp_filter_section.txt
 app_routes_additions.txt
+.vercel
+.env*.local

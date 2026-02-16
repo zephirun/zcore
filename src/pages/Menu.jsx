@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { allModules, categories } from '../config/menuConfig';
 
 const Typewriter = ({ texts, color, onComplete }) => {
@@ -32,53 +30,86 @@ const Typewriter = ({ texts, color, onComplete }) => {
                     setCurrentLine(prev => prev + 1);
                 }, 400);
             }
-        }, 40);
+        }, 30);
 
         return () => clearInterval(typingInterval);
-    }, [currentLine, texts]);
+    }, [currentLine, JSON.stringify(texts)]);
 
     return (
         <div style={{
-            marginBottom: '20px',
+            marginBottom: '10px',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center', // Centered for compact view
+            alignItems: 'center',
             textAlign: 'center',
             padding: '0 20px',
+            minHeight: '65px'
         }}>
             <h1 style={{
-                fontSize: '22px',
+                fontSize: '24px',
                 fontWeight: '800',
-                color: '#1A1A1A',
+                color: 'var(--text-main)',
                 margin: '0 0 5px 0',
                 letterSpacing: '-0.02em',
-                fontFamily: 'var(--font-main)'
+                fontFamily: 'var(--font-main)',
+                minHeight: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
             }}>
                 {displayedText[0]}
                 {currentLine === 0 && isTyping && <span className="typewriter-cursor">|</span>}
+                {!isTyping && displayedText[0] && (
+                    <span style={{
+                        display: 'inline-block',
+                        animation: 'wave 2s infinite',
+                        transformOrigin: '70% 70%'
+                    }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E88E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"></path>
+                            <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v11"></path>
+                            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
+                            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+                        </svg>
+                    </span>
+                )}
             </h1>
             <p style={{
-                fontSize: '15px',
-                color: '#666',
+                fontSize: '16px',
+                color: 'var(--text-muted)',
                 margin: 0,
                 fontWeight: '500',
-                fontFamily: 'var(--font-main)'
+                fontFamily: 'var(--font-main)',
+                minHeight: '24px'
             }}>
                 {displayedText[1]}
                 {currentLine === 1 && isTyping && <span className="typewriter-cursor">|</span>}
             </p>
             <style>{`
                 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+                @keyframes wave {
+                    0% { transform: rotate( 0.0deg) }
+                    10% { transform: rotate(14.0deg) }
+                    20% { transform: rotate(-8.0deg) }
+                    30% { transform: rotate(14.0deg) }
+                    40% { transform: rotate(-4.0deg) }
+                    50% { transform: rotate(10.0deg) }
+                    60% { transform: rotate( 0.0deg) }
+                    100% { transform: rotate( 0.0deg) }
+                }
                 .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: ${color || '#1E88E5'}; animation: blink 0.8s infinite; }
             `}</style>
         </div>
     );
 };
 
+
+
 const Menu = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { userRole, allowedModules, name } = useData();
+    const { userRole, allowedModules, name, theme } = useData();
 
     // Check if 'category' param exists, otherwise default to first category
     const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || categories[0].id);
@@ -91,6 +122,23 @@ const Menu = () => {
         setActiveCategory(id);
     };
 
+    // Filter categories based on user access
+    const visibleCategories = categories.filter(cat => {
+        const categoryModules = allModules.filter(m => m.category === cat.id);
+        if (categoryModules.length === 0) return false;
+
+        return categoryModules.some(m =>
+            userRole === 'admin' || (allowedModules && allowedModules.includes(m.id))
+        );
+    });
+
+    // Ensure active category is valid
+    useEffect(() => {
+        if (visibleCategories.length > 0 && !visibleCategories.find(c => c.id === activeCategory)) {
+            setActiveCategory(visibleCategories[0].id);
+        }
+    }, [activeCategory, visibleCategories]);
+
     const activeCategoryData = categories.find(c => c.id === activeCategory);
 
     const currentModules = allModules.filter(m =>
@@ -102,21 +150,19 @@ const Menu = () => {
         <div style={{
             minHeight: '100vh',
             fontFamily: 'var(--font-main)',
-            background: '#FAFAFA',
+            background: 'var(--bg-main)',
+            color: 'var(--text-main)',
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <Header />
-
             <div style={{
                 flex: 1,
                 width: '100%',
-                maxWidth: '1600px', // Increased width (was 1200px)
+                maxWidth: '1800px',
                 margin: '0 auto',
-                padding: '30px 20px'
+                padding: '20px 20px'
             }}>
-
-                {/* Welcome */}
+                {/* Welcome - Animated with Stability */}
                 <Typewriter
                     texts={[
                         `Olá, ${name ? name.split(' ')[0] : 'Administrador'}!`,
@@ -125,16 +171,18 @@ const Menu = () => {
                     color={activeCategoryData?.color}
                 />
 
-                {/* CATEGORY GRID - WRAPPED & CENTERED (No Scrollbar) */}
-                <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap', // Key change: Wrap items
-                    justifyContent: 'center', // Center items
-                    gap: '16px', // Consistent gap
-                    padding: '20px 0 30px 0',
-                    marginBottom: '10px'
-                }}>
-                    {categories.map(cat => {
+                {/* CATEGORY GRID - WRAPPED & CENTERED */}
+                <div
+                    className="category-grid"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(5, 1fr)', // Fixed 5 columns on Desktop
+                        gap: '12px',
+                        padding: '10px 0 30px 0',
+                        maxWidth: '1200px',
+                        margin: '0 auto'
+                    }}>
+                    {visibleCategories.map(cat => {
                         const isActive = activeCategory === cat.id;
                         return (
                             <div
@@ -142,47 +190,54 @@ const Menu = () => {
                                 onClick={() => handleCategoryClick(cat.id)}
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '8px',
+                                    alignItems: 'center', // Horizontal alignment
                                     cursor: 'pointer',
-                                    width: '100px', // Fixed width for consistent grid alignment
-                                    transition: 'all 0.2s ease'
+                                    gap: '12px',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    background: isActive ? cat.color : 'var(--bg-card)',
+                                    border: isActive ? 'none' : '1px solid var(--border-color)',
+                                    color: isActive ? 'white' : 'var(--text-main)',
+                                    boxShadow: isActive
+                                        ? `0 4px 12px -3px ${cat.color}66`
+                                        : 'var(--shadow-sm)',
+                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    transform: isActive ? 'translateY(-2px)' : 'translateY(0)',
+                                    minHeight: '60px' // Rectangular shape
+                                }}
+                                onMouseEnter={e => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.borderColor = cat.color;
+                                        e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                                    }
+                                }}
+                                onMouseLeave={e => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.borderColor = 'var(--border-color)';
+                                        e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+                                    }
                                 }}
                             >
-                                {/* Circle Icon - Compact */}
-                                <div style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    borderRadius: '50%',
-                                    // Active: Category Color
-                                    background: isActive ? cat.color : '#F5F5F5',
-                                    // Active: No Border | Inactive: Light Gray Border
-                                    border: isActive ? 'none' : '1px solid #E5E5E5',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    // Active: White Icon | Inactive: Dark Gray
-                                    color: isActive ? 'white' : '#333333',
-                                    // Active: Shadow using category color
-                                    boxShadow: isActive ? `0 10px 20px -5px ${cat.color}66` : 'none',
-                                    transition: 'all 0.2s ease',
-                                    transform: isActive ? 'scale(1.1)' : 'scale(1)'
-                                }}>
-                                    {React.cloneElement(cat.icon, { width: 34, height: 34, strokeWidth: 1.2 })}
+                                {/* Icon (Simplified) */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: isActive ? 'white' : cat.color,
+                                        flexShrink: 0
+                                    }}>
+                                    {React.cloneElement(cat.icon, { width: 24, height: 24, strokeWidth: 2 })}
                                 </div>
-                                {/* Label - Compact */}
+                                {/* Label */}
                                 <span style={{
-                                    fontSize: '14px',
-                                    fontWeight: isActive ? '700' : '500',
-                                    color: isActive ? cat.color : '#333',
-                                    textAlign: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: '700',
                                     lineHeight: '1.2',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
+                                    color: isActive ? 'white' : 'var(--text-main)',
+                                    whiteSpace: 'nowrap',
                                     overflow: 'hidden',
-                                    height: '34px' // Increased from 30px
+                                    textOverflow: 'ellipsis'
                                 }}>
                                     {cat.name}
                                 </span>
@@ -191,159 +246,197 @@ const Menu = () => {
                     })}
                 </div>
 
-                {/* MODULES GRID - RESPONSIVE */}
-                <div style={{
-                    display: 'grid',
-                    // Responsive grid: wider cards for better fill
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                    gap: '24px',
-                    padding: '10px 0'
-                }}>
+                {/* MODULES GRID - RESPONSIVE & ANIMATED */}
+                <div
+                    className="menu-grid"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', // Wider blocks for Desktop (prevents too many cols)
+                        justifyContent: 'center',
+                        gap: '16px', // Tighter gap
+                        padding: '10px 0',
+                        animation: 'fadeInUp 0.5s ease-out'
+                    }}>
                     {currentModules.map((module, index) => {
-                        // STATIC GRAY ICON COLOR
                         const iconColor = '#555555';
-
                         return (
-                            <ModuleCard
-                                key={module.id}
-                                module={module}
-                                iconColor={iconColor}
-                                buttonColor={activeCategoryData?.color || '#1E88E5'}
-                                onClick={(m) => {
-                                    if (m.path.startsWith('http')) window.open(m.path, '_blank');
-                                    else navigate(m.path);
-                                }}
-                            />
+                            <div key={module.id} style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.05}s backwards` }}>
+                                <ModuleCard
+                                    module={module}
+                                    iconColor={iconColor}
+                                    buttonColor={activeCategoryData?.color || '#1E88E5'} // Use category color for hover border/icon
+                                    isDark={theme === 'dark'}
+                                    onClick={(m) => {
+                                        if (m.path.startsWith('http')) window.open(m.path, '_blank');
+                                        else navigate(m.path);
+                                    }}
+                                />
+                            </div>
                         );
                     })}
                 </div>
 
                 {currentModules.length === 0 && (
-                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                         Nenhum módulo encontrado nesta categoria.
                     </div>
                 )}
-
             </div>
-            <Footer />
+
+            <style>{`
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </div >
     );
 };
 
-// COMPACT E-COMMERCE PRODUCT CARD STYLE
-const ModuleCard = ({ module, iconColor, buttonColor, onClick }) => {
+// PROFESSIONAL MODULE CARD (BLOCK STYLE)
+// PROFESSIONAL MODULE CARD (BLOCK STYLE)
+const ModuleCard = ({ module, iconColor, buttonColor, isDark, onClick }) => {
+    const isComingSoon = module.status === 'coming-soon';
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Mouse Position State for Spotlight Effect
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const cardRef = useRef(null);
+
+    const handleMouseMove = (e) => {
+        if (cardRef.current) {
+            const rect = cardRef.current.getBoundingClientRect();
+            setMousePosition({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            });
+        }
+    };
+
     return (
         <div
-            onClick={() => module.status !== 'coming-soon' && onClick(module)}
+            ref={cardRef}
+            onClick={() => !isComingSoon && onClick(module)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onMouseMove={handleMouseMove}
             style={{
-                background: 'white',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                padding: '16px',
-                cursor: module.status === 'coming-soon' ? 'not-allowed' : 'pointer',
-                opacity: 1,
+                borderRadius: '16px',
+                padding: '2px', // Space for border gradient/spotlight
                 position: 'relative',
+                overflow: 'hidden',
+                cursor: isComingSoon ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isHovered && !isComingSoon ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)',
+                // Base background + Spotlight Gradient
+                background: isHovered && !isComingSoon
+                    ? `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}40, transparent 40%), var(--bg-card)`
+                    : 'var(--bg-card)',
+                boxShadow: isHovered && !isComingSoon
+                    ? `0 20px 40px -10px ${buttonColor}40, 0 0 0 1px ${buttonColor}20`
+                    : 'var(--shadow-sm)',
+                zIndex: isHovered ? 10 : 1,
+                minHeight: '160px',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
+            }}
+        >
+            {/* INNER CONTENT CONTAINER */}
+            <div style={{
+                background: 'var(--bg-card)', // Solid background to cover the "border" padding
+                borderRadius: '14px', // Slightly smaller than parent
+                width: '100%',
+                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '12px',
-                transition: 'all 0.2s ease',
-                minHeight: '280px',
-            }}
-            onMouseEnter={e => {
-                if (module.status !== 'coming-soon') {
-                    e.currentTarget.style.boxShadow = '0 15px 20px -5px rgba(0,0,0,0.1)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                }
-            }}
-            onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-            }}
-        >
-            {/* 1. HERO IMAGE (ICON) - COMPACT */}
-            <div style={{
-                height: '110px',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '4px'
+                gap: '16px',
+                position: 'relative',
+                zIndex: 2,
+                padding: '24px 20px',
+                // Optional: Very subtle spotlight inside the card too
+                backgroundImage: isHovered && !isComingSoon
+                    ? `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}10, transparent 40%)`
+                    : 'none'
             }}>
-                {/* Smaller Icon */}
-                <div style={{ color: iconColor, filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}>
-                    {React.cloneElement(module.icon, { width: 70, height: 70, strokeWidth: 1 })}
-                </div>
-            </div>
 
-            {/* 2. BADGE (Cleaned Up) */}
-            {module.status === 'coming-soon' ? (
-                <span style={{
-                    fontSize: '9px', fontWeight: '800',
-                    color: 'white', background: '#94a3b8',
-                    padding: '3px 10px', borderRadius: '10px',
-                    textTransform: 'uppercase', marginBottom: '2px'
+                {/* Top Accent Line (Fixed) */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0, left: '20px', right: '20px',
+                    height: '4px',
+                    background: isComingSoon ? 'var(--border-color)' : (isHovered ? buttonColor : 'transparent'),
+                    borderRadius: '0 0 4px 4px',
+                    transition: 'background 0.3s ease',
+                    boxShadow: isHovered ? `0 2px 8px ${buttonColor}66` : 'none'
+                }} />
+
+                {/* Background Watermark Icon (Subtle) */}
+                <div style={{
+                    position: 'absolute',
+                    right: '-20px',
+                    bottom: '-30px',
+                    opacity: isHovered ? 0.08 : 0.03,
+                    transform: isHovered ? 'rotate(-15deg) scale(1.2)' : 'rotate(0deg) scale(1)',
+                    transition: 'all 0.5s ease',
+                    color: buttonColor,
+                    pointerEvents: 'none',
+                    zIndex: 0
                 }}>
-                    EM BREVE
-                </span>
-            ) : (
-                // Spacer for alignment
-                <div style={{ height: '19px', marginBottom: '2px' }}></div>
-            )}
+                    {React.cloneElement(module.icon, { width: 120, height: 120, strokeWidth: 1 })}
+                </div>
 
-            {/* 3. TITLE (Uppercase Product Name) - COMPACT */}
-            <h3 style={{
-                fontSize: '17px', // Increased from 15px
-                fontWeight: '700',
-                color: '#1A1A1A',
-                textAlign: 'center',
-                textTransform: 'uppercase',
-                margin: 0,
-                maxWidth: '100%',
-                lineHeight: '1.3',
-                fontFamily: 'var(--font-main)'
-            }}>
-                {module.title}
-            </h3>
+                {/* ICON - Professional container */}
+                <div style={{
+                    color: isComingSoon ? 'var(--text-muted)' : (isHovered ? buttonColor : 'var(--text-main)'),
+                    filter: isComingSoon ? 'grayscale(100%)' : 'none',
+                    transition: 'all 0.3s ease',
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                    background: isComingSoon ? 'transparent' : `${buttonColor}15`,
+                    padding: '12px',
+                    borderRadius: '12px'
+                }}>
+                    {React.cloneElement(module.icon, { width: 32, height: 32, strokeWidth: 1.5 })}
+                </div>
 
-            {/* 4. PRICE/SUBTITLE AREA - COMPACT */}
-            <p style={{
-                fontSize: '12px',
-                color: '#64748b',
-                textAlign: 'center',
-                margin: 0,
-                fontFamily: 'var(--font-main)',
-                fontWeight: '500',
-                minHeight: '36px',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden'
-            }}>
-                {module.subtitle}
-            </p>
+                {/* BADGE (Smaller - Minimalist) */}
+                {isComingSoon && (
+                    <span style={{
+                        fontSize: '9px', fontWeight: '700',
+                        color: 'var(--text-muted)',
+                        border: '1px solid var(--border-color)',
+                        padding: '2px 8px', borderRadius: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        zIndex: 1,
+                        background: 'var(--bg-main)'
+                    }}>
+                        Em Breve
+                    </span>
+                )}
 
-            {/* 5. ACTION BUTTON (Bottom, Full Width) - COMPACT */}
-            <button style={{
-                width: '100%',
-                marginTop: 'auto',
-                padding: '10px',
-                background: buttonColor,
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '13px',
-                fontWeight: '700',
-                cursor: module.status === 'coming-soon' ? 'not-allowed' : 'pointer',
-                transition: 'background 0.2s',
-                textTransform: 'none'
-            }}
-                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(0.9)'}
-                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-            >
-                {module.status === 'coming-soon' ? 'Aguarde' : 'Acessar'}
-            </button>
-
+                {/* TITLE - Professional Typography */}
+                <h3 style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: 'var(--text-main)',
+                    textAlign: 'center',
+                    margin: 0,
+                    lineHeight: '1.4',
+                    fontFamily: 'var(--font-main)',
+                    zIndex: 1,
+                    maxWidth: '100%',
+                    letterSpacing: '-0.01em'
+                }}>
+                    {module.title}
+                </h3>
+            </div>
         </div>
     );
 };

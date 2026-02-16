@@ -10,18 +10,18 @@ const KPICard = ({ type, label, value, icon, subtitle }) => {
 
     return (
         <div style={{
-            background: 'white',
+            background: 'var(--bg-card)',
             padding: '20px',
             borderRadius: '8px',
-            border: '1px solid #e0e0e0',
+            border: '1px solid var(--border-color)',
             borderLeft: `4px solid ${colors[type] || '#ccc'}`,
             display: 'flex',
             flexDirection: 'column',
             gap: '5px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            boxShadow: 'var(--shadow-card)'
         }}>
             <div style={{
-                color: '#7f8c8d',
+                color: 'var(--text-muted)',
                 fontSize: '11px',
                 fontWeight: '600',
                 textTransform: 'uppercase',
@@ -36,14 +36,14 @@ const KPICard = ({ type, label, value, icon, subtitle }) => {
             <div style={{
                 fontSize: '24px',
                 fontWeight: '700',
-                color: '#2C3E50'
+                color: 'var(--text-main)'
             }}>
                 {value}
             </div>
             {subtitle && (
                 <div style={{
                     fontSize: '11px',
-                    color: '#95a5a6',
+                    color: 'var(--text-muted)',
                     marginTop: '2px'
                 }}>
                     {subtitle}
@@ -60,8 +60,8 @@ const KPICards = ({ totals, extraInfo }) => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '20px',
             padding: '25px 40px',
-            background: '#f8f9fa',
-            borderBottom: '1px solid #e0e0e0'
+            background: 'var(--bg-input)',
+            borderBottom: '1px solid var(--border-color)'
         }}>
             <KPICard
                 type="revenue"

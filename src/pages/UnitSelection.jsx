@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const UnitSelection = () => {
     const { switchUnit, allowedUnit, userRole, AVAILABLE_UNITS } = useData();
@@ -21,96 +19,116 @@ const UnitSelection = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            background: '#f1f5f9', // Updated to cleaner background
-            fontFamily: 'var(--font-main)'
+            background: 'var(--bg-main)',
+            color: 'var(--text-main)',
+            fontFamily: 'var(--font-main)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
         }}>
-            <Header />
-
             <div style={{
-                height: 'calc(100vh - 70px)', // Adjusted for new header height
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                background: 'var(--bg-card)',
+                width: '100%',
+                maxWidth: '600px',
+                padding: '48px',
+                borderRadius: '24px',
+                boxShadow: 'var(--shadow-lg)',
+                border: '1px solid var(--border-color)',
+                textAlign: 'center'
             }}>
-                <div style={{
-                    background: 'white',
-                    width: '100%',
-                    maxWidth: '500px',
-                    padding: '40px',
-                    borderRadius: '24px', // More rounded corners
-                    boxShadow: '0 20px 40px -15px rgba(0,0,0,0.08)',
-                    margin: '20px',
-                    border: '1px solid #f1f5f9'
-                }}>
-                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                        <h2 style={{
-                            color: '#1e293b',
-                            fontSize: '24px',
-                            fontWeight: '800',
-                            marginBottom: '8px',
-                            letterSpacing: '-0.02em'
-                        }}>
-                            Selecione sua empresa
-                        </h2>
-                        <p style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
-                            Escolha uma unidade para acessar o painel
-                        </p>
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        width: '64px', height: '64px', margin: '0 auto 24px',
+                        background: 'var(--bg-input)', borderRadius: '16px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4" />
+                        </svg>
                     </div>
+                    <h2 style={{
+                        color: 'var(--text-main)',
+                        fontSize: '28px',
+                        fontWeight: '800',
+                        marginBottom: '12px',
+                        letterSpacing: '-0.02em'
+                    }}>
+                        Selecione a Unidade
+                    </h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontWeight: '500' }}>
+                        Escolha uma filial para acessar o ambiente de trabalho
+                    </p>
+                </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {units.map(unit => (
-                            <button
-                                key={unit.id}
-                                onClick={() => handleUnitClick(unit.id)}
-                                style={{
-                                    padding: '20px 24px',
-                                    borderRadius: '16px',
-                                    background: 'white',
-                                    border: '1px solid #e2e8f0',
-                                    cursor: 'pointer',
-                                    color: '#334155',
-                                    fontSize: '16px',
+                <div style={{ display: 'grid', gap: '16px' }}>
+                    {units.map(unit => (
+                        <button
+                            key={unit.id}
+                            onClick={() => handleUnitClick(unit.id)}
+                            className="unit-card"
+                            style={{
+                                padding: '24px',
+                                borderRadius: '16px',
+                                background: 'var(--bg-input)',
+                                border: '1px solid var(--border-input)',
+                                cursor: 'pointer',
+                                color: 'var(--text-main)',
+                                textAlign: 'left',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', zIndex: 2 }}>
+                                <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '10px',
+                                    background: unit.id === 'madville' ? '#1E88E5' : '#43A047',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: 'white',
                                     fontWeight: '700',
-                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    textAlign: 'left',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.borderColor = '#2563eb';
-                                    e.currentTarget.style.background = '#f8fafc';
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(37,99,235,0.1)';
-                                    e.currentTarget.style.color = '#2563eb';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = '#e2e8f0';
-                                    e.currentTarget.style.background = 'white';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
-                                    e.currentTarget.style.color = '#334155';
-                                }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{
-                                        width: '8px',
-                                        height: '8px',
-                                        borderRadius: '50%',
-                                        background: unit.id === 'madville' ? '#2563eb' : '#16a34a'
-                                    }}></div>
-                                    {unit.name}
+                                    fontSize: '14px',
+                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                }}>
+                                    {unit.id.substring(0, 1).toUpperCase()}
                                 </div>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
-                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.01em' }}>{unit.name}</span>
+                                </div>
+                            </div>
+
+                            <div className="arrow-icon" style={{
+                                color: 'var(--text-muted)',
+                                transform: 'translateX(0)',
+                                transition: 'transform 0.2s',
+                                position: 'relative', zIndex: 2
+                            }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
                                 </svg>
-                            </button>
-                        ))}
-                    </div>
+                            </div>
+                        </button>
+                    ))}
                 </div>
             </div>
-            <Footer />
+            <style>{`
+                .unit-card:hover {
+                    border-color: var(--color-primary) !important;
+                    background: var(--bg-card) !important;
+                    box-shadow: var(--shadow-md) !important;
+                    transform: translateY(-2px);
+                }
+                .unit-card:hover .arrow-icon {
+                    color: var(--color-primary) !important;
+                    transform: translateX(4px) !important;
+                }
+            `}</style>
         </div>
     );
 };

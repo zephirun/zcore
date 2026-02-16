@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import logo from '../assets/logo_zephcore_new.png';
+import videoBg from '../assets/ZEPH.webm';
+import logoZeph from '../assets/logo_zeph_new.png';
 import Footer from '../components/Footer';
 
 const Home = () => {
@@ -13,8 +14,8 @@ const Home = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Auto-redirect if already logged in
     useEffect(() => {
+        document.title = "ZORX | Plataforma Operacional";
         if (isAuthenticated) {
             navigate('/units');
         }
@@ -41,183 +42,302 @@ const Home = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#F3F4F6', // GMAD Soft Gray
-            fontFamily: 'var(--font-main)'
+            backgroundColor: '#000',
+            fontFamily: 'var(--font-main)',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
+            {/* SCALED VIDEO BACKGROUND */}
+            <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    zIndex: 0,
+                    opacity: 0.6 // Slightly darker for better contrast
+                }}
+            >
+                <source src={videoBg} type="video/webm" />
+            </video>
+
+            {/* DARK OVERLAY FOR CONTRAST & PREMIUM FEEL */}
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%)',
+                zIndex: 1,
+                backdropFilter: 'blur(3px)'
+            }} />
 
             <div style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px'
+                position: 'relative',
+                zIndex: 10,
+                width: '100%',
+                maxWidth: '440px',
+                padding: '24px'
             }}>
-                {/* UNIFIED MAIN CARD */}
+                {/* GLASSMORPHISM CARD */}
                 <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    maxWidth: '900px',
-                    width: '100%',
-                    minHeight: '550px',
-                    overflow: 'hidden'
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(25px)',
+                    WebkitBackdropFilter: 'blur(25px)',
+                    borderRadius: '24px',
+                    boxShadow: '0 30px 60px -12px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1)',
+                    padding: '48px 40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.2)'
                 }}>
-
-                    {/* LEFT SIDE: Brand & Info */}
-                    <div style={{
-                        padding: '40px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'white',
-                        borderRight: '1px solid #f0f0f0'
-                    }}>
+                    <div style={{ marginBottom: '40px', textAlign: 'center' }}>
                         <div style={{
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginBottom: '30px'
+                            marginBottom: '24px',
+                            background: 'rgba(255,255,255,0.1)',
+                            padding: '12px',
+                            borderRadius: '16px',
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.2)'
                         }}>
                             <img
-                                src={logo}
-                                alt="Zephcore Logo"
+                                src={logoZeph}
+                                alt="ZORX"
                                 style={{
-                                    height: '55px', // Adjusted for Zephcore logo proportions
-                                    width: 'auto',
+                                    width: '42px',
+                                    height: '42px',
                                     objectFit: 'contain'
                                 }}
                             />
                         </div>
-
-                        <h2 style={{
-                            fontSize: '22px',
-                            color: '#1A1A1A',
-                            marginBottom: '10px',
-                            fontWeight: '800',
-                            textAlign: 'center',
-                            letterSpacing: '-0.01em',
-                            lineHeight: '1.2'
-                        }}>
-                            Workspace Integrado
-                        </h2>
+                        <h3>
+                            Bem-vindo ao ZORX
+                        </h3>
                         <p style={{
-                            color: '#7f8c8d',
-                            textAlign: 'center',
-                            fontSize: '17px', // Increased from 15px
+                            color: 'rgba(255,255,255,0.7)',
+                            fontSize: '15px',
                             fontWeight: '500',
-                            marginTop: '8px',
-                            maxWidth: '340px',
-                            lineHeight: '1.5'
+                            letterSpacing: '0.01em'
                         }}>
-                            Inteligência de dados, gestão comercial e controle de processos em um único lugar.
+                            Acesse o ecossistema
                         </p>
                     </div>
 
-                    {/* RIGHT SIDE: Login Form */}
-                    <div style={{
-                        padding: '50px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        background: '#fff' // white
-                    }}>
-                        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-                            <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#333', marginBottom: '8px' }}>
-                                Bem-vindo de volta!
-                            </h3>
-                            <p style={{ color: '#999', fontSize: '14px' }}>
-                                Insira suas credenciais para acessar
-                            </p>
+                    {error && (
+                        <div style={{
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            color: '#fca5a5',
+                            padding: '14px',
+                            borderRadius: '12px',
+                            marginBottom: '24px',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            {error}
                         </div>
+                    )}
 
-                        {error && (
-                            <div style={{
-                                background: '#ffebee',
-                                color: '#c62828',
-                                padding: '12px',
-                                borderRadius: '4px',
-                                marginBottom: '20px',
-                                fontSize: '14px',
-                                textAlign: 'center'
+                    <form onSubmit={handleSubmit}>
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                color: 'rgba(255,255,255,0.6)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
                             }}>
-                                {error}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit}>
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#555' }}>USUÁRIO</label>
+                                Usuário
+                            </label>
+                            <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '12px 15px',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        fontSize: '15px',
+                                        padding: '16px 16px 16px 44px',
+                                        borderRadius: '14px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        backgroundColor: 'rgba(0,0,0,0.2)',
+                                        color: 'white',
+                                        fontSize: '16px',
                                         outline: 'none',
-                                        transition: 'border 0.2s'
+                                        transition: 'all 0.3s ease'
                                     }}
                                     placeholder="Seu usuário"
-                                    onFocus={(e) => e.target.style.borderColor = '#1E88E5'}
-                                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = 'var(--color-primary)';
+                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.3)';
+                                        e.target.style.boxShadow = '0 0 0 4px rgba(30, 136, 229, 0.2)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
+                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                 />
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="rgba(255,255,255,0.4)"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                                >
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
                             </div>
+                        </div>
 
-                            <div style={{ marginBottom: '30px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#555' }}>SENHA</label>
+                        <div style={{ marginBottom: '32px' }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                color: 'rgba(255,255,255,0.6)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
+                            }}>
+                                Senha
+                            </label>
+                            <div style={{ position: 'relative' }}>
                                 <input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '12px 15px',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        fontSize: '15px',
+                                        padding: '16px 16px 16px 44px',
+                                        borderRadius: '14px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        backgroundColor: 'rgba(0,0,0,0.2)',
+                                        color: 'white',
+                                        fontSize: '16px',
                                         outline: 'none',
-                                        transition: 'border 0.2s'
+                                        transition: 'all 0.3s ease'
                                     }}
                                     placeholder="••••••••"
-                                    onFocus={(e) => e.target.style.borderColor = '#546e7a'}
-                                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = 'var(--color-primary)';
+                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.3)';
+                                        e.target.style.boxShadow = '0 0 0 4px rgba(30, 136, 229, 0.2)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
+                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                 />
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="rgba(255,255,255,0.4)"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                                >
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
                             </div>
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            style={{
+                                width: '100%',
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-zcore-blue) 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '14px',
+                                fontSize: '15px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                boxShadow: '0 10px 20px -5px rgba(30, 136, 229, 0.5)',
+                                transition: 'all 0.3s ease',
+                                marginBottom: '24px',
+                                transform: loading ? 'scale(0.98)' : 'scale(1)'
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!loading) e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 15px 30px -10px rgba(30, 136, 229, 0.6)';
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!loading) e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(30, 136, 229, 0.5)';
+                            }}
+                        >
+                            {loading ? (
+                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <svg className="spinner" viewBox="0 0 50 50" style={{ width: '20px', height: '20px', animation: 'spin 1s linear infinite' }}>
+                                        <circle cx="25" cy="25" r="20" fill="none" stroke="white" strokeWidth="4" strokeDasharray="80" strokeDashoffset="0"></circle>
+                                    </svg>
+                                    Acessando...
+                                </span>
+                            ) : 'Entrar no Sistema'}
+                        </button>
+
+                        <div style={{ textAlign: 'center' }}>
+                            <a
+                                href="https://wa.me/5547991047677"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 style={{
-                                    width: '100%',
-                                    padding: '14px',
-                                    background: '#1E88E5', // ZEPHCORE Blue
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: '800',
-                                    cursor: loading ? 'wait' : 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.05em',
-                                    boxShadow: '0 4px 6px -1px rgba(30, 136, 229, 0.3)'
+                                    color: 'rgba(255,255,255,0.6)',
+                                    fontSize: '13px',
+                                    fontWeight: '500',
+                                    textDecoration: 'none',
+                                    transition: 'color 0.2s',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
                                 }}
-                                onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#1976D2')}
-                                onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#1E88E5')}
+                                onMouseEnter={(e) => e.target.style.color = 'white'}
+                                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
                             >
-                                {loading ? 'Entrando...' : 'ENTRAR'}
-                            </button>
-                        </form>
-                    </div>
+                                Não tem acesso a plataforma?
+                                <span style={{ textDecoration: 'underline' }}>Entre em contato</span>
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+
+            <div style={{ position: 'absolute', bottom: '20px', zIndex: 10, opacity: 0.7 }}>
+                <Footer />
+            </div>
+
+            <style>{`
+                @keyframes spin {
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
+        </div >
     );
 };
 

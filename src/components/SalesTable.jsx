@@ -4,45 +4,45 @@ import { formatCurrency, formatPercent } from '../utils/formatters';
 const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, rowsPerPage }) => {
     // Styles for the compact corporate look
     const headerStyle = {
-        background: '#666', // Dark Grey
-        color: 'white',
-        padding: '4px 8px',
-        fontSize: '11px',
+        background: 'var(--bg-input)', // Adaptive Dark/Light
+        color: 'var(--text-main)',
+        padding: '12px 12px', // Increased padding
+        fontSize: '13px',    // Increased font size
         fontWeight: 'bold',
         textAlign: 'center',
-        borderRight: '1px solid white',
+        borderRight: '1px solid var(--border-color)',
         textTransform: 'uppercase'
     };
 
     const cellStyle = {
-        padding: '4px 8px',
-        fontSize: '11px',
-        borderBottom: '1px solid #ccc',
-        borderRight: '1px solid #eee',
-        color: '#333'
+        padding: '10px 12px', // Increased padding
+        fontSize: '14px',     // Increased font size
+        borderBottom: '1px solid var(--border-color)',
+        borderRight: '1px solid var(--border-color)',
+        color: 'var(--text-main)'
     };
 
     const numberStyle = {
         ...cellStyle,
         textAlign: 'right',
-        fontFamily: 'Arial, sans-serif' // Standard corporate font
+        fontFamily: 'var(--font-main)'
     };
 
     const paginationButtonStyle = {
-        padding: '5px 10px',
-        fontSize: '12px',
-        border: '1px solid #ccc',
-        background: 'white',
+        padding: '8px 16px',  // Larger buttons
+        fontSize: '14px',     // Larger text
+        border: '1px solid var(--border-color)',
+        background: 'var(--bg-input)',
         cursor: 'pointer',
         borderRadius: '4px',
-        color: '#333'
+        color: 'var(--text-main)'
     };
 
     const activePaginationButtonStyle = {
         ...paginationButtonStyle,
-        background: '#2e7d32',
+        background: 'var(--color-primary)',
         color: 'white',
-        borderColor: '#2e7d32'
+        borderColor: 'var(--color-primary)'
     };
 
     const totalPages = Math.ceil(totalRows / rowsPerPage);
@@ -65,7 +65,7 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
         <div className="table-container" style={{ padding: '20px 40px' }}>
             {/* Pagination Info Top */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ fontSize: '12px', color: '#666' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Mostrando <strong>{reportData.length}</strong> de <strong>{totalRows}</strong> registros
                 </div>
                 {totalPages > 1 && (
@@ -95,30 +95,30 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                 <thead>
                     {/* Top Month Headers - Dynamic Names */}
                     <tr>
-                        <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: '#666' }}>ID &nbsp; CLIENTE/VENDEDOR</th>
+                        <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: 'var(--bg-input)' }}>CLIENTE / ID / VENDEDOR</th>
                         <th colSpan="3" style={headerStyle}>{headers.m1}</th>
                         <th colSpan="3" style={headerStyle}>{headers.m2}</th>
                         <th colSpan="3" style={headerStyle}>{headers.m3}</th>
                         <th colSpan="3" style={headerStyle}>TOTAL</th>
                     </tr>
                     {/* Sub Headers */}
-                    <tr style={{ background: '#888', color: 'white' }}>
+                    <tr style={{ background: 'var(--bg-input)', color: 'var(--text-main)' }}>
                         <th></th>
                         {[1, 2, 3, 4].map((block) => (
                             <React.Fragment key={block}>
-                                <th style={{ ...headerStyle, background: '#888', fontSize: '9px' }}>FATURAMENTO</th>
-                                <th style={{ ...headerStyle, background: '#888', fontSize: '9px' }}>MARGEM</th>
-                                <th style={{ ...headerStyle, background: '#888', fontSize: '9px' }}>PRAZO</th>
+                                <th style={{ ...headerStyle, background: 'var(--bg-card)', fontSize: '11px', borderRight: '1px solid var(--border-color)' }}>FATURAMENTO</th>
+                                <th style={{ ...headerStyle, background: 'var(--bg-card)', fontSize: '11px', borderRight: '1px solid var(--border-color)' }}>MARGEM</th>
+                                <th style={{ ...headerStyle, background: 'var(--bg-card)', fontSize: '11px', borderRight: '1px solid var(--border-color)' }}>PRAZO</th>
                             </React.Fragment>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
                     {reportData.map((row) => (
-                        <tr key={row.client.id} style={{ background: 'white' }}>
+                        <tr key={row.client.id} style={{ background: 'var(--bg-card)' }}>
                             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
-                                <div style={{ fontWeight: 'bold' }}>{row.client.id} &nbsp; {row.client.name}</div>
-                                <div style={{ color: '#666', fontSize: '10px' }}>{row.client.vendor}</div>
+                                <div style={{ fontWeight: 'bold' }}>{row.client.name} - {row.client.id}</div>
+                                <div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{row.client.vendor}</div>
                             </td>
 
                             {/* Monthly Data */}
@@ -131,13 +131,13 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                             ))}
 
                             {/* Row Total */}
-                            <td style={{ ...numberStyle, fontWeight: 'bold', background: '#f9f9f9' }}>
+                            <td style={{ ...numberStyle, fontWeight: 'bold', background: 'var(--bg-input)' }}>
                                 {formatCurrency(row.total.amount).replace('R$', '').trim()}
                             </td>
-                            <td style={{ ...numberStyle, fontWeight: 'bold', background: '#f9f9f9' }}>
+                            <td style={{ ...numberStyle, fontWeight: 'bold', background: 'var(--bg-input)' }}>
                                 {formatPercent(row.total.margin_percent)}
                             </td>
-                            <td style={{ ...numberStyle, fontWeight: 'bold', background: '#f9f9f9' }}>
+                            <td style={{ ...numberStyle, fontWeight: 'bold', background: 'var(--bg-input)' }}>
                                 {Math.round(row.total.deadline)}
                             </td>
                         </tr>

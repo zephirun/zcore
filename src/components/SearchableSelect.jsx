@@ -34,15 +34,15 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
                     padding: '8px 12px',
-                    border: '1px solid #ccc',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '4px',
-                    background: 'white',
+                    background: 'var(--bg-input)',
                     cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     fontSize: '13px',
-                    color: '#333'
+                    color: 'var(--text-main)'
                 }}
             >
                 <span style={{
@@ -50,11 +50,11 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: '180px',
-                    color: value === 'Todos' ? '#777' : '#000'
+                    color: value === 'Todos' ? 'var(--text-muted)' : 'var(--text-main)'
                 }}>
                     {value || placeholder}
                 </span>
-                <span style={{ fontSize: '10px', color: '#999' }}>▼</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>▼</span>
             </div>
 
             {/* Dropdown Menu */}
@@ -64,8 +64,8 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                     top: '100%',
                     left: 0,
                     right: 0,
-                    background: 'white',
-                    border: '1px solid #ccc',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '0 0 4px 4px',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                     zIndex: 1000,
@@ -74,7 +74,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                     marginTop: '2px'
                 }}>
                     {/* Search Input */}
-                    <div style={{ padding: '8px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, background: 'white' }}>
+                    <div style={{ padding: '8px', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: 'var(--bg-card)' }}>
                         <input
                             type="text"
                             autoFocus
@@ -84,10 +84,12 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                             style={{
                                 width: '100%',
                                 padding: '6px',
-                                border: '1px solid #ddd',
+                                border: '1px solid var(--border-color)',
                                 borderRadius: '3px',
                                 fontSize: '12px',
-                                outline: 'none'
+                                outline: 'none',
+                                background: 'var(--bg-input)',
+                                color: 'var(--text-main)'
                             }}
                         />
                     </div>
@@ -103,12 +105,12 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                                         padding: '8px 12px',
                                         fontSize: '13px',
                                         cursor: 'pointer',
-                                        borderBottom: '1px solid #f9f9f9',
-                                        background: value === opt ? '#f0f8ff' : 'white',
-                                        color: value === opt ? '#006400' : '#333'
+                                        borderBottom: '1px solid var(--border-color)',
+                                        background: value === opt ? 'var(--color-primary)' : 'var(--bg-card)',
+                                        color: value === opt ? 'white' : 'var(--text-main)'
                                     }}
-                                    onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                                    onMouseLeave={(e) => e.target.style.background = value === opt ? '#f0f8ff' : 'white'}
+                                    onMouseEnter={(e) => e.target.style.background = 'var(--bg-input)'}
+                                    onMouseLeave={(e) => e.target.style.background = value === opt ? 'var(--color-primary)' : 'var(--bg-card)'}
                                 >
                                     {opt}
                                 </li>

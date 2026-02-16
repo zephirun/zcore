@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { fetchReturns, saveReturn, deleteReturn } from '../../services/api';
-import Header from '../../components/Header';
+
 import logoGmad from '../../assets/logo.png';
 
 const Returns = () => {
@@ -485,7 +485,7 @@ const Returns = () => {
             background: '#e8ecef',
             fontFamily: '"Segoe UI", sans-serif'
         }}>
-            <Header />
+
 
             <div style={{
                 padding: '30px',

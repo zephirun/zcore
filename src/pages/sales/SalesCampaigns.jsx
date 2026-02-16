@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../components/Header';
+
 import { useData } from '../../context/DataContext';
 
 const SalesCampaigns = () => {
@@ -95,7 +95,7 @@ const SalesCampaigns = () => {
 
     return (
         <div style={containerStyle}>
-            <Header darkTheme={true} />
+
 
             <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
 

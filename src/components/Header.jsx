@@ -1,25 +1,25 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import logoGmad from '../assets/logo.png';
-import logoZephcore from '../assets/logo_zephcore_new.png';
+import logoGmadWhite from '../assets/logo2.png'; // Assuming this is the white version
 import { useData } from '../context/DataContext';
 import { categories, allModules } from '../config/menuConfig';
 
 const Header = () => {
-    const { username, name, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules } = useData();
+    const { username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed, setSidebarCollapsed, toggleTheme } = useData();
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [isUnitMenuOpen, setIsUnitMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
+    const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
     const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); // Mega Menu State
     const [activeCategoryId, setActiveCategoryId] = useState(null); // Active Category in Flyout
     const [searchQuery, setSearchQuery] = useState(''); // Search State
     const sidebarRef = useRef(null); // Ref for sidebar
     const menuButtonRef = useRef(null); // Ref for menu button
     const unitRef = useRef(null); // Ref for unit selector
-    const helpRef = useRef(null); // Ref for help button
+    const appsRef = useRef(null); // Ref for apps menu
     const userRef = useRef(null); // Ref for user menu
 
     // Click Outside Handler
@@ -35,9 +35,9 @@ const Header = () => {
             if (isUnitMenuOpen && unitRef.current && !unitRef.current.contains(event.target)) {
                 setIsUnitMenuOpen(false);
             }
-            // Help Menu
-            if (isHelpMenuOpen && helpRef.current && !helpRef.current.contains(event.target)) {
-                setIsHelpMenuOpen(false);
+            // Apps Menu
+            if (isAppsMenuOpen && appsRef.current && !appsRef.current.contains(event.target)) {
+                setIsAppsMenuOpen(false);
             }
             // User Menu
             if (isUserMenuOpen && userRef.current && !userRef.current.contains(event.target)) {
@@ -49,7 +49,7 @@ const Header = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isMegaMenuOpen, isUnitMenuOpen, isHelpMenuOpen, isUserMenuOpen]);
+    }, [isMegaMenuOpen, isUnitMenuOpen, isAppsMenuOpen, isUserMenuOpen]);
 
     // Helper to filter accessible categories
     const getAccessibleCategories = () => {
@@ -110,91 +110,87 @@ const Header = () => {
             zIndex: 50,
             fontFamily: 'var(--font-main)'
         }}>
-            {/* 2. MAIN HEADER (Green) */}
-            <div style={{
-                height: '60px',
-                backgroundColor: 'rgba(255, 255, 255, 0.85)', // Glass effect transparency
-                backdropFilter: 'blur(12px)', // Modern blur
-                WebkitBackdropFilter: 'blur(12px)', // Safari support
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 2%',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.06)',
-                borderBottom: '2px solid rgba(74, 74, 74, 0.1)', // Softer separator for glass look
-                position: 'sticky', // Sticky to show blur while scrolling
-                top: 0,
-                zIndex: 1000
-            }}>
+            {/* 2. MAIN HEADER (Green) - Now Theme Aware */}
+            <div
+                className="header-container" // Added class for CSS override
+                style={{
+                    height: '50px',
+                    backgroundColor: 'var(--glass-bg)', // Dynamic background
+                    color: 'var(--text-main)',
+                    backdropFilter: 'var(--glass-blur)', // Modern blur
+                    WebkitBackdropFilter: 'var(--glass-blur)', // Safari support
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingLeft: '20px',
+                    paddingRight: '10px',
+                    boxShadow: 'var(--glass-shadow)',
+                    borderBottom: 'var(--glass-border)', // Theme border
+                    position: 'fixed', // Fixed to stay on screen
+                    top: 0,
+                    width: sidebarCollapsed ? 'calc(100% - 50px)' : 'calc(100% - 260px)',
+                    left: sidebarCollapsed ? '50px' : '260px',
+                    transition: 'left 0.8s cubic-bezier(0.4, 0, 0.2, 1), width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: 1000
+                }}>
                 {/* Left Section (Logo + Menu) */}
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    {/* Logo First - Updated to ZEPHCORE */}
-                    <Link to="/menu" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+
+                    {/* Mobile Menu Toggle */}
+                    <div
+                        className="mobile-menu-toggle"
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)} // Toggle global state
+                        style={{
+                            display: 'none', // Hidden by default, shown via CSS
+                            cursor: 'pointer',
+                            color: 'var(--text-main)',
+                        }}
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </div>
+
+                    {/* Logo First - Updated to ZCORE */}
+                    {/* Logo First - Updated to ZCORE */}
+                    <Link to="/menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
                         <img
-                            src={logoZephcore}
-                            alt="Zephcore"
+                            src={theme === 'dark' ? logoGmadWhite : logoGmad}
+                            alt="ZORX"
                             style={{
-                                height: '24px',
+                                height: '26px',
                                 objectFit: 'contain'
                             }}
                         />
                     </Link>
 
-                    {/* Menu Trigger (Icon + Label) */}
-                    <div
-                        ref={menuButtonRef}
-                        onMouseEnter={() => {
-                            if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
-                            setIsMegaMenuOpen(true);
-                        }}
-                        onMouseLeave={() => {
-                            menuTimeoutRef.current = setTimeout(() => {
-                                setIsMegaMenuOpen(false);
-                            }, 300);
-                        }}
-                        onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-                        style={{
-                            cursor: 'pointer',
-                            color: isMegaMenuOpen ? '#1E88E5' : '#4a4a4a',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '0 12px',
-                            height: '40px',
-                            borderRadius: '4px',
-                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                            background: isMegaMenuOpen ? 'rgba(30, 136, 229, 0.05)' : 'transparent'
-                        }}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                        <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.05em' }}>MENU</span>
-                    </div>
+
                 </div>
 
                 {/* Middle Section (Search Bar - Perfectly Centered) */}
                 <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
                     width: '100%',
-                    maxWidth: '500px', // Adjusted for better balance
-                    position: 'relative',
-                    margin: '0 auto'
+                    maxWidth: '400px',
+                    pointerEvents: 'auto'
                 }}>
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        backgroundColor: '#F8F9FA',
+                        backgroundColor: 'var(--bg-input)', // Theme input bg
                         borderRadius: '6px',
                         height: '42px',
-                        border: '1px solid #E9ecef',
+                        border: '1px solid var(--border-input)', // Theme border
                         padding: '0 12px',
                         transition: 'all 0.2s ease',
                         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
                     }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = '#ced4da'} // Neutral hover
-                        onMouseLeave={e => e.currentTarget.style.borderColor = '#E9ecef'}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'} // Active color on hover
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-input)'}
                     >
                         <input
                             type="text"
@@ -208,7 +204,7 @@ const Header = () => {
                                 padding: '0 10px',
                                 fontSize: '14px',
                                 outline: 'none',
-                                color: '#777' // Softer text color
+                                color: 'var(--text-main)' // Main text color for input
                             }}
                         />
                         {/* Search Icon (Gray) */}
@@ -277,30 +273,31 @@ const Header = () => {
                 </div>
 
                 {/* Right Section (Actions) */}
-                <div style={{ flex: 1, display: 'flex', gap: '30px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <div style={{ flex: 1, display: 'flex', gap: '25px', alignItems: 'center', justifyContent: 'flex-end' }}>
+
                     {/* Unit Selector */}
                     <div
                         ref={unitRef}
                         onClick={() => setIsUnitMenuOpen(!isUnitMenuOpen)}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', position: 'relative' }}
                     >
-                        {/* Icon Dark Gray */}
-                        {/* Icon Dark Gray Selector */}
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        {/* Icon Theme Aware */}
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-                            <span style={{ fontSize: '10px', color: '#888', fontWeight: '700', letterSpacing: '0.02em' }}>UNIDADE</span>
-                            <span style={{ fontSize: '13px', fontWeight: '700', color: '#4a4a4a' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.02em' }}>UNIDADE</span>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
                                 {(AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name || 'Selecione')}
                             </span>
                         </div>
                         {isUnitMenuOpen && (
                             <div style={{
                                 position: 'absolute', top: '50px', right: '0',
-                                background: 'white', borderRadius: '4px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                background: 'var(--bg-card)', borderRadius: '4px',
+                                boxShadow: 'var(--shadow-lg)',
+                                border: '1px solid var(--border-color)',
                                 width: '200px',
                                 zIndex: 120
                             }}>
@@ -312,12 +309,12 @@ const Header = () => {
                                             padding: '10px 15px',
                                             fontSize: '13px',
                                             cursor: 'pointer',
-                                            color: activeUnit === unit.id ? '#4a4a4a' : '#333', // Changed from Green to Dark Gray
-                                            background: activeUnit === unit.id ? '#F2F2F2' : 'white', // Changed from Light Green to Light Gray
-                                            borderBottom: '1px solid #f1f1f1'
+                                            color: activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)',
+                                            background: activeUnit === unit.id ? 'var(--bg-input)' : 'transparent',
+                                            borderBottom: '1px solid var(--border-color)'
                                         }}
-                                        onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                        onMouseLeave={e => activeUnit !== unit.id && (e.currentTarget.style.background = 'white')}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                        onMouseLeave={e => activeUnit !== unit.id && (e.currentTarget.style.background = 'transparent')}
                                     >
                                         {unit.name}
                                     </div>
@@ -326,55 +323,121 @@ const Header = () => {
                         )}
                     </div>
 
-                    {/* Help Button */}
+                    {/* Apps Menu (Blue Button) */}
                     <div
-                        ref={helpRef}
-                        onClick={() => setIsHelpMenuOpen(!isHelpMenuOpen)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', position: 'relative', padding: '6px 10px', borderRadius: '6px' }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                        ref={appsRef}
+                        style={{ position: 'relative' }}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                        </svg>
-                        <span style={{ fontSize: '13px', fontWeight: '700', color: '#4a4a4a' }}>AJUDA</span>
+                        <div
+                            onClick={() => setIsAppsMenuOpen(!isAppsMenuOpen)}
+                            style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '8px',
+                                backgroundColor: isAppsMenuOpen ? 'var(--bg-input)' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                border: `1px solid ${isAppsMenuOpen ? 'var(--border-color)' : 'transparent'}`,
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={e => {
+                                if (!isAppsMenuOpen) {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                } else {
+                                    e.currentTarget.style.backgroundColor = 'var(--bg-input)';
+                                }
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </div>
 
-                        {isHelpMenuOpen && (
+                        {isAppsMenuOpen && (
                             <div style={{
                                 position: 'absolute', top: '50px', right: '0',
-                                background: 'white', borderRadius: '4px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                background: 'var(--bg-card)', borderRadius: '12px',
+                                boxShadow: 'var(--shadow-lg)',
+                                border: '1px solid var(--border-color)',
                                 width: '220px',
                                 zIndex: 120,
+                                padding: '8px',
                                 overflow: 'hidden'
                             }}>
+                                {userRole === 'admin' && (
+                                    <Link
+                                        to="/admin/audit"
+                                        onClick={() => setIsAppsMenuOpen(false)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px',
+                                            padding: '12px 15px', textDecoration: 'none', color: 'var(--text-main)',
+                                            borderRadius: '8px', transition: 'background 0.2s',
+                                            backgroundColor: location.pathname === '/admin/audit' ? 'var(--bg-input)' : 'transparent'
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                        onMouseLeave={e => location.pathname !== '/admin/audit' && (e.currentTarget.style.background = 'transparent')}
+                                    >
+                                        <div style={{
+                                            width: '32px', height: '32px', borderRadius: '6px',
+                                            backgroundColor: 'rgba(96, 125, 139, 0.1)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#607d8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                            </svg>
+                                        </div>
+                                        <span style={{ fontSize: '13px', fontWeight: '600' }}>Logs de Acesso</span>
+                                    </Link>
+                                )}
+
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 8px' }} />
+
                                 <a
                                     href="https://wa.me/5547991047677"
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={() => setIsAppsMenuOpen(false)}
                                     style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px',
-                                        padding: '12px 15px',
-                                        fontSize: '13px',
-                                        color: '#333',
-                                        textDecoration: 'none',
-                                        transition: 'background 0.2s'
+                                        display: 'flex', alignItems: 'center', gap: '12px',
+                                        padding: '12px 15px', textDecoration: 'none', color: 'var(--text-main)',
+                                        borderRadius: '8px', transition: 'background 0.2s'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-7.6 8.38 8.38 0 0 1 3.8.9L22 4l-2.5 7.5z"></path>
-                                    </svg>
-                                    <span>Contato via WhatsApp</span>
+                                    <div style={{
+                                        width: '32px', height: '32px', borderRadius: '6px',
+                                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196f3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                    </div>
+                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Central de Ajuda</span>
                                 </a>
                             </div>
                         )}
                     </div>
+
+
 
                     {/* User Profile */}
                     <div
@@ -391,7 +454,7 @@ const Header = () => {
                             transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={e => {
-                            e.currentTarget.style.backgroundColor = '#f5f5f5';
+                            e.currentTarget.style.backgroundColor = 'var(--bg-input)';
                             e.currentTarget.style.transform = 'translateY(-1px)';
                         }}
                         onMouseLeave={e => {
@@ -399,33 +462,48 @@ const Header = () => {
                             e.currentTarget.style.transform = 'translateY(0)';
                         }}
                     >
-                        {/* Icon Dark Gray - Refined */}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
+                        {/* Avatar or Icon */}
+                        {avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="Avatar"
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                    border: '1px solid var(--border-color)'
+                                }}
+                            />
+                        ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        )}
                         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1' }}>
-                            <span style={{ fontSize: '14px', fontWeight: '600', color: '#4a4a4a' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>
                                 {name?.split(' ')[0] || 'Visitante'}
                             </span>
                         </div>
                         {isUserMenuOpen && (
                             <div style={{
                                 position: 'absolute', top: '50px', right: '0',
-                                background: 'white', borderRadius: '4px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                background: 'var(--bg-card)', borderRadius: '4px',
+                                boxShadow: 'var(--shadow-lg)',
+                                border: '1px solid var(--border-color)',
                                 width: '180px',
                                 zIndex: 120
                             }}>
                                 <Link
                                     to="/profile"
                                     style={{
-                                        display: 'block', padding: '10px 15px', color: '#333',
-                                        textDecoration: 'none', borderBottom: '1px solid #f1f1f1',
+                                        display: 'block', padding: '10px 15px', color: 'var(--text-main)',
+                                        textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
                                         fontSize: '13px'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     Meus Dados
                                 </Link>
@@ -435,24 +513,24 @@ const Header = () => {
                                         <Link
                                             to="/admin/upload"
                                             style={{
-                                                display: 'block', padding: '10px 15px', color: '#333',
-                                                textDecoration: 'none', borderBottom: '1px solid #f1f1f1',
+                                                display: 'block', padding: '10px 15px', color: 'var(--text-main)',
+                                                textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
                                                 fontSize: '13px'
                                             }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                         >
                                             Upload de Dados
                                         </Link>
                                         <Link
                                             to="/admin"
                                             style={{
-                                                display: 'block', padding: '10px 15px', color: '#333',
-                                                textDecoration: 'none', borderBottom: '1px solid #f1f1f1',
+                                                display: 'block', padding: '10px 15px', color: 'var(--text-main)',
+                                                textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
                                                 fontSize: '13px'
                                             }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                         >
                                             Gestão de Usuários
                                         </Link>
@@ -461,15 +539,18 @@ const Header = () => {
 
                                 <div
                                     onClick={handleLogout}
-                                    style={{ padding: '10px 15px', color: '#2e7d32', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                                    style={{ padding: '10px 15px', color: '#f44336', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     Sair
                                 </div>
                             </div>
                         )}
                     </div>
+
+
+
 
                     {/* Cart Removed as requested */}
                 </div>
@@ -491,10 +572,10 @@ const Header = () => {
                         }}
                         style={{
                             position: 'absolute',
-                            top: '60px',
+                            top: '50px',
                             left: 0,
                             width: activeCategoryId ? '750px' : '300px',
-                            height: 'calc(100vh - 60px)',
+                            height: 'calc(100vh - 50px)',
                             backgroundColor: 'rgba(255, 255, 255, 0.95)', // Glass effect
                             backdropFilter: 'blur(15px)',
                             WebkitBackdropFilter: 'blur(15px)',
