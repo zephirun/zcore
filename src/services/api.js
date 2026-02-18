@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import bcrypt from 'bcryptjs';
 
 // --- SALES DATA ---
 
@@ -63,10 +64,11 @@ export const fetchUsers = async () => {
         if (error) throw error;
 
         // Map snake_case from DB to camelCase for Frontend
+        // IMPORTANT: Do NOT return password to frontend
         return data.map(u => ({
             id: u.id,
             username: u.username,
-            password: u.password,
+            // password: u.password, // REMOVED FOR SECURITY
             role: u.role,
             name: u.name,
             group: u.group, // Map group
@@ -84,15 +86,28 @@ export const fetchUsers = async () => {
 
 export const loginUser = async (username, password) => {
     try {
+        // 1. Fetch user by username ONLY (get password hash)
         const { data, error } = await supabase
             .from('users')
             .select('*')
             .eq('username', username)
-            .eq('password', password)
             .maybeSingle();
 
         if (error) throw error;
-        if (!data) return null;
+        if (!data) return null; // User not found
+
+        // 2. Compare provided password with stored hash
+        // If password is plain text (legacy), direct compare (fallback) - though migration should have fixed this
+        let passwordMatch = false;
+
+        if (data.password && data.password.startsWith('$2')) {
+            passwordMatch = await bcrypt.compare(password, data.password);
+        } else {
+            // Fallback for unmigrated users (just in case)
+            passwordMatch = data.password === password;
+        }
+
+        if (!passwordMatch) return null;
 
         return {
             success: true,
@@ -116,12 +131,16 @@ export const loginUser = async (username, password) => {
 
 export const registerUserApi = async (userData) => {
     try {
+        // Hash password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(userData.password, salt);
+
         const { error } = await supabase
             .from('users')
             .insert([{
                 name: userData.name,
                 username: userData.username,
-                password: userData.password,
+                password: hashedPassword, // Save hash
                 role: userData.role,
                 group: userData.group, // Insert group
                 allowed_unit: userData.allowedUnit,
@@ -147,7 +166,12 @@ export const updateUserApi = async (username, updates) => {
         if (updates.allowedUnit !== undefined) supabaseUpdates.allowed_unit = updates.allowedUnit;
         if (updates.allowedVendor !== undefined) supabaseUpdates.allowed_vendor = updates.allowedVendor;
         if (updates.allowedModules !== undefined) supabaseUpdates.allowed_modules = updates.allowedModules;
-        if (updates.password !== undefined) supabaseUpdates.password = updates.password;
+
+        if (updates.password !== undefined && updates.password) {
+            const salt = await bcrypt.genSalt(10);
+            supabaseUpdates.password = await bcrypt.hash(updates.password, salt);
+        }
+
         if (updates.avatarUrl !== undefined) supabaseUpdates.avatar_url = updates.avatarUrl; // Handle avatar update
 
         const { error } = await supabase
@@ -918,5 +942,310 @@ export const fetchActivityStats = async (username = null) => {
     } catch (error) {
         console.error("Fetch Activity Stats Error:", error);
         return null;
+    }
+};
+
+// --- BRANDS & BUYERS ---
+
+const uploadBrandLogo = async (file) => {
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        // Try uploading
+        let { error: uploadError } = await supabase.storage
+            .from('brand-logos')
+            .upload(filePath, file);
+
+        // If bucket doesn't exist, try creating it (this works if RLS/Permissions allow)
+        if (uploadError && uploadError.message.includes('Bucket not found')) {
+            console.warn("Bucket not found. Attempting to create 'brand-logos'...");
+            const { error: createError } = await supabase.storage.createBucket('brand-logos', {
+                public: true
+            });
+
+            if (createError) {
+                console.error("Failed to create bucket:", createError);
+                throw new Error("Erro: O bucket de armazenamento 'brand-logos' não existe e não pôde ser criado. Contate o admin.");
+            }
+
+            // Retry upload
+            const retry = await supabase.storage
+                .from('brand-logos')
+                .upload(filePath, file);
+
+            uploadError = retry.error;
+        }
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+            .from('brand-logos')
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
+    } catch (error) {
+        console.error("Upload Brand Logo Error:", error);
+        throw error;
+    }
+};
+
+export const fetchBrands = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('brands')
+            .select(`
+                *,
+                brand_buyers (
+                    id,
+                    users (
+                        name,
+                        username
+                    )
+                )
+            `)
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Fetch Brands Error:", error);
+        return [];
+    }
+};
+
+export const saveBrand = async (brandData, logoFile = null) => {
+    try {
+        let logoUrl = brandData.logoUrl;
+
+        if (logoFile) {
+            logoUrl = await uploadBrandLogo(logoFile);
+        }
+
+        const payload = {
+            name: brandData.name,
+            logo_url: logoUrl,
+            website: brandData.website
+        };
+
+        if (brandData.id) {
+            const { error } = await supabase
+                .from('brands')
+                .update(payload)
+                .eq('id', brandData.id);
+            if (error) throw error;
+        } else {
+            const { error } = await supabase
+                .from('brands')
+                .insert([payload]);
+            if (error) throw error;
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("Save Brand Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const deleteBrand = async (id) => {
+    try {
+        const { error } = await supabase
+            .from('brands')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Brand Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const fetchBrandBuyers = async (brandId) => {
+    try {
+        const { data, error } = await supabase
+            .from('brand_buyers')
+            .select(`
+                id,
+                brand_id,
+                user_id,
+                users (
+                    id,
+                    name,
+                    username,
+                    avatar_url
+                )
+            `)
+            .eq('brand_id', brandId);
+
+        if (error) throw error;
+
+        // Flatten the structure for easier frontend usage
+        return data.map(item => ({
+            id: item.id, // Connection ID
+            brandId: item.brand_id,
+            userId: item.user_id,
+            ...item.users // Spread user details
+        }));
+    } catch (error) {
+        console.error("Fetch Brand Buyers Error:", error);
+        return [];
+    }
+};
+
+export const saveBrandBuyer = async (brandId, userId) => {
+    try {
+        const { error } = await supabase
+            .from('brand_buyers')
+            .insert([{ brand_id: brandId, user_id: userId }]);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        // Check for duplicate key constraint violation
+        if (error.code === '23505') {
+            return { success: false, error: 'Comprador já vinculado a esta marca.' };
+        }
+        console.error("Save Brand Buyer Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const removeBrandBuyer = async (connectionId) => {
+    try {
+        const { error } = await supabase
+            .from('brand_buyers')
+            .delete()
+            .eq('id', connectionId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Remove Brand Buyer Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const fetchProducts = async (brandId) => {
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('brand_id', brandId)
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Fetch Products Error:", error);
+        return [];
+    }
+};
+
+export const deleteProduct = async (id) => {
+    try {
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Product Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+// --- SALES SIMULATIONS ---
+
+export const fetchSimulation = async (vendor, unit) => {
+    try {
+        const { data, error } = await supabase
+            .from('sales_simulations')
+            .select('*')
+            .eq('vendor', vendor)
+            .eq('unit', unit)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data || null;
+    } catch (error) {
+        console.error("Fetch Simulation Error:", error);
+        return null;
+    }
+};
+
+export const fetchSimulations = async (vendor, unit) => {
+    try {
+        const { data, error } = await supabase
+            .from('sales_simulations')
+            .select('*')
+            .eq('vendor', vendor)
+            .eq('unit', unit)
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Fetch Simulations Error:", error);
+        return [];
+    }
+};
+
+export const deleteSimulation = async (id) => {
+    try {
+        const { error } = await supabase
+            .from('sales_simulations')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Simulation Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const saveSimulation = async (simulationData) => {
+    try {
+        const { error } = await supabase
+            .from('sales_simulations')
+            .upsert({
+                username: simulationData.username,
+                vendor: simulationData.vendor,
+                unit: simulationData.unit,
+                version_name: simulationData.versionName || 'Padrão',
+                simulated_values: simulationData.simulatedValues,
+                growth_scenario: simulationData.growthScenario,
+                margin_scenario: simulationData.marginScenario,
+                direct_margin_scenario: simulationData.directMarginScenario,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'vendor,unit,version_name' });
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Save Simulation Error:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const importProducts = async (products) => {
+    try {
+        const { error } = await supabase
+            .from('products')
+            .insert(products);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error("Import Products Error:", error);
+        return { success: false, error: error.message };
     }
 };

@@ -95,7 +95,7 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                 <thead>
                     {/* Top Month Headers - Dynamic Names */}
                     <tr>
-                        <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: 'var(--bg-input)' }}>CLIENTE / ID / VENDEDOR</th>
+                        <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: 'var(--bg-input)' }}>CLIENTE / ID / VEND. / REPRES.</th>
                         <th colSpan="3" style={headerStyle}>{headers.m1}</th>
                         <th colSpan="3" style={headerStyle}>{headers.m2}</th>
                         <th colSpan="3" style={headerStyle}>{headers.m3}</th>
@@ -118,7 +118,7 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                         <tr key={row.client.id} style={{ background: 'var(--bg-card)' }}>
                             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
                                 <div style={{ fontWeight: 'bold' }}>{row.client.name} - {row.client.id}</div>
-                                <div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{row.client.vendor}</div>
+                                <div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{row.client.vendor} | {row.client.representative}</div>
                             </td>
 
                             {/* Monthly Data */}

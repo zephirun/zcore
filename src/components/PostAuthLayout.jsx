@@ -23,8 +23,8 @@ const PostAuthLayout = ({ children }) => {
                     display: 'flex',
                     flexDirection: 'column',
                     minWidth: 0,
-                    marginLeft: sidebarCollapsed ? '50px' : '260px', // Spacing for fixed sidebar
-                    transition: 'margin-left 0.8s cubic-bezier(0.4, 0, 0.2, 1)' // smooth transition matching sidebar
+                    marginLeft: sidebarCollapsed ? '48px' : '220px', // Spacing for fixed sidebar (Updated width)
+                    transition: 'margin-left 0.4s cubic-bezier(0.2, 0, 0, 1)' // Faster transition matching sidebar
                 }}>
                 <Header />
                 <div style={{ flex: 1, overflowX: 'hidden', display: 'flex', flexDirection: 'column', paddingTop: '50px' }}>

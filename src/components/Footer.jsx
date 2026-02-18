@@ -1,21 +1,21 @@
 import { useData } from '../context/DataContext';
 
-const Footer = () => {
+const Footer = ({ transparent = false, textColor }) => {
     const { theme } = useData();
 
     return (
         <footer className="no-print" style={{
             width: '100%',
             marginTop: 'auto', // Push to bottom if flex container allows
-            backgroundColor: 'var(--glass-bg)', // Glass background
-            borderTop: 'var(--glass-border)', // Glass border
-            color: 'var(--text-main)', // Theme-aware text
+            backgroundColor: transparent ? 'transparent' : 'var(--glass-bg)', // Glass background
+            borderTop: transparent ? 'none' : 'var(--glass-border)', // Glass border
+            color: textColor || 'var(--text-main)', // Theme-aware text or override
             fontSize: '12px',
             fontFamily: 'var(--font-main)',
             transition: 'all 0.3s ease',
             zIndex: 10,
-            backdropFilter: 'var(--glass-blur)',
-            WebkitBackdropFilter: 'var(--glass-blur)'
+            backdropFilter: transparent ? 'none' : 'var(--glass-blur)',
+            WebkitBackdropFilter: transparent ? 'none' : 'var(--glass-blur)'
         }}>
             {/* Bottom Bar - Made main element */}
             <div style={{
@@ -23,7 +23,7 @@ const Footer = () => {
                 textAlign: 'center',
             }}>
                 <p style={{ margin: 0, fontSize: '11px' }}>
-                    © {new Date().getFullYear()} ZORX. Todos os direitos reservados.
+                    © {new Date().getFullYear()} ZEPH. Todos os direitos reservados.
                 </p>
             </div>
 

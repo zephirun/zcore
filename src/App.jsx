@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { DataProvider, useData } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext.jsx';
 import Home from './pages/Home';
 import PostAuthLayout from './components/PostAuthLayout';
 
@@ -27,6 +27,7 @@ import SalesCampaigns from './pages/sales/SalesCampaigns';
 import ClientRecords from './pages/sales/ClientRecords';
 import SalesTeamRecords from './pages/sales/SalesTeamRecords';
 import SalesIntelligence from './pages/sales/SalesIntelligence';
+import SalesSimulation from './pages/sales/SalesSimulation';
 
 // Purchases Pages
 import OrderControl from './pages/purchases/OrderControl';
@@ -37,6 +38,7 @@ import GiftsControl from './pages/purchases/GiftsControl';
 import CentralArea from './pages/purchases/CentralArea';
 import SupplierCampaigns from './pages/purchases/SupplierCampaigns';
 import PurchasingIntelligence from './pages/purchases/PurchasingIntelligence';
+import BrandsAndBuyers from './pages/purchases/BrandsAndBuyers';
 
 // Logistics Pages
 import WarehouseManagement from './pages/logistics/WarehouseManagement';
@@ -151,6 +153,7 @@ const AppRoutes = () => {
                     <Route path="/sales/client-records" element={<ClientRecords />} />
                     <Route path="/sales/team-records" element={<SalesTeamRecords />} />
                     <Route path="/sales/intelligence" element={<SalesIntelligence />} />
+                    <Route path="/sales/simulation" element={<SalesSimulation />} />
 
                     {/* Purchases Routes */}
                     <Route path="/purchases/order-control" element={<OrderControl />} />
@@ -161,6 +164,7 @@ const AppRoutes = () => {
                     <Route path="/purchases/central-area" element={<CentralArea />} />
                     <Route path="/purchases/supplier-campaigns" element={<SupplierCampaigns />} />
                     <Route path="/purchases/intelligence" element={<PurchasingIntelligence />} />
+                    <Route path="/purchases/brands-buyers" element={<BrandsAndBuyers />} />
 
                     {/* Team Routes */}
                     <Route path="/equipe" element={<TeamDashboard />} />

@@ -24,11 +24,13 @@ const Dashboard = () => {
             const clientName = row.client?.name || '';
             const clientId = row.client?.id || '';
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
+            const representativeRow = row.client?.representative || '';
 
             const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow === globalFilters.vendor;
             const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted === globalFilters.client;
+            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow === globalFilters.representative;
 
-            return vendorMatch && clientMatch;
+            return vendorMatch && clientMatch && representativeMatch;
         });
 
         // Apply Ranking/Sorting
@@ -125,6 +127,7 @@ const Dashboard = () => {
             id: item.client?.id || 'N/A',
             name: item.client?.name || 'N/A',
             vendor: item.client?.vendor || 'N/A',
+            representative: item.client?.representative || 'N/A',
             revenue: item.total?.amount || 0,
             margin: item.total?.margin_percent || 0,
             deadline: item.total?.deadline || 0
@@ -166,6 +169,48 @@ const Dashboard = () => {
             }));
 
         // Apply same ranking logic to Vendors list
+        if (globalFilters.ranking && globalFilters.ranking !== 'Sem Ordenação') {
+            return base.sort((a, b) => {
+                switch (globalFilters.ranking) {
+                    case 'Maior Faturamento': return b.revenue - a.revenue;
+                    case 'Menor Faturamento': return a.revenue - b.revenue;
+                    case 'Maior Margem': return b.margin - a.margin;
+                    case 'Menor Margem': return a.margin - b.margin;
+                    case 'Maior Prazo': return b.deadline - a.deadline;
+                    case 'Menor Prazo': return a.deadline - b.deadline;
+                    default: return 0;
+                }
+            }).slice(0, 10);
+        }
+
+        return base.sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    }, [filteredData, globalFilters.ranking]);
+
+    // Top Representatives
+    const topRepresentatives = useMemo(() => {
+        const repMap = {};
+        filteredData.forEach(item => {
+            const rep = item.client?.representative || 'N/A';
+            if (!repMap[rep]) {
+                repMap[rep] = { revenue: 0, marginRevenue: 0, deadline: 0, count: 0 };
+            }
+            const amount = item.total?.amount || 0;
+            const margin = item.total?.margin_percent || 0;
+            repMap[rep].revenue += amount;
+            repMap[rep].marginRevenue += margin * amount;
+            repMap[rep].deadline += item.total?.deadline || 0;
+            repMap[rep].count++;
+        });
+
+        const base = Object.keys(repMap)
+            .map(rep => ({
+                name: rep,
+                revenue: repMap[rep].revenue,
+                margin: repMap[rep].revenue ? repMap[rep].marginRevenue / repMap[rep].revenue : 0,
+                deadline: repMap[rep].count ? repMap[rep].deadline / repMap[rep].count : 0,
+                clients: repMap[rep].count
+            }));
+
         if (globalFilters.ranking && globalFilters.ranking !== 'Sem Ordenação') {
             return base.sort((a, b) => {
                 switch (globalFilters.ranking) {
@@ -469,7 +514,7 @@ const Dashboard = () => {
                         {/* Top Lists Grid */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
                             gap: '24px'
                         }}>
                             {/* Top Clients */}
@@ -513,7 +558,9 @@ const Dashboard = () => {
                                                             </Link>
                                                             <div>
                                                                 <div style={{ fontWeight: '600', marginBottom: '2px' }}>{client.name}</div>
-                                                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{client.vendor} <span style={{ opacity: 0.5 }}>|</span> ID: {client.id}</div>
+                                                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                                                    {client.vendor} <span style={{ opacity: 0.5 }}>|</span> {client.representative} <span style={{ opacity: 0.5 }}>|</span> ID: {client.id}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -559,6 +606,46 @@ const Dashboard = () => {
                                                     <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(vendor.revenue)}</td>
                                                     <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(vendor.margin)}</td>
                                                     <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{vendor.clients}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </ChartCard>
+
+                            {/* Top Representatives */}
+                            <ChartCard
+                                title="Top 10 Representantes"
+                                headerBorderColor="#f39c12"
+                            >
+                                <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
+                                            <tr style={{ background: 'var(--bg-input)' }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Representante</th>
+                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Faturamento</th>
+                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Margem</th>
+                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Clientes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {topRepresentatives.map((rep, idx) => (
+                                                <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                    <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text-main)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <div style={{
+                                                                width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-input)',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px',
+                                                                fontWeight: '800', color: 'var(--text-muted)'
+                                                            }}>
+                                                                {idx + 1}
+                                                            </div>
+                                                            <div style={{ fontWeight: '600' }}>{rep.name}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(rep.revenue)}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(rep.margin)}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{rep.clients}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

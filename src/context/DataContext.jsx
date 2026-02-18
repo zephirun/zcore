@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as api from '../services/api';
 
-const DataContext = createContext();
+export const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
 
     const [selectedQuarter, setSelectedQuarter] = useState(0); // Q1 by default
     const [quarterData, setQuarterData] = useState([]);
-    const [globalFilters, setGlobalFilters] = useState({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', ranking: 'Sem Ordenação' });
+    const [globalFilters, setGlobalFilters] = useState({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', representative: 'Selecionar Todos', ranking: 'Sem Ordenação' });
     const [theme, setTheme] = useState(() => localStorage.getItem('gmad_theme') || 'dark'); // Load from local storage
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Sidebar state
 
@@ -48,18 +48,13 @@ export const DataProvider = ({ children }) => {
     const AVAILABLE_UNITS = React.useMemo(() => {
         if (userRole === 'admin' || !allowedUnit) return ALL_UNITS;
 
-        let allowedList = [];
-        try {
-            // Try to parse as JSON array (e.g., '["madville", "curitiba"]')
-            allowedList = JSON.parse(allowedUnit);
-        } catch (e) {
-            // Fallback: Check if it's a single string or comma-separated
-            allowedList = allowedUnit.split ? allowedUnit.split(',') : [allowedUnit];
-        }
+        // Helper to normalize strings for comparison
+        const normalize = (str) => String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+        const allowedStr = normalize(allowedUnit);
 
-        if (!Array.isArray(allowedList)) allowedList = [allowedUnit];
-
-        return ALL_UNITS.filter(u => allowedList.includes(u.id));
+        // Simple and robust: check if the normalized unit ID exists within the normalized allowed string
+        // This handles "['madville']", "madville, curitiba", "Madville", etc.
+        return ALL_UNITS.filter(u => allowedStr.includes(normalize(u.id)));
     }, [userRole, allowedUnit, ALL_UNITS]);
 
     // Centralized Modules List - Grouped by Category
@@ -72,7 +67,8 @@ export const DataProvider = ({ children }) => {
                 { id: 'synthetic-sales-summary', name: 'Resumo Sintético de Vendas' },
                 { id: 'smart-catalog', name: 'Catálogo Inteligente' },
                 { id: 'sales-campaigns', name: 'Campanhas de Vendas' },
-                { id: 'sales-intelligence', name: 'Radar Estratégico' }
+                { id: 'sales-intelligence', name: 'Radar Estratégico' },
+                { id: 'sales-simulation', name: 'Simulação de Vendas' }
             ]
         },
         {
@@ -87,7 +83,8 @@ export const DataProvider = ({ children }) => {
                 { id: 'material-request', name: 'Solicitação de Materiais' },
                 { id: 'central-area', name: 'Área Central GMAD' },
                 { id: 'supplier-campaigns', name: 'Campanhas Fornecedores' },
-                { id: 'purchasing-intelligence', name: 'Inteligência de Compras' }
+                { id: 'purchasing-intelligence', name: 'Inteligência de Compras' },
+                { id: 'brands-buyers', name: 'Marcas e Compradores' }
             ]
         },
         {
@@ -255,7 +252,7 @@ export const DataProvider = ({ children }) => {
     const loadServerData = async (unit) => {
         try {
             const targetUnit = unit || activeUnit;
-            const data = await import('../services/api').then(module => module.fetchSalesData(targetUnit));
+            const data = await api.fetchSalesData(targetUnit);
 
             // Filter data by vendor if restricted
             const finalData = (userRole !== 'admin' && allowedVendor)
@@ -409,12 +406,12 @@ export const DataProvider = ({ children }) => {
 
     const saveReportData = async (newData) => {
         setSalesData(newData);
-        await import('../services/api').then(module => module.saveSalesData(newData, activeUnit));
+        await api.saveSalesData(newData, activeUnit);
     };
 
     const clearData = async () => {
         setSalesData([]);
-        await import('../services/api').then(module => module.clearSalesData(activeUnit));
+        await api.clearSalesData(activeUnit);
     };
 
     const refreshData = async () => {

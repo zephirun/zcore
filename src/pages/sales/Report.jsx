@@ -28,11 +28,13 @@ const Report = () => {
             const clientName = row.client?.name || '';
             const clientId = row.client?.id || '';
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
+            const representativeRow = row.client?.representative || '';
 
             const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow === globalFilters.vendor;
             const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted === globalFilters.client;
+            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow === globalFilters.representative;
 
-            return vendorMatch && clientMatch;
+            return vendorMatch && clientMatch && representativeMatch;
         });
 
         // Apply Ranking/Sorting
@@ -172,9 +174,11 @@ const Report = () => {
                                 <span style={{ color: '#cbd5e1' }}>|</span>
                                 <p style={{ margin: 0, fontSize: '14px', color: '#475569', fontWeight: '600', fontFamily: '"Inter", sans-serif' }}>
                                     {globalFilters.vendor !== 'Selecionar Todos' && `Vendedor: ${globalFilters.vendor.toUpperCase()}`}
-                                    {globalFilters.vendor !== 'Selecionar Todos' && globalFilters.client !== 'Selecionar Todos' && ' - '}
+                                    {globalFilters.vendor !== 'Selecionar Todos' && (globalFilters.representative !== 'Selecionar Todos' || globalFilters.client !== 'Selecionar Todos') && ' - '}
+                                    {globalFilters.representative !== 'Selecionar Todos' && `Representante: ${globalFilters.representative.toUpperCase()}`}
+                                    {globalFilters.representative !== 'Selecionar Todos' && globalFilters.client !== 'Selecionar Todos' && ' - '}
                                     {globalFilters.client !== 'Selecionar Todos' && `Cliente: ${globalFilters.client.toUpperCase()}`}
-                                    {globalFilters.vendor === 'Selecionar Todos' && globalFilters.client === 'Selecionar Todos' && 'TODOS OS DADOS SELECIONADOS'}
+                                    {globalFilters.vendor === 'Selecionar Todos' && globalFilters.representative === 'Selecionar Todos' && globalFilters.client === 'Selecionar Todos' && 'TODOS OS DADOS SELECIONADOS'}
                                 </p>
                             </div>
                         </div>

@@ -35,6 +35,8 @@ node_modules
 *.sln
 *.sw?
 
+.env*.local
+
 # Project specific
 server/data/*.sqlite
 server/data/*.sqlite-journal
@@ -44,4 +46,10 @@ generate_structure_pdf_CODE.pdf
 temp_filter_section.txt
 app_routes_additions.txt
 .vercel
-.env*.local
+.agent/
+backups/
+*.tar.gz
+oracle-api/node_modules/
+oracle-api/.env
+n8n_oracle_supabase_workflow.json
+SalesSimulation.jsx.bak

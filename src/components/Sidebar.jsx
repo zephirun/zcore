@@ -29,7 +29,7 @@ const Sidebar = () => {
             m.category === category.id &&
             (userRole === 'admin' || (Object.keys(allowedModules || {}).length === 0 ? false : (allowedModules && allowedModules.includes(m.id))))
         );
-        return hasModules;
+        return hasModules && !category.hidden; // Exclude hidden categories
     });
 
     const toggleSidebar = () => {
@@ -61,19 +61,19 @@ const Sidebar = () => {
                 if (sidebarCollapsed) setExpandedCategory(null);
             }}
             style={{
-                width: isVisualCollapsed ? '50px' : '260px',
-                height: '100vh',
+                width: isVisualCollapsed ? '48px' : '220px', // Compacted widths
+                height: 'calc(100vh - 50px)', // Start below header
                 backgroundColor: 'var(--glass-bg)', // Glass effect
                 backdropFilter: 'var(--glass-blur)',
                 WebkitBackdropFilter: 'var(--glass-blur)',
                 color: 'var(--text-main)',
-                transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.8s ease, color 0.8s ease',
+                transition: 'width 0.4s cubic-bezier(0.2, 0, 0, 1), background-color 0.8s ease, color 0.8s ease', // Faster width transition
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'fixed', // Fixed to allow overlay
                 left: 0,
-                top: 0,
-                zIndex: 1010, // Higher than Header (1000)
+                top: '50px', // Below Header
+                zIndex: 900, // Lower than Header (1000)
                 overflow: 'hidden',
                 boxShadow: 'var(--glass-shadow)',
                 borderRight: 'var(--glass-border)'
@@ -82,64 +82,7 @@ const Sidebar = () => {
 
 
             {/* Logo Section */}
-            <div
-                onClick={toggleSidebar}
-                style={{
-                    height: '50px', // Adjusted to match Header height
-                    position: 'relative',
-                    borderBottom: '1px solid var(--border-color)',
-                    width: '100%',
-                    minWidth: isVisualCollapsed ? '50px' : '260px', // Ensure content doesn't reflow
-                    overflow: 'hidden',
-                    cursor: 'pointer'
-                }}>
-                {/* Collapsed Logo (Centered in 50px) */}
-                <div style={{
-                    position: 'absolute',
-                    left: '25px', // Center of 50px sidebar
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    opacity: isVisualCollapsed ? 1 : 0,
-                    transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                    pointerEvents: isVisualCollapsed ? 'auto' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <img
-                        src={logoZeph}
-                        alt="ZORX"
-                        style={{
-                            height: '20px', // Reduced to be very small
-                            objectFit: 'contain'
-                        }}
-                    />
-                </div>
 
-                {/* Expanded Logo (Left Aligned) */}
-                <div style={{
-                    position: 'absolute',
-                    left: '20px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    opacity: isVisualCollapsed ? 0 : 1,
-                    transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                    pointerEvents: isVisualCollapsed ? 'none' : 'auto',
-                    width: 'max-content'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <img src={logoZeph} alt="Z" style={{ height: '20px' }} /> {/* Reduced to be very small */}
-                        <span style={{
-                            fontWeight: '800',
-                            fontSize: '18px', // Slightly reduced font size to match
-                            color: theme === 'dark' ? '#ffffff' : '#1565C0', // Keep specific brand colors for logo text
-                            letterSpacing: '-0.5px'
-                        }}>
-                            ZORX
-                        </span>
-                    </div>
-                </div>
-            </div>
 
             {/* Navigation Items */}
             <div
@@ -148,34 +91,11 @@ const Sidebar = () => {
                     flex: 1,
                     overflowY: 'auto',
                     overflowX: 'hidden',
-                    paddingTop: '10px',
-                    minWidth: isVisualCollapsed ? '50px' : '260px' // Ensure content doesn't reflow
+                    paddingTop: '6px', // Reduced top padding
+                    minWidth: isVisualCollapsed ? '48px' : '220px' // Ensure content doesn't reflow
                 }}>
                 {/* Home Item */}
-                <Link to="/" style={{ textDecoration: 'none' }}>
-                    <div style={{
-                        padding: isVisualCollapsed ? '12px 0' : '12px 20px', // Center icon 
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: isVisualCollapsed ? 'center' : 'flex-start', // Always start layout from left
-                        color: location.pathname === '/' ? '#1E88E5' : 'var(--text-main)',
-                        backgroundColor: location.pathname === '/' ? 'rgba(30, 136, 229, 0.15)' : 'transparent', // Consistent with categories
-                        cursor: 'pointer',
-                        borderLeft: location.pathname === '/' ? '4px solid #1E88E5' : '4px solid transparent',
-                        transition: 'all 0.2s'
-                    }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = location.pathname === '/' ? 'rgba(30, 136, 229, 0.15)' : 'var(--bg-hover)'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = location.pathname === '/' ? 'rgba(30, 136, 229, 0.15)' : 'transparent'}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                        {!isVisualCollapsed && (
-                            <span style={{ marginLeft: '15px', fontSize: '14px', fontWeight: '500' }}>Página Inicial</span>
-                        )}
-                    </div>
-                </Link >
+
 
                 {/* Categories */}
                 {
@@ -214,7 +134,7 @@ const Sidebar = () => {
                                         }
                                     }}
                                     style={{
-                                        padding: isVisualCollapsed ? '12px 0' : '12px 20px',
+                                        padding: isVisualCollapsed ? '10px 0' : '10px 16px', // Reduced padding
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: isVisualCollapsed ? 'center' : 'space-between',
@@ -278,38 +198,38 @@ const Sidebar = () => {
                                             <Link
                                                 key={module.id}
                                                 to={module.path}
-                                                style={{ textDecoration: 'none' }}
-                                            >
-                                                <div style={{
-                                                    padding: '10px 20px 10px 60px',
-                                                    fontSize: '13px',
-                                                    color: location.pathname === module.path ? (category.color || 'var(--text-main)') : 'var(--text-main)',
-                                                    backgroundColor: location.pathname === module.path ? activeBg : 'transparent', // Very light background
+                                                style={{
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s',
+                                                    gap: '10px',
+                                                    padding: '8px 12px 8px 16px', // Compact padding
+                                                    textDecoration: 'none',
+                                                    color: location.pathname === module.path ? (category.color || 'var(--text-main)') : 'var(--text-main)',
+                                                    fontSize: '13px', // Smaller font
+                                                    background: location.pathname === module.path ? activeBg : 'transparent',
+                                                    borderRadius: '6px',
+                                                    margin: '2px 8px', // Tighter spacing
+                                                    transition: 'all 0.2s ease',
                                                     borderRight: location.pathname === module.path ? `3px solid ${category.color || '#1E88E5'}` : '3px solid transparent'
                                                 }}
-                                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = location.pathname === module.path ? activeBg : hoverBg}
-                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = location.pathname === module.path ? activeBg : 'transparent'}
-                                                >
-                                                    <div style={{
-                                                        marginRight: '10px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        color: category.color || 'var(--text-main)', // Always colorful
-                                                        flexShrink: 0
-                                                    }}>
-                                                        {React.isValidElement(module.icon) && React.cloneElement(module.icon, {
-                                                            width: 18,
-                                                            height: 18,
-                                                            strokeWidth: 2
-                                                        })}
-                                                    </div>
-                                                    {module.title}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = location.pathname === module.path ? activeBg : hoverBg}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = location.pathname === module.path ? activeBg : 'transparent'}
+                                            >
+                                                <div style={{
+                                                    marginRight: '10px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: category.color || 'var(--text-main)', // Always colorful
+                                                    flexShrink: 0
+                                                }}>
+                                                    {React.isValidElement(module.icon) && React.cloneElement(module.icon, {
+                                                        width: 18,
+                                                        height: 18,
+                                                        strokeWidth: 2
+                                                    })}
                                                 </div>
+                                                {module.title}
                                             </Link>
                                         ))
                                     }
@@ -320,57 +240,9 @@ const Sidebar = () => {
                 }
             </div >
 
-            {/* Theme Toggle Footer */}
-            <div
-                onClick={toggleTheme}
-                style={{
-                    height: '50px',
-                    minHeight: '50px',
-                    borderTop: '1px solid var(--border-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: isVisualCollapsed ? 'center' : 'flex-start',
-                    padding: isVisualCollapsed ? '0' : '0 20px',
-                    cursor: 'pointer',
-                    color: 'var(--text-main)',
-                    transition: 'all 0.2s',
-                    minWidth: isVisualCollapsed ? '50px' : '260px', // Prevent reflow
-                }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-                <div style={{
-                    width: '24px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    {theme === 'dark' ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
-                    )}
-                </div>
-                {!isVisualCollapsed && (
-                    <span style={{ marginLeft: '15px', fontSize: '14px', fontWeight: '500' }}>
-                        {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                    </span>
-                )}
-            </div>
 
-        </div>
+
+        </div >
     );
 };
 

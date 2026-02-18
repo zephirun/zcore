@@ -15,11 +15,13 @@ const Home = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        document.title = "ZORX | Plataforma Operacional";
+        document.title = "ZEPH | Core";
         if (isAuthenticated) {
             navigate('/units');
         }
     }, [isAuthenticated, navigate]);
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -111,7 +113,7 @@ const Home = () => {
                         }}>
                             <img
                                 src={logoZeph}
-                                alt="ZORX"
+                                alt="ZEPH"
                                 style={{
                                     width: '42px',
                                     height: '42px',
@@ -119,8 +121,8 @@ const Home = () => {
                                 }}
                             />
                         </div>
-                        <h3>
-                            Bem-vindo ao ZORX
+                        <h3 style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 8px 0' }}>
+                            Bem-vindo ao ZEPH
                         </h3>
                         <p style={{
                             color: 'rgba(255,255,255,0.7)',
@@ -328,8 +330,8 @@ const Home = () => {
                 </div>
             </div>
 
-            <div style={{ position: 'absolute', bottom: '20px', zIndex: 10, opacity: 0.7 }}>
-                <Footer />
+            <div style={{ position: 'absolute', bottom: '20px', zIndex: 10 }}>
+                <Footer transparent={true} textColor="rgba(255,255,255,0.6)" />
             </div>
 
             <style>{`

@@ -93,6 +93,28 @@ export const allModules = [
         path: '/sales/intelligence'
     },
     {
+        id: 'sales-simulation',
+        title: 'Simulação de Vendas',
+        subtitle: 'Projeção de Metas',
+        category: 'vendas',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                <line x1="8" y1="18" x2="8.01" y2="18"></line>
+                <line x1="16" y1="18" x2="16.01" y2="18"></line>
+                <line x1="12" y1="14" x2="12.01" y2="14"></line>
+                <line x1="8" y1="14" x2="8.01" y2="14"></line>
+                <line x1="16" y1="14" x2="16.01" y2="14"></line>
+                <line x1="12" y1="10" x2="12.01" y2="10"></line>
+                <line x1="8" y1="10" x2="8.01" y2="10"></line>
+                <line x1="16" y1="10" x2="16.01" y2="10"></line>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+            </svg>
+        ),
+        path: '/sales/simulation'
+    },
+    {
         id: 'cost-center',
         title: 'Centro de Custo',
         subtitle: 'Gestão de Despesas e Orçamentos',
@@ -480,6 +502,19 @@ export const allModules = [
         path: '/purchases/intelligence'
     },
     {
+        id: 'brands-buyers',
+        title: 'Marcas e Compradores',
+        subtitle: 'Gestão de Marcas',
+        category: 'compras',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+        ),
+        path: '/purchases/brands-buyers'
+    },
+    {
         id: 'warehouse-management',
         title: 'Gerenciamento de Armazém',
         subtitle: 'Gestão de Almoxarifado',
@@ -740,7 +775,8 @@ export const categories = [
             </svg>
         ),
         color: '#0061ff',
-        bgColor: '#eef4ff'
+        bgColor: '#eef4ff',
+        hidden: true // Hidden from main menu/sidebar, moved to Header
     },
     {
         id: 'processos',

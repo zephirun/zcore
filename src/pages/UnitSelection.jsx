@@ -7,9 +7,8 @@ const UnitSelection = () => {
     const navigate = useNavigate();
 
     // Filter units based on permission
-    const units = (userRole === 'admin' || !allowedUnit)
-        ? AVAILABLE_UNITS
-        : AVAILABLE_UNITS.filter(u => u.id === allowedUnit);
+    // Units are already filtered in DataContext
+    const units = AVAILABLE_UNITS;
 
     const handleUnitClick = (unitId) => {
         switchUnit(unitId);

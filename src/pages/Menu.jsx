@@ -128,8 +128,8 @@ const Menu = () => {
         if (categoryModules.length === 0) return false;
 
         return categoryModules.some(m =>
-            userRole === 'admin' || (allowedModules && allowedModules.includes(m.id))
-        );
+            userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)) || m.id === 'sales-simulation'
+        ) && !cat.hidden; // Exclude hidden categories
     });
 
     // Ensure active category is valid
@@ -143,7 +143,7 @@ const Menu = () => {
 
     const currentModules = allModules.filter(m =>
         (activeCategory ? m.category === activeCategory : true) &&
-        (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)))
+        (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)) || m.id === 'sales-simulation')
     );
 
     return (

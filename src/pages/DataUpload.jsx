@@ -71,7 +71,17 @@ const DataUpload = () => {
                         }
                     }
 
-                    if (cols.length < 12) continue;
+                    if (cols.length < 13) continue;
+
+                    const clientId = cleanStr(cols[0]);
+                    const clientNameRaw = cleanStr(cols[3]);
+                    const vendorNameRaw = cleanStr(cols[1]);
+
+                    // Skip summary rows or empty rows
+                    if (!clientId || clientId === 'TOTAL' || clientId === 'SOMA' || clientNameRaw === 'TOTAL' || vendorNameRaw === 'TOTAL') {
+                        console.log('[CSV Import] Skipping summary or invalid row:', line);
+                        continue;
+                    }
 
                     const parseNum = (str) => {
                         if (!str) return 0;
@@ -84,19 +94,19 @@ const DataUpload = () => {
 
                     const months = [
                         {
-                            amount: parseNum(cols[3]),
-                            margin_percent: parseNum(cols[4]),
-                            deadline: parseNum(cols[5])
+                            amount: parseNum(cols[4]),
+                            margin_percent: parseNum(cols[5]),
+                            deadline: parseNum(cols[6])
                         },
                         {
-                            amount: parseNum(cols[6]),
-                            margin_percent: parseNum(cols[7]),
-                            deadline: parseNum(cols[8])
+                            amount: parseNum(cols[7]),
+                            margin_percent: parseNum(cols[8]),
+                            deadline: parseNum(cols[9])
                         },
                         {
-                            amount: parseNum(cols[9]),
-                            margin_percent: parseNum(cols[10]),
-                            deadline: parseNum(cols[11])
+                            amount: parseNum(cols[10]),
+                            margin_percent: parseNum(cols[11]),
+                            deadline: parseNum(cols[12])
                         }
                     ];
 
@@ -119,8 +129,9 @@ const DataUpload = () => {
                     parsedData.push({
                         client: {
                             id: cleanStr(cols[0]),
-                            name: cleanStr(cols[2]),   // CLIENT is col 2
-                            vendor: cleanStr(cols[1])  // VENDOR is col 1
+                            name: cleanStr(cols[3]),   // CLIENT is col 3
+                            vendor: cleanStr(cols[1]),  // VENDOR is col 1
+                            representative: cleanStr(cols[2]) // REPRESENTATIVE is col 2
                         },
                         months: months,
                         total: {

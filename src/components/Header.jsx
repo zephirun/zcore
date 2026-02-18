@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import logoGmad from '../assets/logo.png';
 import logoGmadWhite from '../assets/logo2.png'; // Assuming this is the white version
+import logoZeph from '../assets/logo_zeph_new.png'; // Updated Logo
 import { useData } from '../context/DataContext';
 import { categories, allModules } from '../config/menuConfig';
 
@@ -11,6 +12,7 @@ const Header = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [isUnitMenuOpen, setIsUnitMenuOpen] = useState(false);
+    const [isAiMenuOpen, setIsAiMenuOpen] = useState(false); // AI Menu State
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
     const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); // Mega Menu State
@@ -19,6 +21,7 @@ const Header = () => {
     const sidebarRef = useRef(null); // Ref for sidebar
     const menuButtonRef = useRef(null); // Ref for menu button
     const unitRef = useRef(null); // Ref for unit selector
+    const aiRef = useRef(null); // Ref for AI menu
     const appsRef = useRef(null); // Ref for apps menu
     const userRef = useRef(null); // Ref for user menu
 
@@ -38,6 +41,10 @@ const Header = () => {
             // Apps Menu
             if (isAppsMenuOpen && appsRef.current && !appsRef.current.contains(event.target)) {
                 setIsAppsMenuOpen(false);
+            }
+            // AI Menu
+            if (isAiMenuOpen && aiRef.current && !aiRef.current.contains(event.target)) {
+                setIsAiMenuOpen(false);
             }
             // User Menu
             if (isUserMenuOpen && userRef.current && !userRef.current.contains(event.target)) {
@@ -122,15 +129,15 @@ const Header = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    paddingLeft: '20px',
+                    paddingLeft: '14px', // Centering Z logo relative to 48px sidebar ((48-20)/2 = 14)
                     paddingRight: '10px',
                     boxShadow: 'var(--glass-shadow)',
                     borderBottom: 'var(--glass-border)', // Theme border
                     position: 'fixed', // Fixed to stay on screen
                     top: 0,
-                    width: sidebarCollapsed ? 'calc(100% - 50px)' : 'calc(100% - 260px)',
-                    left: sidebarCollapsed ? '50px' : '260px',
-                    transition: 'left 0.8s cubic-bezier(0.4, 0, 0.2, 1), width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    width: '100%',
+                    left: 0,
+                    transition: 'none',
                     zIndex: 1000
                 }}>
                 {/* Left Section (Logo + Menu) */}
@@ -155,16 +162,45 @@ const Header = () => {
 
                     {/* Logo First - Updated to ZCORE */}
                     {/* Logo First - Updated to ZCORE */}
-                    <Link to="/menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                        <img
-                            src={theme === 'dark' ? logoGmadWhite : logoGmad}
-                            alt="ZORX"
-                            style={{
-                                height: '26px',
-                                objectFit: 'contain'
-                            }}
-                        />
-                    </Link>
+                    {/* Logo Section */}
+                    {/* ZEPH Logo (Clickable) */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Link to="/menu" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                            <img
+                                src={logoZeph}
+                                alt="ZEPH"
+                                style={{
+                                    height: '20px',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </Link>
+
+                        {/* Divider */}
+                        <div style={{ width: '1px', height: '16px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+
+                        {/* GMAD Logo with Environment Title */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{
+                                fontSize: '14px',
+                                fontWeight: '800',
+                                color: 'var(--text-muted)',
+                                letterSpacing: '0.5px',
+                                textTransform: 'uppercase'
+                            }}>
+                                AMBIENTE
+                            </span>
+                            <img
+                                src={theme === 'dark' ? logoGmadWhite : logoGmad}
+                                alt="GMAD"
+                                style={{
+                                    height: '24px',
+                                    objectFit: 'contain',
+                                    opacity: 0.9
+                                }}
+                            />
+                        </div>
+                    </div>
 
 
                 </div>
@@ -173,23 +209,130 @@ const Header = () => {
                 <div style={{
                     position: 'absolute',
                     left: '50%',
-                    transform: 'translateX(-50%)',
+                    top: '50%', // Vertically centered
+                    transform: 'translate(-50%, -50%)', // Center both axes
                     width: '100%',
-                    maxWidth: '400px',
-                    pointerEvents: 'auto'
+                    maxWidth: '420px', // Slightly narrower
+                    pointerEvents: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
                 }}>
+                    {/* AI Menu (Icon Only - Refined) */}
+                    <div
+                        ref={aiRef}
+                        onClick={() => setIsAiMenuOpen(!isAiMenuOpen)}
+                        style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}
+                    >
+                        {/* AI Icon - Glass/Gradient Style */}
+                        <div style={{
+                            width: '30px', height: '30px', // Smaller to match new height
+                            background: isAiMenuOpen
+                                ? 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)'
+                                : 'rgba(255, 255, 255, 0.1)', // Subtle glass when inactive
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '50%', // Circle shape
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: isAiMenuOpen ? '0 4px 12px rgba(0, 97, 255, 0.4)' : 'none',
+                            transition: 'all 0.2s ease',
+                        }}
+                            onMouseEnter={e => {
+                                if (!isAiMenuOpen) {
+                                    e.currentTarget.style.background = 'var(--bg-hover)';
+                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                }
+                            }}
+                            onMouseLeave={e => {
+                                if (!isAiMenuOpen) {
+                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                                }
+                            }}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke={isAiMenuOpen ? 'white' : 'var(--text-main)'}
+                                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                            </svg>
+                        </div>
+
+                        {isAiMenuOpen && (
+                            <div style={{
+                                position: 'absolute', top: '40px', left: '-10px',
+                                background: 'var(--bg-card)', borderRadius: '16px',
+                                boxShadow: 'var(--shadow-xl)',
+                                border: '1px solid var(--border-color)',
+                                width: '300px',
+                                zIndex: 120,
+                                padding: '12px',
+                                animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                            }}>
+                                <div style={{
+                                    padding: '0 8px 8px',
+                                    fontSize: '11px', fontWeight: '700',
+                                    color: 'var(--text-muted)',
+                                    textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    borderBottom: '1px solid var(--border-color)',
+                                    marginBottom: '8px'
+                                }}>
+                                    Inteligência Artificial
+                                </div>
+                                {allModules.filter(m => m.category === 'ia').map(module => (
+                                    <Link
+                                        key={module.id}
+                                        to={module.path}
+                                        onClick={() => setIsAiMenuOpen(false)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px',
+                                            padding: '10px',
+                                            borderRadius: '10px',
+                                            textDecoration: 'none',
+                                            color: 'var(--text-main)',
+                                            transition: 'all 0.2s ease',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.background = 'var(--bg-input)';
+                                            e.currentTarget.style.transform = 'translateX(4px)';
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.background = 'transparent';
+                                            e.currentTarget.style.transform = 'translateX(0)';
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '32px', height: '32px',
+                                            borderRadius: '8px',
+                                            background: '#eef4ff',
+                                            color: '#0061ff',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {React.cloneElement(module.icon, { width: 18, height: 18 })}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '13px', fontWeight: '600' }}>{module.title}</div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Search Bar Input (Pill Shape) */}
                     <div style={{
+                        flex: 1, // Take remaining space
                         display: 'flex',
                         alignItems: 'center',
-                        backgroundColor: 'var(--bg-input)', // Theme input bg
-                        borderRadius: '6px',
-                        height: '42px',
-                        border: '1px solid var(--border-input)', // Theme border
-                        padding: '0 12px',
-                        transition: 'all 0.2s ease',
+                        backgroundColor: 'var(--bg-input)',
+                        borderRadius: '50px', // Pill shape
+                        height: '34px', // Reduced height to 34px
+                        border: '1px solid var(--border-input)',
+                        padding: '0 4px 0 16px', // Adjusted padding
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
                     }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'} // Active color on hover
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--text-muted)'}
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-input)'}
                     >
                         <input
@@ -202,14 +345,21 @@ const Header = () => {
                                 border: 'none',
                                 background: 'transparent',
                                 padding: '0 10px',
-                                fontSize: '14px',
+                                fontSize: '12px', // Smaller font
                                 outline: 'none',
                                 color: 'var(--text-main)' // Main text color for input
                             }}
                         />
-                        {/* Search Icon (Gray) */}
-                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {/* Search Icon (Circle) */}
+                        <div style={{
+                            width: '26px', height: '26px', // Smaller button
+                            background: 'var(--color-primary)', // Brand color button
+                            borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                        }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
@@ -274,6 +424,7 @@ const Header = () => {
 
                 {/* Right Section (Actions) */}
                 <div style={{ flex: 1, display: 'flex', gap: '25px', alignItems: 'center', justifyContent: 'flex-end' }}>
+
 
                     {/* Unit Selector */}
                     <div
@@ -374,6 +525,54 @@ const Header = () => {
                                 padding: '8px',
                                 overflow: 'hidden'
                             }}>
+                                {/* Theme Toggle - Moved from Sidebar */}
+                                <div
+                                    onClick={() => {
+                                        toggleTheme();
+                                        setIsAppsMenuOpen(false);
+                                    }}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '12px',
+                                        padding: '12px 15px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        transition: 'background 0.2s',
+                                        color: 'var(--text-main)',
+                                        marginBottom: '4px'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    <div style={{
+                                        width: '32px', height: '32px', borderRadius: '6px',
+                                        backgroundColor: theme === 'dark' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(103, 58, 183, 0.1)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        {theme === 'dark' ? (
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="5"></circle>
+                                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                            </svg>
+                                        ) : (
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#673AB7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>
+                                        {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+                                    </span>
+                                </div>
+
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 8px' }} />
+
                                 {userRole === 'admin' && (
                                     <Link
                                         to="/admin/audit"
