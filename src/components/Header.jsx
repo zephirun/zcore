@@ -119,26 +119,26 @@ const Header = () => {
         }}>
             {/* 2. MAIN HEADER (Green) - Now Theme Aware */}
             <div
-                className="header-container" // Added class for CSS override
+                className="header-container"
                 style={{
-                    height: '50px',
-                    backgroundColor: 'var(--glass-bg)', // Dynamic background
+                    height: '48px',
+                    backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.4)' : 'var(--glass-bg)',
                     color: 'var(--text-main)',
-                    backdropFilter: 'var(--glass-blur)', // Modern blur
-                    WebkitBackdropFilter: 'var(--glass-blur)', // Safari support
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    paddingLeft: '14px', // Centering Z logo relative to 48px sidebar ((48-20)/2 = 14)
-                    paddingRight: '10px',
-                    boxShadow: 'var(--glass-shadow)',
-                    borderBottom: 'var(--glass-border)', // Theme border
-                    position: 'fixed', // Fixed to stay on screen
-                    top: 0,
-                    width: '100%',
-                    left: 0,
-                    transition: 'none',
-                    zIndex: 1000
+                    padding: '0 24px',
+                    boxShadow: theme === 'dark' ? '0 8px 32px 0 rgba(0, 0, 0, 0.8)' : 'var(--glass-shadow)',
+                    border: 'var(--glass-border)',
+                    borderRadius: 'var(--radius-lg, 20px)',
+                    position: 'fixed',
+                    top: '12px',
+                    left: '20px',
+                    right: '20px',
+                    transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: 1200
                 }}>
                 {/* Left Section (Logo + Menu) */}
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -838,13 +838,14 @@ const Header = () => {
                                 className="scroll-container"
                                 style={{
                                     flex: 1,
-                                    background: 'white',
+                                    background: theme === 'dark' ? 'rgba(0,0,0,0.2)' : '#ffffff',
                                     padding: '30px',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     gap: '20px',
                                     overflowY: 'auto'
-                                }}>
+                                }}
+                            >
                                 {(() => {
                                     const activeCategoryData = categories.find(c => c.id === activeCategoryId);
                                     return (

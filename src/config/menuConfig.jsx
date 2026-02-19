@@ -19,6 +19,21 @@ export const allModules = [
         path: '/sales/dashboard'
     },
     {
+        id: 'sales-analysis-real',
+        title: 'Faturamento em Tempo Real',
+        subtitle: 'Dados Direto do Oracle',
+        category: 'vendas',
+        size: 'large',
+        health: 'stable',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20M2 12h20" />
+                <circle cx="12" cy="12" r="10" />
+            </svg>
+        ),
+        path: '/sales/analysis'
+    },
+    {
         id: 'client-records',
         title: 'Ficha de Clientes',
         subtitle: 'Histórico e Observações',
@@ -790,8 +805,8 @@ export const categories = [
                 <path d="M18 9a9 9 0 0 1-9 9" />
             </svg>
         ),
-        color: '#7b1fa2',
-        bgColor: '#f3e5f5'
+        color: '#0288d1',
+        bgColor: '#e1f5fe'
     },
     {
         id: 'rh',

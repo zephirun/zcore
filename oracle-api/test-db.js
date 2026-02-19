@@ -1,5 +1,16 @@
 const oracledb = require('oracledb');
+const path = require('path');
 require('dotenv').config();
+
+// Inicializa o Thick Mode
+try {
+    oracledb.initOracleClient({ libDir: path.join(__dirname, 'client', 'instantclient_21_21') });
+    console.log('✅ Thick Mode initialized');
+} catch (err) {
+    if (!err.message.includes('NJS-010')) { // NJS-010 is "Already initialized"
+        console.error('❌ initOracleClient error:', err.message);
+    }
+}
 
 async function test() {
     console.log('--- ORACLE CONNECTION TEST ---');

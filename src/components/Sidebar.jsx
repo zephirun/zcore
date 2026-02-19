@@ -61,22 +61,24 @@ const Sidebar = () => {
                 if (sidebarCollapsed) setExpandedCategory(null);
             }}
             style={{
-                width: isVisualCollapsed ? '48px' : '220px', // Compacted widths
-                height: 'calc(100vh - 50px)', // Start below header
-                backgroundColor: 'var(--glass-bg)', // Glass effect
+                width: isVisualCollapsed ? '52px' : '200px',
+                height: 'calc(100vh - 72px - 12px)', // 12 top + 48 header + 12 gap + (12 bottom gap)
+                backgroundColor: 'var(--glass-bg)',
                 backdropFilter: 'var(--glass-blur)',
                 WebkitBackdropFilter: 'var(--glass-blur)',
                 color: 'var(--text-main)',
-                transition: 'width 0.4s cubic-bezier(0.2, 0, 0, 1), background-color 0.8s ease, color 0.8s ease', // Faster width transition
+                transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'flex',
                 flexDirection: 'column',
-                position: 'fixed', // Fixed to allow overlay
-                left: 0,
-                top: '50px', // Below Header
-                zIndex: 900, // Lower than Header (1000)
+                position: 'fixed',
+                left: '20px',
+                top: '72px', // Below 12 top + 48 header + 12 gap
+                bottom: '12px',
+                zIndex: 1100,
                 overflow: 'hidden',
                 boxShadow: 'var(--glass-shadow)',
-                borderRight: 'var(--glass-border)'
+                border: 'var(--glass-border)',
+                borderRadius: 'var(--radius-lg, 16px)'
             }}
         >
 
@@ -91,8 +93,8 @@ const Sidebar = () => {
                     flex: 1,
                     overflowY: 'auto',
                     overflowX: 'hidden',
-                    paddingTop: '6px', // Reduced top padding
-                    minWidth: isVisualCollapsed ? '48px' : '220px' // Ensure content doesn't reflow
+                    paddingTop: '6px',
+                    minWidth: isVisualCollapsed ? '52px' : '200px'
                 }}>
                 {/* Home Item */}
 
@@ -134,17 +136,17 @@ const Sidebar = () => {
                                         }
                                     }}
                                     style={{
-                                        padding: isVisualCollapsed ? '10px 0' : '10px 16px', // Reduced padding
+                                        padding: isVisualCollapsed ? '12px 0' : '12px 20px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: isVisualCollapsed ? 'center' : 'space-between',
-                                        // Color text if active OR expanded
                                         color: (isActive || isExpanded) ? itemColor : 'var(--text-main)',
-                                        // Background active if active OR expanded
                                         backgroundColor: (isActive || isExpanded) ? activeBg : 'transparent',
                                         cursor: 'pointer',
-                                        borderLeft: (isActive || isExpanded) ? `4px solid ${category.color || '#1E88E5'}` : '4px solid transparent',
-                                        transition: 'all 0.2s'
+                                        borderLeft: (isActive || isExpanded) ? `4px solid ${category.color || '#3b82f6'}` : '4px solid transparent',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        margin: '4px 8px',
+                                        borderRadius: '12px'
                                     }}
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center' }}>

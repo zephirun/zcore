@@ -1,90 +1,77 @@
 :root {
-    /* ZCORE Palette */
-    --color-primary: #1E88E5;
-    /* ZCORE Blue */
-    --color-primary-hover: #1976D2;
-    --color-green-topbar: #26C6DA;
-    /* Cyan Accent */
-    --color-secondary: #000000;
-    /* Dark text/footer */
-    --color-accent: #26C6DA;
-    /* Cyan Accent */
-    --color-zcore-blue: #1565C0;
-    /* Deep Blue */
+    /* ZCORE Palette - Obsidian & Neon */
+    --color-primary: #3b82f6;
+    /* Electric Blue */
+    --color-primary-glow: rgba(59, 130, 246, 0.5);
+    --color-secondary: #0f172a;
+    --color-accent: #22d3ee;
+    /* Cyan Neon */
+    --color-success: #10b981;
+    --color-error: #ef4444;
 
-    /* Light Mode (Default) */
-    --bg-main: #f5f7fa;
-    /* Light Gray Background */
+    /* Light Mode (Minimalist Cloud) */
+    --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --bg-input: #ffffff;
-    --bg-header: rgba(255, 255, 255, 0.85);
-    /* Light Header */
-    --bg-hover: rgba(0, 0, 0, 0.04);
-    /* Hover State */
+    --bg-header: rgba(255, 255, 255, 0.9);
+    --bg-hover: rgba(59, 130, 246, 0.08);
 
-    --text-main: #2c3e50;
-    /* Dark Text for Light Mode */
-    --text-muted: #607d8b;
-    --text-light: #333333;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    /* Slightly darker than before for legibility */
+    --text-light: #ffffff;
 
-    --border-color: #e0e0e0;
-    --border-input: #cfd8dc;
+    --border-color: #e2e8f0;
+    --border-input: #cbd5e1;
 
-    --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --radius: 4px;
-    /* More square, like GMAD */
+    --font-main: 'Outfit', 'Inter', sans-serif;
+    --radius: 12px;
+    --radius-lg: 20px;
     --radius-full: 9999px;
 
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-menu: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Glassmorphism Defaults (Light - Focused on Clarity) */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: 1px solid rgba(0, 0, 0, 0.06);
+    --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    --glass-blur: blur(8px);
 
-    /* Glassmorphism Tokens (Default/Light) */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    /* Frosted glass for light mode */
-    --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-    --glass-blur: blur(20px);
-    --glass-radius: 24px;
+    --bg-obsidian: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f5f9 100%);
 }
 
 [data-theme='dark'] {
-    /* Dark Mode Overrides - Antigravity Lighter Palette */
-    /* --bg-main: #202020;  REPLACED WITH GRADIENT BELOW */
-    --bg-main: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000000 100%);
+    /* Obsidian Palette */
+    --bg-main: #020617;
+    --bg-obsidian: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 100%);
 
-    /* Glassmorphism Tokens (Dark) */
-    --glass-bg: rgba(255, 255, 255, 0.05);
+    /* Glassmorphism Dark (The Star) */
+    --glass-bg: rgba(15, 23, 42, 0.4);
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --glass-blur: blur(20px);
 
-    /* Standard UI Tokens mapped to Glass */
-    --bg-card: var(--glass-bg);
-    --bg-input: rgba(0, 0, 0, 0.3);
-    /* Darker semi-transparent for inputs */
-    --bg-header: var(--glass-bg);
-    /* Match Card */
-    --bg-hover: rgba(255, 255, 255, 0.05);
-    /* Hover State Dark */
+    --bg-card: rgba(15, 23, 42, 0.4);
+    --bg-input: rgba(0, 0, 0, 0.6);
+    --bg-header: rgba(2, 6, 23, 0.8);
+    --bg-hover: rgba(59, 130, 246, 0.1);
 
-    --text-main: #e0e0e0;
-    /* Brighter Text */
-    --text-muted: #a0a0a0;
-    /* Lighter Muted */
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
     --text-light: #ffffff;
 
     --border-color: rgba(255, 255, 255, 0.1);
-    /* Visible but subtle border */
-    --border-input: rgba(255, 255, 255, 0.1);
+    --border-input: rgba(255, 255, 255, 0.15);
+
+    --shadow-md: 0 12px 24px -6px rgba(0, 0, 0, 0.7);
 }
 
 /* --- NEBULA BACKGROUND ANIMATION --- */
 .nebula-bg-container {
-    background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    background: var(--bg-obsidian);
     position: absolute;
     inset: 0;
     overflow: hidden;
     z-index: 0;
+    transition: background 0.5s ease;
 }
 
 .nebula-blob {
@@ -93,30 +80,46 @@
     height: 60vw;
     border-radius: 50%;
     filter: blur(80px);
-    /* Slightly sharper blur for more definition */
-    opacity: 0.6;
-    /* Increased opacity from 0.4 */
-    mix-blend-mode: screen;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    /* Better for light mode */
     pointer-events: none;
     will-change: transform;
+    display: none;
+    /* Hidden in light mode by default */
+}
+
+[data-theme='dark'] .nebula-blob {
+    mix-blend-mode: screen;
+    opacity: 0.6;
+    display: block;
+}
+
+/* Re-enable for light mode if we want subtle effects */
+[data-theme='light'] .nebula-blob {
+    display: block;
+    opacity: 0.12;
+    filter: blur(140px);
 }
 
 .blob-1 {
-    background: radial-gradient(circle, #0ea5e9 0%, transparent 70%);
+    background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
     top: -10%;
     left: -10%;
     animation: nebula-float 25s infinite alternate ease-in-out;
 }
 
 .blob-2 {
-    background: radial-gradient(circle, #1e3a8a 0%, transparent 70%);
+    background: radial-gradient(circle, #0ea5e9 0%, transparent 70%);
+    /* Reverted to Blue/Cyan */
     bottom: -20%;
     right: -10%;
     animation: nebula-float 30s infinite alternate-reverse ease-in-out;
 }
 
 .blob-3 {
-    background: radial-gradient(circle, #312e81 0%, transparent 70%);
+    background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
+    /* Reverted to Cyan */
     top: 20%;
     right: 15%;
     animation: nebula-float 20s infinite alternate-reverse ease-in-out;
@@ -391,14 +394,14 @@ button {
 }
 
 [data-theme='dark'] .btn-insights {
-    background: #7c3aed !important;
+    background: var(--color-primary) !important;
     color: white !important;
-    border: 1px solid #7c3aed !important;
+    border: 1px solid var(--color-primary) !important;
 }
 
 [data-theme='dark'] .btn-insights:hover {
-    background: #6d28d9 !important;
-    border-color: #6d28d9 !important;
+    background: var(--color-primary-glow) !important;
+    border-color: var(--color-primary-glow) !important;
 }
 
 /* React Grid Layout Styles */

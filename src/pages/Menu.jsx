@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { allModules, categories } from '../config/menuConfig';
 
 const Typewriter = ({ texts, color, onComplete }) => {
+    const { theme } = useData();
     const [currentLine, setCurrentLine] = useState(0);
     const [displayedText, setDisplayedText] = useState(['', '']);
     const [isTyping, setIsTyping] = useState(true);
@@ -46,9 +47,9 @@ const Typewriter = ({ texts, color, onComplete }) => {
             minHeight: '65px'
         }}>
             <h1 style={{
-                fontSize: '24px',
+                fontSize: '28px', // Increased from 24px
                 fontWeight: '800',
-                color: 'var(--text-main)',
+                color: 'var(--text-main)', // Use theme variable
                 margin: '0 0 5px 0',
                 letterSpacing: '-0.02em',
                 fontFamily: 'var(--font-main)',
@@ -56,7 +57,8 @@ const Typewriter = ({ texts, color, onComplete }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '8px',
+                textShadow: theme === 'dark' ? '0 2px 10px rgba(0,0,0,0.5)' : 'none'
             }}>
                 {displayedText[0]}
                 {currentLine === 0 && isTyping && <span className="typewriter-cursor">|</span>}
@@ -66,7 +68,7 @@ const Typewriter = ({ texts, color, onComplete }) => {
                         animation: 'wave 2s infinite',
                         transformOrigin: '70% 70%'
                     }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E88E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"></path>
                             <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v11"></path>
                             <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
@@ -98,7 +100,7 @@ const Typewriter = ({ texts, color, onComplete }) => {
                     60% { transform: rotate( 0.0deg) }
                     100% { transform: rotate( 0.0deg) }
                 }
-                .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: ${color || '#1E88E5'}; animation: blink 0.8s infinite; }
+                .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: var(--color-primary); animation: blink 0.8s infinite; }
             `}</style>
         </div>
     );
@@ -150,17 +152,28 @@ const Menu = () => {
         <div style={{
             minHeight: '100vh',
             fontFamily: 'var(--font-main)',
-            background: 'var(--bg-main)',
+            background: 'var(--bg-obsidian)',
             color: 'var(--text-main)',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            position: 'relative'
         }}>
+            {/* Background Nebula Effect */}
+            <div className="nebula-bg-container" style={{ position: 'fixed', zIndex: 0 }}>
+                <div className="nebula-blob blob-1"></div>
+                <div className="nebula-blob blob-2"></div>
+                <div className="nebula-blob blob-3"></div>
+                <div className="nebula-star-layer"></div>
+            </div>
+
             <div style={{
                 flex: 1,
                 width: '100%',
                 maxWidth: '1800px',
                 margin: '0 auto',
-                padding: '20px 20px'
+                padding: '20px 20px',
+                position: 'relative',
+                zIndex: 1
             }}>
                 {/* Welcome - Animated with Stability */}
                 <Typewriter
@@ -176,10 +189,10 @@ const Menu = () => {
                     className="category-grid"
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(5, 1fr)', // Fixed 5 columns on Desktop
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', // Increased min-width
                         gap: '12px',
                         padding: '10px 0 30px 0',
-                        maxWidth: '1200px',
+                        maxWidth: '1600px', // Wider container
                         margin: '0 auto'
                     }}>
                     {visibleCategories.map(cat => {
@@ -190,31 +203,35 @@ const Menu = () => {
                                 onClick={() => handleCategoryClick(cat.id)}
                                 style={{
                                     display: 'flex',
-                                    alignItems: 'center', // Horizontal alignment
+                                    alignItems: 'center',
                                     cursor: 'pointer',
                                     gap: '12px',
                                     padding: '12px 16px',
                                     borderRadius: '12px',
-                                    background: isActive ? cat.color : 'var(--bg-card)',
-                                    border: isActive ? 'none' : '1px solid var(--border-color)',
-                                    color: isActive ? 'white' : 'var(--text-main)',
+                                    background: isActive ? 'var(--color-primary-glow)' : 'var(--bg-hover)',
+                                    border: isActive ? `1px solid ${cat.color}` : '1px solid var(--border-color)',
+                                    color: isActive ? 'white' : 'var(--text-muted)',
                                     boxShadow: isActive
-                                        ? `0 4px 12px -3px ${cat.color}66`
-                                        : 'var(--shadow-sm)',
-                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        ? `0 0 20px -5px ${cat.color}66`
+                                        : 'none',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     transform: isActive ? 'translateY(-2px)' : 'translateY(0)',
-                                    minHeight: '60px' // Rectangular shape
+                                    backdropFilter: 'blur(10px)',
+                                    WebkitBackdropFilter: 'blur(10px)',
+                                    minHeight: '48px'
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.borderColor = cat.color;
                                         e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                                        e.currentTarget.style.borderColor = cat.color;
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
                                     }
                                 }}
                                 onMouseLeave={e => {
                                     if (!isActive) {
+                                        e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; // Simplified for dynamic
                                         e.currentTarget.style.borderColor = 'var(--border-color)';
-                                        e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
                                     }
                                 }}
                             >
@@ -231,11 +248,14 @@ const Menu = () => {
                                 </div>
                                 {/* Label */}
                                 <span style={{
-                                    fontSize: '13px',
+                                    fontSize: '15px',
                                     fontWeight: '700',
                                     lineHeight: '1.2',
                                     color: isActive ? 'white' : 'var(--text-main)',
-                                    whiteSpace: 'nowrap',
+                                    whiteSpace: 'normal',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis'
                                 }}>
@@ -251,9 +271,9 @@ const Menu = () => {
                     className="menu-grid"
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', // Wider blocks for Desktop (prevents too many cols)
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', // Wider blocks for Desktop (prevents too many cols)
                         justifyContent: 'center',
-                        gap: '16px', // Tighter gap
+                        gap: '24px', // Wider gap for bigger cards
                         padding: '10px 0',
                         animation: 'fadeInUp 0.5s ease-out'
                     }}>
@@ -321,31 +341,33 @@ const ModuleCard = ({ module, iconColor, buttonColor, isDark, onClick }) => {
             onMouseLeave={() => setIsHovered(false)}
             onMouseMove={handleMouseMove}
             style={{
-                borderRadius: '16px',
-                padding: '2px', // Space for border gradient/spotlight
+                borderRadius: '24px',
+                padding: '2px',
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: isComingSoon ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isHovered && !isComingSoon ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)',
-                // Base background + Spotlight Gradient
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isHovered && !isComingSoon ? 'translateY(-8px)' : 'translateY(0)',
                 background: isHovered && !isComingSoon
-                    ? `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}40, transparent 40%), var(--bg-card)`
-                    : 'var(--bg-card)',
+                    ? `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}40, transparent 40%), var(--glass-bg)`
+                    : 'var(--glass-bg)',
                 boxShadow: isHovered && !isComingSoon
-                    ? `0 20px 40px -10px ${buttonColor}40, 0 0 0 1px ${buttonColor}20`
+                    ? `0 20px 40px -10px ${buttonColor}30, 0 0 0 1px ${buttonColor}50`
                     : 'var(--shadow-sm)',
                 zIndex: isHovered ? 10 : 1,
-                minHeight: '160px',
+                minHeight: '180px',
                 height: '100%',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                border: 'var(--glass-border)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
             }}
         >
             {/* INNER CONTENT CONTAINER */}
             <div style={{
-                background: 'var(--bg-card)', // Solid background to cover the "border" padding
-                borderRadius: '14px', // Slightly smaller than parent
+                background: 'transparent', // Transparent to show parent glass effect
+                borderRadius: '22px',
                 width: '100%',
                 height: '100%',
                 display: 'flex',
@@ -356,9 +378,8 @@ const ModuleCard = ({ module, iconColor, buttonColor, isDark, onClick }) => {
                 position: 'relative',
                 zIndex: 2,
                 padding: '24px 20px',
-                // Optional: Very subtle spotlight inside the card too
                 backgroundImage: isHovered && !isComingSoon
-                    ? `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}10, transparent 40%)`
+                    ? `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, ${buttonColor}20, transparent 40%)`
                     : 'none'
             }}>
 
@@ -423,8 +444,8 @@ const ModuleCard = ({ module, iconColor, buttonColor, isDark, onClick }) => {
 
                 {/* TITLE - Professional Typography */}
                 <h3 style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
+                    fontSize: '16px', // Increased from 14px
+                    fontWeight: '700', // Bolder
                     color: 'var(--text-main)',
                     textAlign: 'center',
                     margin: 0,

@@ -1,5 +1,14 @@
 require('dotenv').config();
 const oracledb = require('oracledb');
+const path = require('path');
+
+// Inicializa o Client em modo "Thick" para suportar Criptografia Nativa (ORA-12660)
+try {
+    oracledb.initOracleClient({ libDir: path.join(__dirname, 'client', 'instantclient_21_21') });
+    console.log('💎 Oracle Thick Mode initialized with local Instant Client v21');
+} catch (err) {
+    console.warn('⚠️ Warning: Could not initialize Thick Mode. Falling back to Thin Mode.', err.message);
+}
 
 // Configurações Globais
 oracledb.autoCommit = true;
@@ -58,7 +67,17 @@ async function execute(sql, binds = [], opts = {}) {
         };
 
         const result = await connection.execute(sql, binds, options);
-        return result;
+
+        // Normaliza as chaves para lowercase para facilitar o uso no frontend
+        const normalizedRows = result.rows.map(row => {
+            const newRow = {};
+            for (let key in row) {
+                newRow[key.toLowerCase()] = row[key];
+            }
+            return newRow;
+        });
+
+        return { rows: normalizedRows, metaData: result.metaData };
     } catch (err) {
         console.error('Execution Error:', err);
         throw err;

@@ -4,8 +4,9 @@
     "description": "API de conexão Oracle para o sistema ZCore",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js",
-        "dev": "nodemon index.js"
+        "start": "LD_LIBRARY_PATH=/home/ruanf/GMAD/Zeph/oracle-api/client/instantclient_21_21 node index.js",
+        "dev": "LD_LIBRARY_PATH=/home/ruanf/GMAD/Zeph/oracle-api/client/instantclient_21_21 nodemon index.js",
+        "test": "LD_LIBRARY_PATH=/home/ruanf/GMAD/Zeph/oracle-api/client/instantclient_21_21 node test-db.js"
     },
     "dependencies": {
         "cors": "^2.8.5",

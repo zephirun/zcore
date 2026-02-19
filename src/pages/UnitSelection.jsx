@@ -18,96 +18,100 @@ const UnitSelection = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'var(--bg-main)',
+            background: 'var(--bg-obsidian, var(--bg-main))',
             color: 'var(--text-main)',
             fontFamily: 'var(--font-main)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px'
+            padding: '24px'
         }}>
             <div style={{
-                background: 'var(--bg-card)',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                WebkitBackdropFilter: 'var(--glass-blur)',
                 width: '100%',
-                maxWidth: '600px',
-                padding: '48px',
-                borderRadius: '24px',
-                boxShadow: 'var(--shadow-lg)',
-                border: '1px solid var(--border-color)',
+                maxWidth: '560px',
+                padding: '40px',
+                borderRadius: 'var(--radius-lg, 24px)',
+                boxShadow: 'var(--glass-shadow)',
+                border: 'var(--glass-border)',
                 textAlign: 'center'
             }}>
-                <div style={{ marginBottom: '40px' }}>
+                <div style={{ marginBottom: '32px' }}>
                     <div style={{
-                        width: '64px', height: '64px', margin: '0 auto 24px',
-                        background: 'var(--bg-input)', borderRadius: '16px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '56px', height: '56px', margin: '0 auto 20px',
+                        background: 'rgba(59, 130, 246, 0.1)', borderRadius: '14px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'var(--color-primary)',
+                        boxShadow: '0 0 15px rgba(59, 130, 246, 0.2)'
                     }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4" />
                         </svg>
                     </div>
                     <h2 style={{
                         color: 'var(--text-main)',
-                        fontSize: '28px',
+                        fontSize: '24px',
                         fontWeight: '800',
-                        marginBottom: '12px',
+                        marginBottom: '8px',
                         letterSpacing: '-0.02em'
                     }}>
                         Selecione a Unidade
                     </h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontWeight: '500' }}>
-                        Escolha uma filial para acessar o ambiente de trabalho
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>
+                        Escolha uma filial para carregar seus dados
                     </p>
                 </div>
 
-                <div style={{ display: 'grid', gap: '16px' }}>
+                <div style={{ display: 'grid', gap: '12px' }}>
                     {units.map(unit => (
                         <button
                             key={unit.id}
                             onClick={() => handleUnitClick(unit.id)}
                             className="unit-card"
                             style={{
-                                padding: '24px',
+                                padding: '20px 24px',
                                 borderRadius: '16px',
-                                background: 'var(--bg-input)',
-                                border: '1px solid var(--border-input)',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
                                 cursor: 'pointer',
                                 color: 'var(--text-main)',
                                 textAlign: 'left',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                 position: 'relative',
                                 overflow: 'hidden'
                             }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', zIndex: 2 }}>
                                 <div style={{
-                                    width: '40px',
-                                    height: '40px',
+                                    width: '36px',
+                                    height: '36px',
                                     borderRadius: '10px',
-                                    background: unit.id === 'madville' ? '#1E88E5' : '#43A047',
+                                    background: unit.id === 'madville' ? '#3b82f6' : '#10b981',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     color: 'white',
                                     fontWeight: '700',
-                                    fontSize: '14px',
-                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                    fontSize: '13px',
+                                    boxShadow: `0 4px 12px ${unit.id === 'madville' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`
                                 }}>
                                     {unit.id.substring(0, 1).toUpperCase()}
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.01em' }}>{unit.name}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '16px', fontWeight: '700', letterSpacing: '-0.01em' }}>{unit.name}</span>
                                 </div>
                             </div>
 
                             <div className="arrow-icon" style={{
                                 color: 'var(--text-muted)',
                                 transform: 'translateX(0)',
-                                transition: 'transform 0.2s',
+                                transition: 'all 0.3s ease',
                                 position: 'relative', zIndex: 2
                             }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                     <polyline points="12 5 19 12 12 19"></polyline>
                                 </svg>
@@ -119,9 +123,9 @@ const UnitSelection = () => {
             <style>{`
                 .unit-card:hover {
                     border-color: var(--color-primary) !important;
-                    background: var(--bg-card) !important;
-                    box-shadow: var(--shadow-md) !important;
-                    transform: translateY(-2px);
+                    background: rgba(59, 130, 246, 0.08) !important;
+                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
+                    transform: translateX(4px);
                 }
                 .unit-card:hover .arrow-icon {
                     color: var(--color-primary) !important;

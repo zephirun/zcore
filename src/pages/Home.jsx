@@ -44,7 +44,7 @@ const Home = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#000',
+            background: 'var(--bg-obsidian, #000)',
             fontFamily: 'var(--font-main)',
             position: 'relative',
             overflow: 'hidden'
@@ -90,15 +90,15 @@ const Home = () => {
             }}>
                 {/* GLASSMORPHISM CARD */}
                 <div style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(25px)',
-                    WebkitBackdropFilter: 'blur(25px)',
-                    borderRadius: '24px',
-                    boxShadow: '0 30px 60px -12px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1)',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    WebkitBackdropFilter: 'var(--glass-blur)',
+                    borderRadius: 'var(--radius-lg, 24px)',
+                    boxShadow: 'var(--glass-shadow)',
                     padding: '48px 40px',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+                    border: 'var(--glass-border)'
                 }}>
                     <div style={{ marginBottom: '40px', textAlign: 'center' }}>
                         <div style={{
@@ -172,9 +172,9 @@ const Home = () => {
                                         width: '100%',
                                         padding: '16px 16px 16px 44px',
                                         borderRadius: '14px',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        backgroundColor: 'rgba(0,0,0,0.2)',
-                                        color: 'white',
+                                        border: '1px solid var(--border-input)',
+                                        backgroundColor: 'var(--bg-input)',
+                                        color: 'var(--text-main)',
                                         fontSize: '16px',
                                         outline: 'none',
                                         transition: 'all 0.3s ease'
@@ -182,12 +182,12 @@ const Home = () => {
                                     placeholder="Seu usuário"
                                     onFocus={(e) => {
                                         e.target.style.borderColor = 'var(--color-primary)';
-                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.3)';
-                                        e.target.style.boxShadow = '0 0 0 4px rgba(30, 136, 229, 0.2)';
+                                        e.target.style.backgroundColor = 'var(--bg-hover)';
+                                        e.target.style.boxShadow = '0 0 10px var(--color-primary-glow)';
                                     }}
                                     onBlur={(e) => {
-                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
-                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                                        e.target.style.borderColor = 'var(--border-input)';
+                                        e.target.style.backgroundColor = 'var(--bg-input)';
                                         e.target.style.boxShadow = 'none';
                                     }}
                                 />
@@ -229,9 +229,9 @@ const Home = () => {
                                         width: '100%',
                                         padding: '16px 16px 16px 44px',
                                         borderRadius: '14px',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        backgroundColor: 'rgba(0,0,0,0.2)',
-                                        color: 'white',
+                                        border: '1px solid var(--border-input)',
+                                        backgroundColor: 'var(--bg-input)',
+                                        color: 'var(--text-main)',
                                         fontSize: '16px',
                                         outline: 'none',
                                         transition: 'all 0.3s ease'
@@ -239,12 +239,12 @@ const Home = () => {
                                     placeholder="••••••••"
                                     onFocus={(e) => {
                                         e.target.style.borderColor = 'var(--color-primary)';
-                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.3)';
-                                        e.target.style.boxShadow = '0 0 0 4px rgba(30, 136, 229, 0.2)';
+                                        e.target.style.backgroundColor = 'var(--bg-hover)';
+                                        e.target.style.boxShadow = '0 0 10px var(--color-primary-glow)';
                                     }}
                                     onBlur={(e) => {
-                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
-                                        e.target.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                                        e.target.style.borderColor = 'var(--border-input)';
+                                        e.target.style.backgroundColor = 'var(--bg-input)';
                                         e.target.style.boxShadow = 'none';
                                     }}
                                 />
@@ -271,7 +271,9 @@ const Home = () => {
                             style={{
                                 width: '100%',
                                 padding: '16px',
-                                background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-zcore-blue) 100%)',
+                                transform: loading ? 'scale(0.98)' : 'scale(1)',
+                                background: 'var(--color-primary)',
+                                boxShadow: '0 4px 20px var(--color-primary-glow)',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '14px',
@@ -280,18 +282,20 @@ const Home = () => {
                                 cursor: 'pointer',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.05em',
-                                boxShadow: '0 10px 20px -5px rgba(30, 136, 229, 0.5)',
-                                transition: 'all 0.3s ease',
-                                marginBottom: '24px',
-                                transform: loading ? 'scale(0.98)' : 'scale(1)'
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: '24px'
                             }}
                             onMouseEnter={(e) => {
-                                if (!loading) e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 15px 30px -10px rgba(30, 136, 229, 0.6)';
+                                if (!loading) {
+                                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                                    e.currentTarget.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.6)';
+                                }
                             }}
                             onMouseLeave={(e) => {
-                                if (!loading) e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(30, 136, 229, 0.5)';
+                                if (!loading) {
+                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                    e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.4)';
+                                }
                             }}
                         >
                             {loading ? (

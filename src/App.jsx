@@ -28,6 +28,7 @@ import ClientRecords from './pages/sales/ClientRecords';
 import SalesTeamRecords from './pages/sales/SalesTeamRecords';
 import SalesIntelligence from './pages/sales/SalesIntelligence';
 import SalesSimulation from './pages/sales/SalesSimulation';
+import SalesAnalysis from './pages/sales/SalesAnalysis';
 
 // Purchases Pages
 import OrderControl from './pages/purchases/OrderControl';
@@ -154,6 +155,7 @@ const AppRoutes = () => {
                     <Route path="/sales/team-records" element={<SalesTeamRecords />} />
                     <Route path="/sales/intelligence" element={<SalesIntelligence />} />
                     <Route path="/sales/simulation" element={<SalesSimulation />} />
+                    <Route path="/sales/analysis" element={<SalesAnalysis />} />
 
                     {/* Purchases Routes */}
                     <Route path="/purchases/order-control" element={<OrderControl />} />
@@ -243,26 +245,16 @@ const ThemeController = () => {
 
     React.useEffect(() => {
         const root = document.documentElement;
-        if (theme === 'dark') {
-            root.style.setProperty('--bg-main', '#121212'); // Main page dark bg
-            root.style.setProperty('--text-main', '#e0e0e0');
-            root.style.setProperty('--bg-card', '#1e1e1e');
-            root.style.setProperty('--bg-header', 'rgba(30, 30, 30, 0.85)'); // Dark header
-            root.style.setProperty('--border-color', '#333333');
-            root.style.setProperty('--bg-input', '#2c2c2c');
-            root.style.setProperty('--text-muted', '#b0b0b0');
-            root.style.setProperty('--border-input', '#444444');
-            // Add more as needed
-        } else {
-            root.style.setProperty('--bg-main', '#FAFAFA');
-            root.style.setProperty('--text-main', '#1A1A1A');
-            root.style.setProperty('--bg-card', '#FFFFFF');
-            root.style.setProperty('--bg-header', 'rgba(255, 255, 255, 0.85)'); // Light header
-            root.style.setProperty('--border-color', '#E5E7EB');
-            root.style.setProperty('--bg-input', '#F8F9FA');
-            root.style.setProperty('--text-muted', '#666666');
-            root.style.setProperty('--border-input', '#E9ecef');
-        }
+        // Set the data-theme attribute which index.css uses
+        root.setAttribute('data-theme', theme);
+
+        // Remove manual property overrides to allow index.css to handle them consistently
+        root.style.removeProperty('--bg-main');
+        root.style.removeProperty('--text-main');
+        root.style.removeProperty('--bg-card');
+
+        // Force background color change for smooth transition
+        document.body.style.backgroundColor = theme === 'dark' ? '#020617' : '#f8fafc';
     }, [theme]);
 
     return null;

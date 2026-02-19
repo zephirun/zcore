@@ -74,11 +74,13 @@ const Filters = ({ rightElement }) => {
     const isVendorRestricted = userRole !== 'admin' && allowedVendor;
 
     return (
-        <div className="filters-container" style={{
+        <div className="filters-container no-print" style={{
             padding: '24px 40px',
-            background: 'var(--bg-card)',
-            borderBottom: '1px solid var(--border-color)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            WebkitBackdropFilter: 'var(--glass-blur)',
+            borderBottom: 'var(--glass-border)',
+            boxShadow: 'var(--glass-shadow)',
             position: 'relative',
             zIndex: 10
         }}>
@@ -126,7 +128,7 @@ const Filters = ({ rightElement }) => {
                 <nav style={{
                     display: 'flex',
                     gap: '4px',
-                    background: 'var(--bg-input)',
+                    background: 'rgba(255, 255, 255, 0.05)',
                     padding: '4px',
                     borderRadius: '12px',
                     border: '1px solid var(--border-color)'
@@ -135,12 +137,12 @@ const Filters = ({ rightElement }) => {
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: isActive('/sales/dashboard') ? '700' : '500',
-                        color: isActive('/sales/dashboard') ? '#3498db' : 'var(--text-muted)',
+                        color: isActive('/sales/dashboard') ? 'white' : 'var(--text-muted)',
                         padding: '8px 24px',
                         borderRadius: '10px',
-                        background: isActive('/sales/dashboard') ? 'var(--bg-card)' : 'transparent',
-                        boxShadow: isActive('/sales/dashboard') ? 'var(--shadow-sm)' : 'none',
-                        transition: 'all 0.2s',
+                        background: isActive('/sales/dashboard') ? 'var(--color-primary)' : 'transparent',
+                        boxShadow: isActive('/sales/dashboard') ? '0 4px 12px var(--color-primary-glow)' : 'none',
+                        transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px'
@@ -157,12 +159,12 @@ const Filters = ({ rightElement }) => {
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: isActive('/sales/report') ? '700' : '500',
-                        color: isActive('/sales/report') ? '#3498db' : 'var(--text-muted)',
+                        color: isActive('/sales/report') ? 'white' : 'var(--text-muted)',
                         padding: '8px 24px',
                         borderRadius: '10px',
-                        background: isActive('/sales/report') ? 'var(--bg-card)' : 'transparent',
-                        boxShadow: isActive('/sales/report') ? 'var(--shadow-sm)' : 'none',
-                        transition: 'all 0.2s',
+                        background: isActive('/sales/report') ? 'var(--color-primary)' : 'transparent',
+                        boxShadow: isActive('/sales/report') ? '0 4px 12px var(--color-primary-glow)' : 'none',
+                        transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px'
@@ -170,9 +172,6 @@ const Filters = ({ rightElement }) => {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
                         Relatório
                     </Link>
@@ -180,12 +179,12 @@ const Filters = ({ rightElement }) => {
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: isActive('/sales/simulation') ? '700' : '500',
-                        color: isActive('/sales/simulation') ? '#3498db' : 'var(--text-muted)',
+                        color: isActive('/sales/simulation') ? 'white' : 'var(--text-muted)',
                         padding: '8px 24px',
                         borderRadius: '10px',
-                        background: isActive('/sales/simulation') ? 'var(--bg-card)' : 'transparent',
-                        boxShadow: isActive('/sales/simulation') ? 'var(--shadow-sm)' : 'none',
-                        transition: 'all 0.2s',
+                        background: isActive('/sales/simulation') ? 'var(--color-primary)' : 'transparent',
+                        boxShadow: isActive('/sales/simulation') ? '0 4px 12px var(--color-primary-glow)' : 'none',
+                        transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px'

@@ -452,26 +452,30 @@ const SalesSimulation = () => {
                             marginTop: '10px'
                         }}>
                             <div style={{
-                                background: 'var(--bg-card)',
+                                background: 'var(--glass-bg)',
+                                backdropFilter: 'var(--glass-blur)',
                                 padding: '24px',
-                                borderRadius: '12px',
-                                borderLeft: '4px solid #3498db',
-                                boxShadow: 'var(--shadow-sm)'
+                                borderRadius: 'var(--radius, 12px)',
+                                border: 'var(--glass-border)',
+                                borderLeft: '4px solid var(--color-primary)',
+                                boxShadow: 'var(--glass-shadow)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                     <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Faturamento Realizado</span>
-                                    <DollarSign size={16} color="#3498db" />
+                                    <DollarSign size={16} color="var(--color-primary)" />
                                 </div>
                                 <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.realizedRevenue)}</div>
-                                <div style={{ fontSize: '12px', color: '#3498db', fontWeight: '600', marginTop: '4px' }}>Margem Realizada: {formatPercent(totals.realizedMarginPct || 0)}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--color-primary)', fontWeight: '600', marginTop: '4px' }}>Margem Realizada: {formatPercent(totals.realizedMarginPct || 0)}</div>
                             </div>
 
                             <div style={{
-                                background: 'var(--bg-card)',
+                                background: 'var(--glass-bg)',
+                                backdropFilter: 'var(--glass-blur)',
                                 padding: '24px',
-                                borderRadius: '12px',
+                                borderRadius: 'var(--radius, 12px)',
+                                border: 'var(--glass-border)',
                                 borderLeft: '4px solid #f39c12',
-                                boxShadow: 'var(--shadow-sm)'
+                                boxShadow: 'var(--glass-shadow)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                     <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{projectionMonthName} Projetado</span>
@@ -483,7 +487,7 @@ const SalesSimulation = () => {
                                     alignItems: 'center',
                                     gap: '4px',
                                     fontSize: '12px',
-                                    color: totals.diffRevenue >= 0 ? '#2ecc71' : '#e74c3c',
+                                    color: totals.diffRevenue >= 0 ? 'var(--color-success)' : 'var(--color-error)',
                                     fontWeight: '600',
                                     marginTop: '4px'
                                 }}>
@@ -493,34 +497,37 @@ const SalesSimulation = () => {
                             </div>
 
                             <div style={{
-                                background: 'var(--bg-card)',
+                                background: 'var(--glass-bg)',
+                                backdropFilter: 'var(--glass-blur)',
                                 padding: '24px',
-                                borderRadius: '12px',
-                                borderLeft: '4px solid #2ecc71',
-                                boxShadow: 'var(--shadow-sm)'
+                                borderRadius: 'var(--radius, 12px)',
+                                border: 'var(--glass-border)',
+                                borderLeft: '4px solid var(--color-success)',
+                                boxShadow: 'var(--glass-shadow)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                     <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Margem Projetada</span>
-                                    <TrendingUp size={16} color="#2ecc71" />
+                                    <TrendingUp size={16} color="var(--color-success)" />
                                 </div>
                                 <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>{formatPercent(totals.projectedMarginPct)}</div>
                             </div>
 
                             <div style={{
-                                background: 'var(--bg-card)',
+                                background: 'var(--glass-bg)',
+                                backdropFilter: 'var(--glass-blur)',
                                 padding: '24px',
-                                borderRadius: '12px',
-                                borderLeft: '4px solid #9b59b6',
-                                boxShadow: 'var(--shadow-sm)',
+                                borderRadius: 'var(--radius, 12px)',
+                                border: 'var(--glass-border)',
+                                boxShadow: 'var(--glass-shadow)',
+                                borderLeft: '4px solid var(--color-purple)',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
-                                alignItems: 'center',
                                 gap: '12px'
                             }}>
                                 <input
                                     type="text"
-                                    placeholder="Nome da Versão (ex: Meta 2024)"
+                                    placeholder="Nome da Versão"
                                     value={simulationName}
                                     onChange={(e) => setSimulationName(e.target.value)}
                                     style={{
@@ -531,7 +538,8 @@ const SalesSimulation = () => {
                                         borderRadius: '8px',
                                         color: 'var(--text-main)',
                                         fontSize: '12px',
-                                        fontWeight: '600'
+                                        fontWeight: '600',
+                                        outline: 'none'
                                     }}
                                 />
                                 <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
@@ -541,7 +549,7 @@ const SalesSimulation = () => {
                                         style={{
                                             flex: 2,
                                             padding: '12px',
-                                            background: saveStatus === 'success' ? '#2ecc71' : (saveStatus === 'error' ? '#e74c3c' : 'var(--color-primary)'),
+                                            background: saveStatus === 'success' ? 'var(--color-success)' : (saveStatus === 'error' ? 'var(--color-error)' : 'var(--color-primary)'),
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '8px',
@@ -552,7 +560,8 @@ const SalesSimulation = () => {
                                             justifyContent: 'center',
                                             gap: '8px',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s'
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            boxShadow: '0 4px 12px var(--color-primary-glow)'
                                         }}
                                     >
                                         {saveStatus === 'saving' ? <RefreshCw size={16} className="animate-spin" /> : saveStatus === 'success' ? <CheckCircle size={16} /> : <Save size={16} />}
@@ -564,7 +573,7 @@ const SalesSimulation = () => {
                                             flex: 1,
                                             padding: '12px',
                                             background: 'rgba(255,255,255,0.05)',
-                                            color: 'var(--text-muted)',
+                                            color: 'var(--text-main)',
                                             border: '1px solid var(--border-color)',
                                             borderRadius: '8px',
                                             fontWeight: '700',
@@ -573,11 +582,11 @@ const SalesSimulation = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             gap: '8px',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <RotateCcw size={16} />
-                                        Histórico
                                     </button>
                                 </div>
                             </div>
