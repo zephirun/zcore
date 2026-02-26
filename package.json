@@ -1,15 +1,25 @@
 {
-  "name": "zorx",
+  "name": "z-core",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "storybook:serve": "npx serve storybook-static -p 6006",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots",
+    "test:visual:update:all": "playwright test --update-snapshots"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.95.0",
+    "@tanstack/react-query": "^5.90.21",
+    "@tanstack/react-query-devtools": "^5.91.3",
+    "@tanstack/react-virtual": "^3.13.18",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
     "lodash": "^4.17.23",
@@ -19,17 +29,36 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-grid-layout": "^2.2.2",
+    "react-hook-form": "^7.71.2",
+    "react-is": "^19.2.4",
     "react-resizable": "^3.1.3",
     "react-router-dom": "^7.13.0",
-    "recharts": "^3.7.0"
+    "recharts": "^3.7.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.0.1",
+    "@playwright/test": "^1.58.2",
+    "@storybook/addon-a11y": "^10.2.10",
+    "@storybook/addon-docs": "^10.2.10",
+    "@storybook/addon-onboarding": "^10.2.10",
+    "@storybook/addon-themes": "^10.2.10",
+    "@storybook/addon-vitest": "^10.2.10",
+    "@storybook/react-vite": "^10.2.10",
     "@types/lodash": "^4.17.23",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-grid-layout": "^1.3.6",
     "@vitejs/plugin-react": "^4.0.3",
+    "@vitest/browser-playwright": "^4.0.18",
+    "@vitest/coverage-v8": "^4.0.18",
+    "chromatic": "^15.1.1",
+    "playwright": "^1.58.2",
+    "prop-types": "^15.8.1",
+    "serve": "^14.2.5",
+    "storybook": "^10.2.10",
     "vercel": "^50.17.1",
-    "vite": "^4.5.14"
+    "vite": "^4.5.14",
+    "vitest": "^4.0.18"
   }
 }

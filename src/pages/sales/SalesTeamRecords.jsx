@@ -1,3 +1,7 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
 import { fetchSalesData, fetchRepRecords, saveRepRecord } from '../../services/api';
@@ -13,7 +17,7 @@ const formatPercent = (value) => {
 
 // Component for Status Filter Buttons
 const StatusFilter = ({ color, active, onClick, label }) => (
-    <button
+    <Button
         onClick={onClick}
         style={{
             padding: '8px 16px',
@@ -32,7 +36,7 @@ const StatusFilter = ({ color, active, onClick, label }) => (
     >
         <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}></div>
         {label}
-    </button>
+    </Button>
 );
 
 // Component for Metric Cards
@@ -229,7 +233,7 @@ export default function SalesTeamRecords() {
             }}>
                 <div style={{ flex: 1, minWidth: '300px' }}>
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase' }}>Pesquisar Vendedor</div>
-                    <input
+                    <Input
                         type="text"
                         placeholder="Nome do vendedor..."
                         value={searchTerm}
@@ -237,7 +241,7 @@ export default function SalesTeamRecords() {
                         style={{
                             width: '100%',
                             padding: '12px 16px',
-                            borderRadius: '10px',
+                            borderRadius: '16px',
                             border: '1px solid var(--border-color)',
                             backgroundColor: 'var(--bg-input)',
                             color: 'var(--text-main)',
@@ -295,7 +299,7 @@ export default function SalesTeamRecords() {
                                                 <div style={{
                                                     backgroundColor: 'var(--bg-card)',
                                                     border: '1px solid var(--border-color)',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     padding: '10px',
                                                     color: 'var(--text-main)'
                                                 }}>
@@ -340,7 +344,7 @@ export default function SalesTeamRecords() {
                                                 <div style={{
                                                     backgroundColor: 'var(--bg-card)',
                                                     border: '1px solid var(--border-color)',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     padding: '10px',
                                                     color: 'var(--text-main)'
                                                 }}>
@@ -400,7 +404,7 @@ export default function SalesTeamRecords() {
                                         {rep.monthlyGoal > 0 ? formatPercent(rep.goalProgress) : '-'}
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'center' }}>
-                                        <button style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--primary, #1565C0)', background: 'transparent', color: 'var(--primary, #1565C0)', cursor: 'pointer' }}>Abrir Ficha</button>
+                                        <Button style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--primary, #1565C0)', background: 'transparent', color: 'var(--primary, #1565C0)', cursor: 'pointer' }}>Abrir Ficha</Button>
                                     </td>
                                 </tr>
                             ))}
@@ -410,12 +414,12 @@ export default function SalesTeamRecords() {
             ) : (
                 /* DETAIL VIEW */
                 <div className="fade-in">
-                    <button
+                    <Button
                         onClick={() => { setSelectedRepId(null); setViewMode('list'); }}
                         style={{ marginBottom: '20px', background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600' }}
                     >
                         ← Voltar para a lista
-                    </button>
+                    </Button>
 
                     {selectedRep && (
                         <>
@@ -455,7 +459,7 @@ export default function SalesTeamRecords() {
                                                                 <div style={{
                                                                     backgroundColor: 'var(--bg-card)',
                                                                     border: '1px solid var(--border-color)',
-                                                                    borderRadius: '8px',
+                                                                    borderRadius: '16px',
                                                                     padding: '10px',
                                                                     color: 'var(--text-main)'
                                                                 }}>
@@ -481,36 +485,36 @@ export default function SalesTeamRecords() {
                                     <form onSubmit={handleSave}>
                                         <div style={{ marginBottom: '20px' }}>
                                             <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Meta Mensal (R$)</label>
-                                            <input
+                                            <Input
                                                 type="number"
                                                 value={editingRecord.monthlyGoal}
                                                 onChange={e => setEditingRecord({ ...editingRecord, monthlyGoal: e.target.value })}
                                                 placeholder="0.00"
-                                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
+                                                style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
                                             />
                                         </div>
 
                                         <div style={{ marginBottom: '20px' }}>
                                             <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Observações</label>
-                                            <textarea
+                                            <Textarea
                                                 rows="6"
                                                 value={editingRecord.observations}
                                                 onChange={e => setEditingRecord({ ...editingRecord, observations: e.target.value })}
                                                 placeholder="Anotações sobre o desempenho..."
-                                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)', resize: 'vertical' }}
+                                                style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)', resize: 'vertical' }}
                                             />
                                         </div>
 
-                                        <button
+                                        <Button
                                             type="submit"
                                             disabled={saving}
-                                            style={{ width: '100%', padding: '12px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: saving ? 0.7 : 1 }}
+                                            style={{ width: '100%', padding: '12px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', opacity: saving ? 0.7 : 1 }}
                                         >
                                             {saving ? 'Salvando...' : 'Salvar Alterações'}
-                                        </button>
+                                        </Button>
 
                                         {message.text && (
-                                            <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', backgroundColor: message.type === 'success' ? 'rgba(46, 125, 50, 0.1)' : 'rgba(211, 47, 47, 0.1)', color: message.type === 'success' ? '#2e7d32' : '#d32f2f', textAlign: 'center', fontSize: '13px' }}>
+                                            <div style={{ marginTop: '15px', padding: '10px', borderRadius: '16px', backgroundColor: message.type === 'success' ? 'rgba(46, 125, 50, 0.1)' : 'rgba(211, 47, 47, 0.1)', color: message.type === 'success' ? '#2e7d32' : '#d32f2f', textAlign: 'center', fontSize: '13px' }}>
                                                 {message.text}
                                             </div>
                                         )}

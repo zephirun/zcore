@@ -1,6 +1,6 @@
 # Guia de Integração: n8n + Oracle API + Supabase
 
-Este guia explica como configurar o fluxo de automação para sincronizar dados do Banco Oracle com o sistema Zeph (Supabase).
+Este guia explica como configurar o fluxo de automação para sincronizar dados do Banco Oracle com o sistema Z.CORE (Supabase).
 
 ## Passo 1: Importar o Workflow
 1. Abra seu n8n.

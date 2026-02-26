@@ -1,3 +1,6 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+
 import React, { useState } from 'react';
 
 const AIQueryInput = ({ onSearch }) => {
@@ -62,7 +65,7 @@ const AIQueryInput = ({ onSearch }) => {
                         <path d="M12 12v.01" />
                     </svg>
                 </div>
-                <input
+                <Input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -90,7 +93,7 @@ const AIQueryInput = ({ onSearch }) => {
                         e.target.style.transform = 'translateY(0)';
                     }}
                 />
-                <button
+                <Button
                     onClick={handleSearch}
                     disabled={loading}
                     style={{
@@ -129,7 +132,7 @@ const AIQueryInput = ({ onSearch }) => {
                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
                     )}
-                </button>
+                </Button>
             </div>
 
             {response && (

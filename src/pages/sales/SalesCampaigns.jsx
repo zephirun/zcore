@@ -160,7 +160,7 @@ const SalesCampaigns = () => {
                         {leaderboard.map((user) => {
                             const percent = (user.sales / user.target) * 100;
                             return (
-                                <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                                <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
                                     <div style={{ width: '30px', fontWeight: 'bold', color: user.rank <= 3 ? '#ffd700' : 'white' }}>#{user.rank}</div>
                                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>{user.avatar}</div>
                                     <div style={{ flex: 1 }}>

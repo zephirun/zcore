@@ -14,20 +14,20 @@ trap cleanup SIGINT
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-echo "Starting Zeph Development Environment..."
+echo "Starting Z.CORE Development Environment..."
 
-# Start Backend
-echo "Starting Backend Server (Port 3001)..."
-cd server
+# Start Oracle API Gateway
+echo "Starting Oracle API Gateway (Port 3000)..."
+cd oracle-api
 if [ ! -d "node_modules" ]; then
-    echo "Installing server dependencies..."
+    echo "Installing oracle-api dependencies..."
     npm install
 fi
 npm run dev &
-BACKEND_PID=$!
+ORACLE_PID=$!
 cd ..
 
-# Wait a bit for backend to initialize
+# Wait a bit for gateway to initialize
 sleep 2
 
 # Start Frontend
@@ -38,5 +38,5 @@ if [ ! -d "node_modules" ]; then
 fi
 npm run dev
 
-# Wait for backend process to finish (if frontend is stopped)
-wait $BACKEND_PID
+# Wait for process to finish
+wait $ORACLE_PID

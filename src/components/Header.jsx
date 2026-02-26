@@ -1,64 +1,50 @@
+import Input from '@/components/ui/Input';
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import logoGmad from '../assets/logo.png';
-import logoGmadWhite from '../assets/logo2.png'; // Assuming this is the white version
-import logoZeph from '../assets/logo_zeph_new.png'; // Updated Logo
+import logoGmadWhite from '../assets/logo2.png';
+import logoZeph from '../assets/logo_zeph_new.png';
 import { useData } from '../context/DataContext';
 import { categories, allModules } from '../config/menuConfig';
 
 const Header = () => {
-    const { username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed, setSidebarCollapsed, toggleTheme } = useData();
+    const { username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed, setSidebarCollapsed, toggleTheme, density, setDensity } = useData();
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [isUnitMenuOpen, setIsUnitMenuOpen] = useState(false);
-    const [isAiMenuOpen, setIsAiMenuOpen] = useState(false); // AI Menu State
+    const [isAiMenuOpen, setIsAiMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
-    const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); // Mega Menu State
-    const [activeCategoryId, setActiveCategoryId] = useState(null); // Active Category in Flyout
-    const [searchQuery, setSearchQuery] = useState(''); // Search State
-    const sidebarRef = useRef(null); // Ref for sidebar
-    const menuButtonRef = useRef(null); // Ref for menu button
-    const unitRef = useRef(null); // Ref for unit selector
-    const aiRef = useRef(null); // Ref for AI menu
-    const appsRef = useRef(null); // Ref for apps menu
-    const userRef = useRef(null); // Ref for user menu
+    const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+    const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const sidebarRef = useRef(null);
+    const menuButtonRef = useRef(null);
+    const unitRef = useRef(null);
+    const aiRef = useRef(null);
+    const appsRef = useRef(null);
+    const userRef = useRef(null);
+    const menuTimeoutRef = useRef(null);
 
-    // Click Outside Handler
     useEffect(() => {
         const handleClickOutside = (event) => {
-            // Mega Menu
             if (isMegaMenuOpen && sidebarRef.current && !sidebarRef.current.contains(event.target) &&
                 menuButtonRef.current && !menuButtonRef.current.contains(event.target)) {
                 setIsMegaMenuOpen(false);
                 setActiveCategoryId(null);
             }
-            // Unit Menu
-            if (isUnitMenuOpen && unitRef.current && !unitRef.current.contains(event.target)) {
-                setIsUnitMenuOpen(false);
-            }
-            // Apps Menu
-            if (isAppsMenuOpen && appsRef.current && !appsRef.current.contains(event.target)) {
-                setIsAppsMenuOpen(false);
-            }
-            // AI Menu
-            if (isAiMenuOpen && aiRef.current && !aiRef.current.contains(event.target)) {
-                setIsAiMenuOpen(false);
-            }
-            // User Menu
-            if (isUserMenuOpen && userRef.current && !userRef.current.contains(event.target)) {
-                setIsUserMenuOpen(false);
-            }
+            if (isUnitMenuOpen && unitRef.current && !unitRef.current.contains(event.target)) setIsUnitMenuOpen(false);
+            if (isAppsMenuOpen && appsRef.current && !appsRef.current.contains(event.target)) setIsAppsMenuOpen(false);
+            if (isAiMenuOpen && aiRef.current && !aiRef.current.contains(event.target)) setIsAiMenuOpen(false);
+            if (isUserMenuOpen && userRef.current && !userRef.current.contains(event.target)) setIsUserMenuOpen(false);
         };
-
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isMegaMenuOpen, isUnitMenuOpen, isAppsMenuOpen, isUserMenuOpen]);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isMegaMenuOpen, isUnitMenuOpen, isAppsMenuOpen, isUserMenuOpen, isAiMenuOpen]);
 
-    // Helper to filter accessible categories
     const getAccessibleCategories = () => {
         return categories.filter(category => {
             const hasModules = allModules.some(m =>
@@ -68,40 +54,23 @@ const Header = () => {
             return hasModules;
         });
     };
-    /* Fix logic: allowedModules is array of module IDs. If Empty/Null and NOT admin, access is denied? 
-       Actually previous logic in Menu.jsx was: userRole === 'admin' || allowedModules.includes(m.id)
-       If allowedModules is undefined/null, user has no access usually.
-    */
 
     const accessibleCategories = getAccessibleCategories();
 
-    // Search Logic
-    // Search Logic
     const searchResults = useMemo(() => {
         if (!searchQuery.trim()) return [];
         const results = [];
         const query = searchQuery.toLowerCase();
-
         allModules.forEach(mod => {
-            // Check Access
             const hasAccess = userRole === 'admin' || (allowedModules && allowedModules.includes(mod.id));
-
             if (hasAccess && mod.title.toLowerCase().includes(query)) {
-                // Find Category Info
                 const cat = categories.find(c => c.id === mod.category);
-                if (cat) {
-                    results.push({
-                        ...mod,
-                        categoryName: cat.name,
-                        categoryColor: cat.color
-                    });
-                }
+                if (cat) results.push({ ...mod, categoryName: cat.name, categoryColor: cat.color });
             }
         });
         return results;
     }, [searchQuery, allModules, userRole, allowedModules]);
 
-    // Check if we have a selected category to highlight in the nav strip
     const selectedCategoryId = searchParams.get('category');
 
     const handleLogout = () => {
@@ -111,361 +80,250 @@ const Header = () => {
 
     if (!isAuthenticated || ['/', '/login'].includes(location.pathname)) return null;
 
+    // Shared dropdown style
+    const dropdownStyle = {
+        position: 'absolute',
+        background: 'var(--bg-elevated)',
+        borderRadius: '10px',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-xl)',
+        zIndex: 120,
+        animation: 'fadeIn 0.15s ease',
+        overflow: 'hidden'
+    };
+
+    const dropdownItemStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '9px 14px',
+        fontSize: '13px',
+        fontWeight: '400',
+        color: 'var(--text-muted)',
+        cursor: 'pointer',
+        transition: 'all 0.1s',
+        textDecoration: 'none',
+        letterSpacing: '-0.01em'
+    };
+
     return (
-        <div className="no-print" style={{
-            position: 'relative',
-            zIndex: 50,
-            fontFamily: 'var(--font-main)'
-        }}>
-            {/* 2. MAIN HEADER (Green) - Now Theme Aware */}
+        <div className="no-print" style={{ position: 'relative', zIndex: 50, fontFamily: 'var(--font-main)' }}>
             <div
                 className="header-container"
                 style={{
-                    height: '48px',
-                    backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.4)' : 'var(--glass-bg)',
+                    height: 'var(--header-height)',
+                    backgroundColor: 'var(--bg-card)',
                     color: 'var(--text-main)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0 24px',
-                    boxShadow: theme === 'dark' ? '0 8px 32px 0 rgba(0, 0, 0, 0.8)' : 'var(--glass-shadow)',
-                    border: 'var(--glass-border)',
-                    borderRadius: 'var(--radius-lg, 20px)',
+                    padding: '0 20px',
+                    borderBottom: '1px solid var(--border-color)',
                     position: 'fixed',
-                    top: '12px',
-                    left: '20px',
-                    right: '20px',
-                    transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     zIndex: 1200
                 }}>
-                {/* Left Section (Logo + Menu) */}
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '20px' }}>
 
-                    {/* Mobile Menu Toggle */}
+                {/* Left: Logo */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* Mobile toggle */}
                     <div
                         className="mobile-menu-toggle"
-                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)} // Toggle global state
-                        style={{
-                            display: 'none', // Hidden by default, shown via CSS
-                            cursor: 'pointer',
-                            color: 'var(--text-main)',
-                        }}
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        style={{ display: 'none', cursor: 'pointer', color: 'var(--text-main)' }}
                     >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </div>
 
-                    {/* Logo First - Updated to ZCORE */}
-                    {/* Logo First - Updated to ZCORE */}
-                    {/* Logo Section */}
-                    {/* ZEPH Logo (Clickable) */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Link to="/menu" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                            <img
-                                src={logoZeph}
-                                alt="ZEPH"
-                                style={{
-                                    height: '20px',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </Link>
+                    <Link to="/menu" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: '8px' }}>
+                        <img src={logoZeph} alt="ZCORE" style={{ height: '18px', objectFit: 'contain' }} />
+                    </Link>
 
-                        {/* Divider */}
-                        <div style={{ width: '1px', height: '16px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                    <div style={{ width: '1px', height: '14px', background: 'var(--border-color)' }} />
 
-                        {/* GMAD Logo with Environment Title */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{
-                                fontSize: '14px',
-                                fontWeight: '800',
-                                color: 'var(--text-muted)',
-                                letterSpacing: '0.5px',
-                                textTransform: 'uppercase'
-                            }}>
-                                AMBIENTE
-                            </span>
-                            <img
-                                src={theme === 'dark' ? logoGmadWhite : logoGmad}
-                                alt="GMAD"
-                                style={{
-                                    height: '24px',
-                                    objectFit: 'contain',
-                                    opacity: 0.9
-                                }}
-                            />
-                        </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                            Ambiente
+                        </span>
+                        <img
+                            src={theme === 'dark' ? logoGmadWhite : logoGmad}
+                            alt="GMAD"
+                            style={{ height: '18px', objectFit: 'contain', opacity: 0.75 }}
+                        />
                     </div>
-
-
                 </div>
 
-                {/* Middle Section (Search Bar - Perfectly Centered) */}
+                {/* Center: Search */}
                 <div style={{
                     position: 'absolute',
                     left: '50%',
-                    top: '50%', // Vertically centered
-                    transform: 'translate(-50%, -50%)', // Center both axes
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
                     width: '100%',
-                    maxWidth: '420px', // Slightly narrower
-                    pointerEvents: 'auto',
+                    maxWidth: '380px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px'
+                    gap: '8px'
                 }}>
-                    {/* AI Menu (Icon Only - Refined) */}
-                    <div
-                        ref={aiRef}
-                        onClick={() => setIsAiMenuOpen(!isAiMenuOpen)}
-                        style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}
-                    >
-                        {/* AI Icon - Glass/Gradient Style */}
+                    {/* AI icon */}
+                    <div ref={aiRef} onClick={() => setIsAiMenuOpen(!isAiMenuOpen)} style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
                         <div style={{
-                            width: '30px', height: '30px', // Smaller to match new height
-                            background: isAiMenuOpen
-                                ? 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)'
-                                : 'rgba(255, 255, 255, 0.1)', // Subtle glass when inactive
+                            width: '30px', height: '30px',
+                            background: isAiMenuOpen ? 'var(--text-main)' : 'var(--bg-elevated)',
                             border: '1px solid var(--border-color)',
-                            borderRadius: '50%', // Circle shape
+                            borderRadius: '8px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: isAiMenuOpen ? '0 4px 12px rgba(0, 97, 255, 0.4)' : 'none',
-                            transition: 'all 0.2s ease',
+                            transition: 'all 0.15s ease',
                         }}
-                            onMouseEnter={e => {
-                                if (!isAiMenuOpen) {
-                                    e.currentTarget.style.background = 'var(--bg-hover)';
-                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
-                                }
-                            }}
-                            onMouseLeave={e => {
-                                if (!isAiMenuOpen) {
-                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                                    e.currentTarget.style.borderColor = 'var(--border-color)';
-                                }
-                            }}
+                            onMouseEnter={e => { if (!isAiMenuOpen) e.currentTarget.style.borderColor = 'var(--border-input)'; }}
+                            onMouseLeave={e => { if (!isAiMenuOpen) e.currentTarget.style.borderColor = 'var(--border-color)'; }}
                         >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                stroke={isAiMenuOpen ? 'white' : 'var(--text-main)'}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                stroke={isAiMenuOpen ? 'var(--bg-main)' : 'var(--text-muted)'}
                                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                             </svg>
                         </div>
 
                         {isAiMenuOpen && (
-                            <div style={{
-                                position: 'absolute', top: '40px', left: '-10px',
-                                background: 'var(--bg-card)', borderRadius: '16px',
-                                boxShadow: 'var(--shadow-xl)',
-                                border: '1px solid var(--border-color)',
-                                width: '300px',
-                                zIndex: 120,
-                                padding: '12px',
-                                animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-                            }}>
-                                <div style={{
-                                    padding: '0 8px 8px',
-                                    fontSize: '11px', fontWeight: '700',
-                                    color: 'var(--text-muted)',
-                                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                                    borderBottom: '1px solid var(--border-color)',
-                                    marginBottom: '8px'
-                                }}>
+                            <div style={{ ...dropdownStyle, top: '40px', left: '-8px', width: '260px', padding: '6px' }}>
+                                <div style={{ padding: '8px 14px 6px', fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                                     Inteligência Artificial
                                 </div>
                                 {allModules.filter(m => m.category === 'ia').map(module => (
-                                    <Link
-                                        key={module.id}
-                                        to={module.path}
-                                        onClick={() => setIsAiMenuOpen(false)}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '12px',
-                                            padding: '10px',
-                                            borderRadius: '10px',
-                                            textDecoration: 'none',
-                                            color: 'var(--text-main)',
-                                            transition: 'all 0.2s ease',
-                                            position: 'relative',
-                                            overflow: 'hidden'
-                                        }}
-                                        onMouseEnter={e => {
-                                            e.currentTarget.style.background = 'var(--bg-input)';
-                                            e.currentTarget.style.transform = 'translateX(4px)';
-                                        }}
-                                        onMouseLeave={e => {
-                                            e.currentTarget.style.background = 'transparent';
-                                            e.currentTarget.style.transform = 'translateX(0)';
-                                        }}
+                                    <Link key={module.id} to={module.path} onClick={() => setIsAiMenuOpen(false)}
+                                        style={dropdownItemStyle}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                     >
-                                        <div style={{
-                                            width: '32px', height: '32px',
-                                            borderRadius: '8px',
-                                            background: '#eef4ff',
-                                            color: '#0061ff',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            {React.cloneElement(module.icon, { width: 18, height: 18 })}
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', flexShrink: 0 }}>
+                                            {React.cloneElement(module.icon, { width: 14, height: 14 })}
                                         </div>
-                                        <div>
-                                            <div style={{ fontSize: '13px', fontWeight: '600' }}>{module.title}</div>
-                                        </div>
+                                        <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)' }}>{module.title}</span>
                                     </Link>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* Search Bar Input (Pill Shape) */}
-                    <div style={{
-                        flex: 1, // Take remaining space
-                        display: 'flex',
-                        alignItems: 'center',
-                        backgroundColor: 'var(--bg-input)',
-                        borderRadius: '50px', // Pill shape
-                        height: '34px', // Reduced height to 34px
-                        border: '1px solid var(--border-input)',
-                        padding: '0 4px 0 16px', // Adjusted padding
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
-                    }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--text-muted)'}
-                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-input)'}
-                    >
-                        <input
-                            type="text"
-                            placeholder="O que você está procurando?"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{
-                                flex: 1,
-                                border: 'none',
-                                background: 'transparent',
-                                padding: '0 10px',
-                                fontSize: '12px', // Smaller font
-                                outline: 'none',
-                                color: 'var(--text-main)' // Main text color for input
-                            }}
-                        />
-                        {/* Search Icon (Circle) */}
+                    {/* Search bar */}
+                    <div style={{ flex: 1, position: 'relative' }}>
                         <div style={{
-                            width: '26px', height: '26px', // Smaller button
-                            background: 'var(--color-primary)', // Brand color button
-                            borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                        }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: 'var(--bg-input)',
+                            borderRadius: '8px',
+                            height: '32px',
+                            border: '1px solid var(--border-color)',
+                            padding: '0 4px 0 10px',
+                            transition: 'border-color 0.15s'
+                        }}
+                            onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--border-input)'}
+                            onBlurCapture={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                        >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
+                            <Input
+                                type="text"
+                                placeholder="Buscar módulo..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{
+                                    flex: 1,
+                                    border: 'none',
+                                    background: 'transparent',
+                                    padding: '0 8px',
+                                    fontSize: '13px',
+                                    outline: 'none',
+                                    color: 'var(--text-main)',
+                                    letterSpacing: '-0.01em'
+                                }}
+                            />
                         </div>
+
+                        {/* Search results dropdown */}
+                        {searchQuery && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '40px',
+                                left: 0,
+                                right: 0,
+                                background: 'var(--bg-elevated)',
+                                borderRadius: '10px',
+                                border: '1px solid var(--border-color)',
+                                boxShadow: 'var(--shadow-xl)',
+                                zIndex: 200,
+                                maxHeight: '320px',
+                                overflowY: 'auto',
+                                padding: '6px'
+                            }}>
+                                {searchResults.length > 0 ? searchResults.map((result, idx) => (
+                                    <Link
+                                        key={idx}
+                                        to={result.path}
+                                        onClick={() => setSearchQuery('')}
+                                        style={dropdownItemStyle}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                                    >
+                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--text-muted)', flexShrink: 0 }} />
+                                        <div>
+                                            <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)' }}>{result.title}</div>
+                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{result.categoryName}</div>
+                                        </div>
+                                    </Link>
+                                )) : (
+                                    <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                                        Nenhum resultado para "{searchQuery}"
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
-                    {/* Search Results Dropdown (unchanged) */}
-                    {searchQuery && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            width: '100%',
-                            background: 'white',
-                            borderRadius: '0 0 4px 4px',
-                            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-                            border: '1px solid #eee',
-                            borderTop: 'none',
-                            zIndex: 100,
-                            maxHeight: '400px',
-                            overflowY: 'auto'
-                        }}>
-                            {searchResults.length > 0 ? (
-                                <div style={{ padding: '0px' }}>
-                                    {searchResults.map((result, idx) => (
-                                        <Link
-                                            key={idx}
-                                            to={result.path}
-                                            onClick={() => setSearchQuery('')}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                padding: '10px 12px',
-                                                textDecoration: 'none',
-                                                color: '#333',
-                                                borderBottom: '1px solid #f5f5f5'
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#f9f9f9'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <span style={{
-                                                width: '6px',
-                                                height: '6px',
-                                                borderRadius: '50%',
-                                                background: result.categoryColor || '#1E88E5', // Dynamic bullet
-                                                marginRight: '12px'
-                                            }} />
-                                            <div>
-                                                <div style={{ fontSize: '13px', fontWeight: '600' }}>{result.title}</div>
-                                                <div style={{ fontSize: '11px', color: '#999' }}>{result.categoryName}</div>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div style={{ padding: '20px', textAlign: 'center', color: '#666', fontSize: '13px' }}>
-                                    Nenhum resultado para "{searchQuery}"
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </div>
 
-                {/* Right Section (Actions) */}
-                <div style={{ flex: 1, display: 'flex', gap: '25px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                {/* Right: Actions */}
+                <div style={{ flex: 1, display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'flex-end' }}>
 
-
-                    {/* Unit Selector */}
-                    <div
-                        ref={unitRef}
-                        onClick={() => setIsUnitMenuOpen(!isUnitMenuOpen)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', position: 'relative' }}
+                    {/* Unit selector */}
+                    <div ref={unitRef} onClick={() => setIsUnitMenuOpen(!isUnitMenuOpen)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', position: 'relative', padding: '5px 10px', borderRadius: '8px', transition: 'background 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                        {/* Icon Theme Aware */}
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.02em' }}>UNIDADE</span>
-                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Unidade</span>
+                            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
                                 {(AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name || 'Selecione')}
                             </span>
                         </div>
                         {isUnitMenuOpen && (
-                            <div style={{
-                                position: 'absolute', top: '50px', right: '0',
-                                background: 'var(--bg-card)', borderRadius: '4px',
-                                boxShadow: 'var(--shadow-lg)',
-                                border: '1px solid var(--border-color)',
-                                width: '200px',
-                                zIndex: 120
-                            }}>
+                            <div style={{ ...dropdownStyle, top: '46px', right: '0', width: '180px', padding: '6px' }}>
                                 {AVAILABLE_UNITS.map(unit => (
                                     <div
                                         key={unit.id}
                                         onClick={() => { switchUnit(unit.id); setIsUnitMenuOpen(false); }}
                                         style={{
-                                            padding: '10px 15px',
-                                            fontSize: '13px',
-                                            cursor: 'pointer',
+                                            ...dropdownItemStyle,
                                             color: activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)',
-                                            background: activeUnit === unit.id ? 'var(--bg-input)' : 'transparent',
-                                            borderBottom: '1px solid var(--border-color)'
+                                            fontWeight: activeUnit === unit.id ? '600' : '400',
+                                            borderRadius: '6px'
                                         }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                        onMouseLeave={e => activeUnit !== unit.id && (e.currentTarget.style.background = 'transparent')}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)'; }}
                                     >
                                         {unit.name}
                                     </div>
@@ -474,39 +332,26 @@ const Header = () => {
                         )}
                     </div>
 
-                    {/* Apps Menu (Blue Button) */}
-                    <div
-                        ref={appsRef}
-                        style={{ position: 'relative' }}
-                    >
+                    {/* Theme Switcher Top Level */}
+                    <ThemeSwitcher />
+
+                    {/* Apps menu */}
+                    <div ref={appsRef} style={{ position: 'relative' }}>
                         <div
                             onClick={() => setIsAppsMenuOpen(!isAppsMenuOpen)}
                             style={{
-                                width: '38px',
-                                height: '38px',
+                                width: '32px', height: '32px',
                                 borderRadius: '8px',
-                                backgroundColor: isAppsMenuOpen ? 'var(--bg-input)' : 'transparent',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                backgroundColor: isAppsMenuOpen ? 'var(--bg-elevated)' : 'transparent',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease',
+                                transition: 'all 0.15s ease',
                                 border: `1px solid ${isAppsMenuOpen ? 'var(--border-color)' : 'transparent'}`,
                             }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={e => {
-                                if (!isAppsMenuOpen) {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                } else {
-                                    e.currentTarget.style.backgroundColor = 'var(--bg-input)';
-                                }
-                            }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
+                            onMouseLeave={e => { if (!isAppsMenuOpen) e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="3" y="3" width="7" height="7"></rect>
                                 <rect x="14" y="3" width="7" height="7"></rect>
                                 <rect x="14" y="14" width="7" height="7"></rect>
@@ -515,409 +360,287 @@ const Header = () => {
                         </div>
 
                         {isAppsMenuOpen && (
-                            <div style={{
-                                position: 'absolute', top: '50px', right: '0',
-                                background: 'var(--bg-card)', borderRadius: '12px',
-                                boxShadow: 'var(--shadow-lg)',
-                                border: '1px solid var(--border-color)',
-                                width: '220px',
-                                zIndex: 120,
-                                padding: '8px',
-                                overflow: 'hidden'
-                            }}>
-                                {/* Theme Toggle - Moved from Sidebar */}
-                                <div
-                                    onClick={() => {
-                                        toggleTheme();
-                                        setIsAppsMenuOpen(false);
-                                    }}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '12px',
-                                        padding: '12px 15px',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s',
-                                        color: 'var(--text-main)',
-                                        marginBottom: '4px'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    <div style={{
-                                        width: '32px', height: '32px', borderRadius: '6px',
-                                        backgroundColor: theme === 'dark' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(103, 58, 183, 0.1)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        {theme === 'dark' ? (
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC107" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <circle cx="12" cy="12" r="5"></circle>
-                                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                                            </svg>
-                                        ) : (
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#673AB7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                                            </svg>
-                                        )}
-                                    </div>
-                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>
-                                        {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                                    </span>
-                                </div>
-
-                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 8px' }} />
+                            <div style={{ ...dropdownStyle, top: '42px', right: '0', width: '200px', padding: '6px' }}>
 
                                 {userRole === 'admin' && (
                                     <Link
                                         to="/admin/audit"
                                         onClick={() => setIsAppsMenuOpen(false)}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '12px',
-                                            padding: '12px 15px', textDecoration: 'none', color: 'var(--text-main)',
-                                            borderRadius: '8px', transition: 'background 0.2s',
-                                            backgroundColor: location.pathname === '/admin/audit' ? 'var(--bg-input)' : 'transparent'
-                                        }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                        onMouseLeave={e => location.pathname !== '/admin/audit' && (e.currentTarget.style.background = 'transparent')}
+                                        style={{ ...dropdownItemStyle, borderRadius: '6px' }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                     >
-                                        <div style={{
-                                            width: '32px', height: '32px', borderRadius: '6px',
-                                            backgroundColor: 'rgba(96, 125, 139, 0.1)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#607d8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line>
+                                                <line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>
                                             </svg>
                                         </div>
-                                        <span style={{ fontSize: '13px', fontWeight: '600' }}>Logs de Acesso</span>
+                                        Logs de Acesso
                                     </Link>
                                 )}
 
-                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 8px' }} />
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
 
                                 <a
                                     href="https://wa.me/5547991047677"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={() => setIsAppsMenuOpen(false)}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '12px',
-                                        padding: '12px 15px', textDecoration: 'none', color: 'var(--text-main)',
-                                        borderRadius: '8px', transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    style={{ ...dropdownItemStyle, borderRadius: '6px' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                 >
-                                    <div style={{
-                                        width: '32px', height: '32px', borderRadius: '6px',
-                                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196f3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                                             <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                         </svg>
                                     </div>
-                                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Central de Ajuda</span>
+                                    Central de Ajuda
                                 </a>
                             </div>
                         )}
                     </div>
 
-
-
-                    {/* User Profile */}
+                    {/* User profile */}
                     <div
                         ref={userRef}
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px',
+                            gap: '8px',
                             cursor: 'pointer',
                             position: 'relative',
-                            padding: '6px 10px',
-                            borderRadius: '6px',
-                            transition: 'all 0.2s ease'
+                            padding: '5px 10px',
+                            borderRadius: '8px',
+                            transition: 'all 0.15s ease'
                         }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.backgroundColor = 'var(--bg-input)';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
-                        {/* Avatar or Icon */}
                         {avatarUrl ? (
-                            <img
-                                src={avatarUrl}
-                                alt="Avatar"
-                                style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    border: '1px solid var(--border-color)'
-                                }}
-                            />
+                            <img src={avatarUrl} alt="Avatar" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
                         ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
                         )}
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1' }}>
-                            <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>
-                                {name?.split(' ')[0] || 'Visitante'}
-                            </span>
-                        </div>
+                        <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+                            {name?.split(' ')[0] || 'Usuário'}
+                        </span>
+
                         {isUserMenuOpen && (
-                            <div style={{
-                                position: 'absolute', top: '50px', right: '0',
-                                background: 'var(--bg-card)', borderRadius: '4px',
-                                boxShadow: 'var(--shadow-lg)',
-                                border: '1px solid var(--border-color)',
-                                width: '180px',
-                                zIndex: 120
-                            }}>
+                            <div style={{ ...dropdownStyle, top: '46px', right: '0', width: '180px', padding: '6px' }}>
                                 <Link
                                     to="/profile"
-                                    style={{
-                                        display: 'block', padding: '10px 15px', color: 'var(--text-main)',
-                                        textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
-                                        fontSize: '13px'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    onClick={() => setIsUserMenuOpen(false)}
+                                    style={{ ...dropdownItemStyle, borderRadius: '6px' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                 >
                                     Meus Dados
                                 </Link>
+
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
+                                <div style={{ padding: '6px 14px', fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                    Densidade de Tela
+                                </div>
+                                {['comfortable', 'default', 'compact'].map(mode => (
+                                    <div
+                                        key={mode}
+                                        onClick={(e) => { e.stopPropagation(); setDensity(mode); }}
+                                        style={{
+                                            ...dropdownItemStyle,
+                                            borderRadius: '6px',
+                                            color: density === mode ? 'var(--text-main)' : 'var(--text-muted)',
+                                            fontWeight: density === mode ? '600' : '400'
+                                        }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = density === mode ? 'var(--text-main)' : 'var(--text-muted)'; }}
+                                    >
+                                        <div style={{ width: '14px', display: 'flex', justifyContent: 'center', opacity: density === mode ? 1 : 0 }}>
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </div>
+                                        {mode === 'comfortable' ? 'Confortável' : mode === 'default' ? 'Padrão' : 'Compacta (Nativo)'}
+                                    </div>
+                                ))}
 
                                 {userRole === 'admin' && (
                                     <>
                                         <Link
                                             to="/admin/upload"
-                                            style={{
-                                                display: 'block', padding: '10px 15px', color: 'var(--text-main)',
-                                                textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
-                                                fontSize: '13px'
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                            onClick={() => setIsUserMenuOpen(false)}
+                                            style={{ ...dropdownItemStyle, borderRadius: '6px' }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                         >
                                             Upload de Dados
                                         </Link>
                                         <Link
                                             to="/admin"
-                                            style={{
-                                                display: 'block', padding: '10px 15px', color: 'var(--text-main)',
-                                                textDecoration: 'none', borderBottom: '1px solid var(--border-color)',
-                                                fontSize: '13px'
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                            onClick={() => setIsUserMenuOpen(false)}
+                                            style={{ ...dropdownItemStyle, borderRadius: '6px' }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                         >
                                             Gestão de Usuários
                                         </Link>
                                     </>
                                 )}
 
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
+
                                 <div
                                     onClick={handleLogout}
-                                    style={{ padding: '10px 15px', color: '#f44336', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    style={{ ...dropdownItemStyle, color: 'var(--color-error)', borderRadius: '6px', fontWeight: '500' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                                 >
                                     Sair
                                 </div>
                             </div>
                         )}
                     </div>
-
-
-
-
-                    {/* Cart Removed as requested */}
                 </div>
             </div>
 
-            {/* --- MEGA MENU SIDEBAR (Absolute) --- */}
-            {
-                isMegaMenuOpen && (
-                    <div
-                        ref={sidebarRef}
-                        className="scroll-container"
-                        onMouseEnter={() => {
-                            if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
-                        }}
-                        onMouseLeave={() => {
-                            menuTimeoutRef.current = setTimeout(() => {
-                                setIsMegaMenuOpen(false);
-                            }, 300);
-                        }}
-                        style={{
-                            position: 'absolute',
-                            top: '50px',
-                            left: 0,
-                            width: activeCategoryId ? '750px' : '300px',
-                            height: 'calc(100vh - 50px)',
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)', // Glass effect
-                            backdropFilter: 'blur(15px)',
-                            WebkitBackdropFilter: 'blur(15px)',
-                            borderRight: '1px solid rgba(226, 232, 240, 0.5)',
-                            boxShadow: '10px 0 40px rgba(0,0,0,0.08)',
-                            zIndex: 40,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            overflow: 'hidden',
-                            transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }}>
+            {/* Mega Menu */}
+            {isMegaMenuOpen && (
+                <div
+                    ref={sidebarRef}
+                    className="scroll-container"
+                    onMouseEnter={() => { if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current); }}
+                    onMouseLeave={() => { menuTimeoutRef.current = setTimeout(() => { setIsMegaMenuOpen(false); }, 300); }}
+                    style={{
+                        position: 'absolute',
+                        top: '62px',
+                        left: '12px',
+                        width: activeCategoryId ? '700px' : '280px',
+                        height: 'calc(100vh - 74px)',
+                        backgroundColor: 'var(--bg-elevated)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        boxShadow: 'var(--shadow-xl)',
+                        zIndex: 40,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        overflow: 'hidden',
+                        transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}>
 
-                        <div
-                            className="scroll-container"
-                            style={{
-                                width: '300px',
-                                minWidth: '300px',
-                                background: 'transparent',
-                                borderRight: '1px solid rgba(241, 241, 241, 0.5)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                padding: '15px 0',
-                                overflowY: 'auto'
-                            }}>
-                            {accessibleCategories.map(category => {
-                                const isActive = (activeCategoryId || selectedCategoryId) === category.id;
-                                return (
-                                    <div
-                                        key={category.id}
-                                        onMouseEnter={() => setActiveCategoryId(category.id)}
-                                        onClick={() => {
-                                            setSearchParams({ category: category.id });
-                                            setIsMegaMenuOpen(false);
-                                            setActiveCategoryId(null);
-                                            navigate(`/menu?category=${category.id}`);
-                                        }}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            padding: '14px 28px',
-                                            cursor: 'pointer',
-                                            background: 'transparent',
-                                            color: isActive ? (category.color || '#1E88E5') : '#4a4a4a', // Dynamic category color
-                                            fontWeight: isActive ? '700' : '500',
-                                            fontSize: '15px',
-                                            transition: 'all 0.2s ease',
-                                            borderLeft: '4px solid transparent'
-                                        }}
-                                    >
-                                        <span>{category.name}</span>
-                                        {isActive && <span style={{ color: category.color || '#1E88E5', fontWeight: '900', fontSize: '18px' }}>›</span>}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Panel 2: Modules (Right - Flyout) */}
-                        {activeCategoryId && (
-                            <div
-                                className="scroll-container"
-                                style={{
-                                    flex: 1,
-                                    background: theme === 'dark' ? 'rgba(0,0,0,0.2)' : '#ffffff',
-                                    padding: '30px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '20px',
-                                    overflowY: 'auto'
-                                }}
-                            >
-                                {(() => {
-                                    const activeCategoryData = categories.find(c => c.id === activeCategoryId);
-                                    return (
-                                        <>
-                                            <h4 style={{
-                                                fontSize: '20px',
-                                                fontWeight: '800',
-                                                color: activeCategoryData?.color || '#1A1A1A', // Dynamic category title
-                                                marginBottom: '15px',
-                                                paddingBottom: '12px',
-                                                display: 'inline-block',
-                                                letterSpacing: '-0.02em',
-                                                borderBottom: `2px solid ${activeCategoryData?.color || '#1E88E5'}22` // Transparent dynamic border
-                                            }}>
-                                                {activeCategoryData?.name}
-                                            </h4>
-
-                                            <div style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: 'repeat(2, 1fr)',
-                                                gap: '15px'
-                                            }}>
-                                                {allModules.filter(m => m.category === activeCategoryId && (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)))).map(module => (
-                                                    <div
-                                                        key={module.id}
-                                                        onClick={() => {
-                                                            setIsMegaMenuOpen(false);
-                                                            setActiveCategoryId(null);
-                                                            if (module.path.startsWith('http')) window.open(module.path, '_blank');
-                                                            else navigate(module.path);
-                                                        }}
-                                                        style={{
-                                                            display: 'flex',
-                                                            alignItems: 'flex-start',
-                                                            gap: '10px',
-                                                            cursor: 'pointer',
-                                                            padding: '10px',
-                                                            borderRadius: '4px',
-                                                            transition: 'background 0.1s'
-                                                        }}
-                                                        onMouseEnter={e => e.currentTarget.style.background = '#fcfcfc'}
-                                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                                    >
-                                                        <div style={{ color: activeCategoryData?.color || '#1E88E5', marginTop: '6px' }}>
-                                                            {/* Bullet Point - Solid Dynamic Color */}
-                                                            <svg width="6" height="6" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5" /></svg>
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>{module.title}</span>
-                                                            <span style={{ fontSize: '12px', color: '#777' }}>{module.subtitle}</span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </>
-                                    );
-                                })()}
-                            </div>
-                        )}
+                    <div className="scroll-container" style={{
+                        width: '280px', minWidth: '280px',
+                        background: 'transparent',
+                        borderRight: '1px solid var(--border-color)',
+                        display: 'flex', flexDirection: 'column',
+                        padding: '8px',
+                        overflowY: 'auto'
+                    }}>
+                        {accessibleCategories.map(category => {
+                            const isActive = (activeCategoryId || selectedCategoryId) === category.id;
+                            return (
+                                <div
+                                    key={category.id}
+                                    onMouseEnter={() => setActiveCategoryId(category.id)}
+                                    onClick={() => {
+                                        setSearchParams({ category: category.id });
+                                        setIsMegaMenuOpen(false);
+                                        setActiveCategoryId(null);
+                                        navigate(`/menu?category=${category.id}`);
+                                    }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '10px 14px',
+                                        cursor: 'pointer',
+                                        background: isActive ? 'var(--bg-hover)' : 'transparent',
+                                        color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
+                                        fontWeight: isActive ? '600' : '400',
+                                        fontSize: '13px',
+                                        transition: 'all 0.15s ease',
+                                        borderRadius: '8px',
+                                        letterSpacing: '-0.01em'
+                                    }}
+                                    onMouseLeave={e => {
+                                        if (!isActive) e.currentTarget.style.background = 'transparent';
+                                    }}
+                                >
+                                    <span>{category.name}</span>
+                                    {isActive && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"></polyline></svg>}
+                                </div>
+                            );
+                        })}
                     </div>
-                )
-            }
+
+                    {activeCategoryId && (
+                        <div className="scroll-container" style={{
+                            flex: 1,
+                            background: 'var(--bg-card)',
+                            padding: '20px',
+                            display: 'flex', flexDirection: 'column', gap: '16px',
+                            overflowY: 'auto'
+                        }}>
+                            {(() => {
+                                const activeCategoryData = categories.find(c => c.id === activeCategoryId);
+                                return (
+                                    <>
+                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', letterSpacing: '-0.02em', marginBottom: '4px' }}>
+                                            {activeCategoryData?.name}
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+                                            {allModules.filter(m => m.category === activeCategoryId && (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)))).map(module => (
+                                                <div
+                                                    key={module.id}
+                                                    onClick={() => {
+                                                        setIsMegaMenuOpen(false);
+                                                        setActiveCategoryId(null);
+                                                        if (module.path.startsWith('http')) window.open(module.path, '_blank');
+                                                        else navigate(module.path);
+                                                    }}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'flex-start',
+                                                        gap: '8px',
+                                                        cursor: 'pointer',
+                                                        padding: '10px',
+                                                        borderRadius: '8px',
+                                                        transition: 'background 0.1s',
+                                                        border: '1px solid transparent'
+                                                    }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
+                                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
+                                                >
+                                                    <div style={{ color: 'var(--text-muted)', marginTop: '2px', flexShrink: 0 }}>
+                                                        {React.cloneElement(module.icon, { width: 14, height: 14, strokeWidth: 2 })}
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>{module.title}</span>
+                                                        {module.subtitle && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>{module.subtitle}</span>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <style>{`
-                .menu-item-hover { padding: 8px 12px; cursor: pointer; border-radius: 4px; font-size: 13px; color: #555; }
-                .menu-item-hover:hover { background: #f5f5f5; color: #1B5E20; }
-                .scroll-container::-webkit-scrollbar { width: 6px; }
-                .scroll-container::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+                .scroll-container::-webkit-scrollbar { width: 4px; }
+                .scroll-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
             `}</style>
-        </div >
+        </div>
     );
 };
 
 export default Header;
-

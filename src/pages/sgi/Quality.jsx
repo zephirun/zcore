@@ -1,37 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { useData } from '../../context/DataContext';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
 
 const Quality = () => {
     const { activeUnit } = useData();
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'var(--font-main)' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
+            <PageContainer maxWidth="1200px" title="Gestão da Qualidade (SGQ)">
 
-            <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
-                <h2 style={{ color: '#2c3e50', marginBottom: '20px', borderBottom: '2px solid #3498db', paddingBottom: '10px', display: 'inline-block' }}>
-                    Gestão da Qualidade (SGQ)
-                </h2>
-
-                <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+                <Card>
                     <div style={{
-                        padding: '10px 15px',
-                        background: activeUnit === 'madville' ? '#e3f2fd' : '#e8f5e9',
-                        color: activeUnit === 'madville' ? '#1565c0' : '#2e7d32',
-                        borderRadius: '4px',
-                        marginBottom: '20px',
-                        fontWeight: '600',
-                        display: 'inline-block'
+                        padding: 'var(--space-2) var(--space-4)',
+                        background: activeUnit === 'madville' ? 'var(--color-info-dim)' : 'var(--color-success-dim)',
+                        color: activeUnit === 'madville' ? 'var(--color-info)' : 'var(--color-success)',
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: 'var(--space-5)',
+                        fontWeight: 'var(--font-bold)',
+                        display: 'inline-block',
+                        fontSize: 'var(--text-sm)'
                     }}>
                         UNIDADE ATIVA: {activeUnit === 'madville' ? 'Madville' : 'Curitiba'}
                     </div>
 
-                    <p style={{ color: '#666' }}>
-                        Módulo de Gestão da Qualidade em desenvolvimento.
-                        Aqui serão gerenciados os indicadores de qualidade, RNCs, e processos de auditoria para a unidade <strong>{activeUnit === 'madville' ? 'Madville' : 'Curitiba'}</strong>.
+                    <p style={{ color: 'var(--text-muted)' }}>
+                        Módulo de Gestão da Qualidade em desenvolvimento.<br />
+                        Aqui serão gerenciados os indicadores de qualidade, RNCs, e processos de auditoria para a unidade <strong style={{ color: 'var(--text-main)' }}>{activeUnit === 'madville' ? 'Madville' : 'Curitiba'}</strong>.
                     </p>
-                </div>
-            </div>
+                </Card>
+            </PageContainer>
         </div>
     );
 };

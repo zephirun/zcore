@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as api from '../services/api';
+import { fetchSyntheticSalesSummary, executeOracleQuery, fetchClientSummary, searchClients } from '../services/oracleService';
 
 export const DataContext = createContext();
 
@@ -23,8 +24,28 @@ export const DataProvider = ({ children }) => {
     const [selectedQuarter, setSelectedQuarter] = useState(0); // Q1 by default
     const [quarterData, setQuarterData] = useState([]);
     const [globalFilters, setGlobalFilters] = useState({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', representative: 'Selecionar Todos', ranking: 'Sem Ordenação' });
-    const [theme, setTheme] = useState(() => localStorage.getItem('gmad_theme') || 'dark'); // Load from local storage
+    // Initialize with system preference if no localStorage
+    const [theme, setTheme] = useState(() => {
+        const storedTheme = localStorage.getItem('gmad_theme');
+        if (storedTheme) return storedTheme;
+
+        // OS level preference fallback
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    });
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Sidebar state
+
+    // Adaptive Data Density State
+    const [density, setDensityState] = useState(() => {
+        return localStorage.getItem('gmad_density') || 'default'; // comfortable, default, compact
+    });
+
+    const setDensity = (newDensity) => {
+        localStorage.setItem('gmad_density', newDensity);
+        setDensityState(newDensity);
+    };
 
     const toggleTheme = () => {
         setTheme(prev => {
@@ -34,10 +55,33 @@ export const DataProvider = ({ children }) => {
         });
     };
 
-    // Apply Theme to DOM
+    // Apply Theme to DOM cleanly
     useEffect(() => {
+        // Fast transition blocker to avoid flash on mount
+        const css = document.createElement('style');
+        css.type = 'text/css';
+        css.appendChild(
+            document.createTextNode(
+                `* {
+                    -webkit-transition: none !important;
+                    -moz-transition: none !important;
+                    -o-transition: none !important;
+                    -ms-transition: none !important;
+                    transition: none !important;
+                }`
+            )
+        );
+        document.head.appendChild(css);
+
         document.documentElement.setAttribute('data-theme', theme);
-    }, [theme]);
+        document.documentElement.setAttribute('data-density', density);
+
+        // Re-enable transitions directly after layout recalculation
+        const _ = window.getComputedStyle(css).opacity;
+        setTimeout(() => {
+            document.head.removeChild(css);
+        }, 10);
+    }, [theme, density]);
 
     // Dynamic Available Units
     const ALL_UNITS = React.useMemo(() => [
@@ -526,8 +570,14 @@ export const DataProvider = ({ children }) => {
             setGlobalFilters,
             theme,
             toggleTheme,
+            density,
+            setDensity,
             sidebarCollapsed,
-            setSidebarCollapsed
+            setSidebarCollapsed,
+            fetchSyntheticSummary: fetchSyntheticSalesSummary,
+            fetchClientSummary,
+            searchClients,
+            executeOracleQuery
         }}>
             {children}
         </DataContext.Provider>

@@ -5,15 +5,16 @@ import Footer from './Footer';
 import { useData } from '../context/DataContext';
 
 const PostAuthLayout = ({ children }) => {
-    const { sidebarCollapsed } = useData(); // Get global state for layout spacing
+    const { sidebarCollapsed } = useData();
 
     return (
         <div style={{
             display: 'flex',
             minHeight: '100vh',
-            background: 'var(--bg-obsidian, transparent)',
+            background: 'var(--bg-main)',
             color: 'var(--text-main)',
-            transition: 'color 0.3s ease'
+            transition: 'color 0.2s ease',
+            fontFamily: 'var(--font-main)'
         }}>
             <Sidebar />
             <div
@@ -23,8 +24,8 @@ const PostAuthLayout = ({ children }) => {
                     display: 'flex',
                     flexDirection: 'column',
                     minWidth: 0,
-                    marginLeft: sidebarCollapsed ? '84px' : '232px', // Adjusted for more compact sidebar (200px width + 20px margin + 12px gap)
-                    transition: 'margin-left 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
+                    transition: 'margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
                     zIndex: 1
                 }}>
@@ -34,13 +35,13 @@ const PostAuthLayout = ({ children }) => {
                     overflowX: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
-                    paddingTop: '72px', // Header top (12) + Height (48) + Gap (12)
-                    paddingRight: '20px',
-                    paddingBottom: '20px'
+                    paddingTop: 'var(--header-height)',
+                    paddingRight: '0px',
+                    paddingBottom: '0px'
                 }}>
-                    <div style={{ flex: 1 }}>
+                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                         {children}
-                    </div>
+                    </main>
                     <Footer />
                 </div>
             </div>

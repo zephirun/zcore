@@ -1,3 +1,9 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Card from '@/components/ui/Card';
+import PageContainer from '@/components/ui/PageContainer';
+
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -141,90 +147,103 @@ const AdminPanel = () => {
     // Helper Component for Category-grouped Module Selection (Collapsible)
     const ModulePermissionSelector = ({ selectedModules, onToggle, isEditing = false }) => {
         return (
-            <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)' }}>PERMISSÕES DE MÓDULOS</label>
-                {categories.map(cat => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
+                <label style={labelStyle}>Permissões de Módulo</label>
+                {categories.filter(c => !c.hidden).map(cat => {
                     const catModules = allModules.filter(m => m.category === cat.id);
                     if (catModules.length === 0) return null;
 
-                    // Calculate active count for badge
                     const activeCount = catModules.filter(m => selectedModules.includes(m.id)).length;
 
                     return (
                         <details key={cat.id} style={{
-                            background: 'var(--bg-input)', // Collapsed bg
-                            borderRadius: '8px',
+                            background: 'var(--bg-input)',
+                            borderRadius: '12px',
                             border: `1px solid var(--border-color)`,
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            transition: 'all 0.2s ease'
                         }}>
                             <summary style={{
-                                padding: '10px 12px',
+                                padding: 'var(--space-3) var(--space-4)',
                                 cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: '600',
+                                fontSize: 'var(--text-xs)',
+                                fontWeight: 'var(--font-semibold)',
                                 color: 'var(--text-main)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                listStyle: 'none'
+                                listStyle: 'none',
+                                userSelect: 'none'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color }}></span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color || 'var(--color-primary)' }}></div>
                                     {cat.name}
                                 </div>
-                                <span style={{
-                                    background: activeCount > 0 ? cat.color : 'rgba(0,0,0,0.1)',
-                                    color: activeCount > 0 ? 'white' : 'var(--text-muted)',
-                                    padding: '2px 8px',
-                                    borderRadius: '10px',
-                                    fontSize: '10px'
-                                }}>
-                                    {activeCount} / {catModules.length}
-                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                    <span style={{
+                                        background: activeCount > 0 ? (cat.color || 'var(--color-primary)') : 'var(--bg-card)',
+                                        color: activeCount > 0 ? 'white' : 'var(--text-muted)',
+                                        padding: '2px 8px',
+                                        borderRadius: '12px',
+                                        fontSize: '10px',
+                                        fontWeight: 'var(--font-bold)',
+                                        border: activeCount > 0 ? 'none' : '1px solid var(--border-color)'
+                                    }}>
+                                        {activeCount} / {catModules.length}
+                                    </span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity: 0.5 }}>
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
                             </summary>
 
                             <div style={{
-                                padding: '12px',
+                                padding: 'var(--space-3)',
                                 background: 'var(--bg-card)',
                                 borderTop: '1px solid var(--border-color)',
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: '6px'
+                                display: 'grid',
+                                gridTemplateColumns: '1fr',
+                                gap: 'var(--space-1)'
                             }}>
                                 {catModules.map(module => {
                                     const isSelected = selectedModules.includes(module.id);
                                     return (
-                                        <button
+                                        <div
                                             key={module.id}
-                                            type="button"
                                             onClick={() => onToggle(module.id, isEditing)}
                                             style={{
-                                                padding: '6px 10px',
-                                                borderRadius: '6px',
-                                                border: isSelected ? `1px solid ${cat.color}` : '1px solid var(--border-color)',
-                                                background: isSelected ? `${cat.color}15` : 'var(--bg-input)', // Light tint
-                                                color: isSelected ? cat.color : 'var(--text-muted)',
-                                                fontSize: '11px',
-                                                fontWeight: '600',
+                                                padding: '8px 10px',
+                                                borderRadius: '8px',
+                                                background: isSelected ? `${cat.color || 'var(--color-primary)'}10` : 'transparent',
+                                                color: isSelected ? (cat.color || 'var(--color-primary)') : 'var(--text-muted)',
+                                                fontSize: '12px',
+                                                fontWeight: isSelected ? '600' : '400',
                                                 cursor: 'pointer',
-                                                transition: 'all 0.1s',
+                                                transition: 'all 0.15s ease',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                gap: '6px',
-                                                flex: '1 0 auto', // Grow to fill space but keep size reasonable
-                                                justifyContent: 'center'
+                                                gap: 'var(--space-3)',
+                                                border: '1px solid transparent',
+                                                borderColor: isSelected ? `${cat.color || 'var(--color-primary)'}30` : 'transparent'
+                                            }}
+                                            onMouseEnter={e => {
+                                                if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)';
+                                            }}
+                                            onMouseLeave={e => {
+                                                if (!isSelected) e.currentTarget.style.background = 'transparent';
                                             }}
                                         >
-                                            <span style={{
-                                                width: '12px', height: '12px', borderRadius: '3px',
-                                                border: isSelected ? `1px solid ${cat.color}` : '1px solid var(--text-muted)',
-                                                background: isSelected ? cat.color : 'transparent',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            <div style={{
+                                                width: '16px', height: '16px', borderRadius: '4px',
+                                                border: isSelected ? `none` : '2px solid var(--border-color)',
+                                                background: isSelected ? (cat.color || 'var(--color-primary)') : 'transparent',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                transition: 'all 0.2s'
                                             }}>
-                                                {isSelected && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
-                                            </span>
+                                                {isSelected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                            </div>
                                             {module.title}
-                                        </button>
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -236,390 +255,329 @@ const AdminPanel = () => {
     };
 
     return (
-        <div style={{ padding: '30px', maxWidth: '1600px', margin: '0 auto' }}>
-
-            {/* Top Bar: Title & Actions */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                <div>
-                    <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '4px' }}>
-                        Gestão de Usuários
-                    </h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Gerencie acessos e permissões do sistema</p>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+        <PageContainer
+            maxWidth="1600px"
+            title="Gestão de Usuários"
+            subtitle="Controle de acessos, permissões e unidades do sistema"
+            actions={
+                <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
                     <div style={{ position: 'relative' }}>
-                        <input
+                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                        <Input
                             type="text"
-                            placeholder="Buscar por nome, vendedor, grupo..."
+                            placeholder="Buscar usuário..."
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            style={{
-                                padding: '10px 16px 10px 40px',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border-color)',
-                                background: 'var(--bg-card)',
-                                color: 'var(--text-main)',
-                                width: '300px',
-                                fontSize: '13px'
-                            }}
+                            style={{ paddingLeft: '34px', width: '240px', borderRadius: '12px' }}
                         />
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '12px', top: '10px' }}>
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
                     </div>
-                    <button onClick={handleRefresh} style={{ ...actionButtonStyle, background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>
+                    <Button variant="ghost" onClick={handleRefresh}>
                         Atualizar
-                    </button>
-                    <button onClick={() => navigate('/menu')} style={{ ...actionButtonStyle, background: 'var(--color-primary)', color: 'white', border: 'none' }}>
-                        Voltar
-                    </button>
+                    </Button>
+                    <Button variant="secondary" onClick={() => navigate('/menu')}>
+                        Sair
+                    </Button>
                 </div>
-            </div>
+            }
+        >
+            <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 'var(--space-6)', alignItems: 'start' }}>
+                {/* LEFT: FORM */}
+                <Card style={{ position: 'sticky', top: 'var(--space-4)', border: editingUserId ? '1px solid var(--color-primary)' : '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: editingUserId ? 'var(--color-primary)' : 'var(--text-main)', margin: 0 }}>
+                            {editingUserId ? 'Editar Usuário' : 'Novo Registro'}
+                        </h3>
+                        {editingUserId && (
+                            <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                                Cancelar
+                            </Button>
+                        )}
+                    </div>
 
-            {/* Layout: Split View if Creating/Editing, Full Table if Viewing */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 25%) 1fr', gap: '24px', alignItems: 'start' }}>
+                    <form onSubmit={editingUserId ? (e) => { e.preventDefault(); saveEdit(); } : handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <Input
+                            label="Nome Completo"
+                            value={editingUserId ? editForm.name : newUser.name}
+                            onChange={e => editingUserId ? setEditForm({ ...editForm, name: e.target.value }) : setNewUser({ ...newUser, name: e.target.value })}
+                            placeholder="Nome do colaborador"
+                        />
 
-                {/* LEFT COLUMN: EDITOR / CREATOR */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <Input
+                            label="Login (Usuário)"
+                            value={editingUserId ? editForm.username : newUser.username}
+                            onChange={e => editingUserId ? setEditForm({ ...editForm, username: e.target.value }) : setNewUser({ ...newUser, username: e.target.value })}
+                            placeholder="usuario.sobrenome"
+                        />
 
-                    {/* CREATION / EDIT CARD */}
-                    <div style={{
-                        background: 'var(--bg-card)',
-                        borderRadius: '12px',
-                        padding: '24px',
-                        boxShadow: 'var(--shadow-sm)',
-                        border: editingUserId ? '2px solid var(--color-primary)' : '1px solid var(--border-color)',
-                        position: 'sticky',
-                        top: '20px'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '16px', fontWeight: '700', color: editingUserId ? 'var(--color-primary)' : 'var(--text-main)', margin: 0 }}>
-                                {editingUserId ? 'Editando Usuário' : 'Novo Usuário'}
-                            </h3>
-                            {editingUserId && (
-                                <button onClick={cancelEdit} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>
-                                    Cancelar
-                                </button>
-                            )}
-                        </div>
+                        {!editingUserId && (
+                            <Input
+                                label="Senha Provisória"
+                                type="password"
+                                value={newUser.password}
+                                onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                                placeholder="••••••••"
+                            />
+                        )}
 
-                        {/* FORM - Conditional rendering based on mode */}
-                        <form onSubmit={editingUserId ? (e) => { e.preventDefault(); saveEdit(); } : handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <Select
+                            label="Função"
+                            value={editingUserId ? editForm.role : newUser.role}
+                            onChange={e => editingUserId ? setEditForm({ ...editForm, role: e.target.value }) : setNewUser({ ...newUser, role: e.target.value })}
+                        >
+                            <option value="user">Usuário Padrão</option>
+                            <option value="admin">Administrador Geral</option>
+                        </Select>
 
-                            {/* Name */}
-                            <div>
-                                <label style={labelStyle}>Nome Completo</label>
-                                <input
-                                    type="text"
-                                    value={editingUserId ? editForm.name : newUser.name}
-                                    onChange={e => editingUserId ? setEditForm({ ...editForm, name: e.target.value }) : setNewUser({ ...newUser, name: e.target.value })}
-                                    style={inputStyle}
-                                    placeholder="Ex: João Silva"
-                                    required
-                                />
-                            </div>
+                        <Input
+                            label="Departamento"
+                            value={editingUserId ? editForm.group : newUser.group}
+                            onChange={e => editingUserId ? setEditForm({ ...editForm, group: e.target.value }) : setNewUser({ ...newUser, group: e.target.value })}
+                            placeholder="Ex: Comercial, RH"
+                        />
 
-                            {/* Username */}
-                            <div>
-                                <label style={labelStyle}>Usuário (Login)</label>
-                                <input
-                                    type="text"
-                                    value={editingUserId ? editForm.username : newUser.username}
-                                    onChange={e => editingUserId ? setEditForm({ ...editForm, username: e.target.value }) : setNewUser({ ...newUser, username: e.target.value })}
-                                    style={inputStyle}
-                                    placeholder="joao.silva"
-                                    required
-                                />
-                            </div>
-
-                            {/* Password (only visible on creation or potentially reset logic later) */}
-                            {!editingUserId && (
+                        {((editingUserId ? editForm.role : newUser.role) !== 'admin') && (
+                            <>
                                 <div>
-                                    <label style={labelStyle}>Senha</label>
-                                    <input
-                                        type="password"
-                                        value={newUser.password}
-                                        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
-                                        style={inputStyle}
-                                        placeholder="••••••"
-                                        required
-                                    />
+                                    <label style={labelStyle}>Unidades com Acesso</label>
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '2px',
+                                        padding: '8px',
+                                        background: 'var(--bg-input)',
+                                        borderRadius: '8px',
+                                        border: '1px solid var(--border-color)',
+                                        maxHeight: '160px',
+                                        overflowY: 'auto'
+                                    }} className="hide-scrollbar">
+                                        {AVAILABLE_UNITS.map(u => {
+                                            const currentUnits = editingUserId ? (editForm.allowedUnit || []) : (newUser.allowedUnit || []);
+                                            const isChecked = currentUnits.includes(u.id);
+
+                                            return (
+                                                <div
+                                                    key={u.id}
+                                                    onClick={() => {
+                                                        const newUnits = isChecked
+                                                            ? currentUnits.filter(id => id !== u.id)
+                                                            : [...currentUnits, u.id];
+                                                        if (editingUserId) setEditForm({ ...editForm, allowedUnit: newUnits });
+                                                        else setNewUser({ ...newUser, allowedUnit: newUnits });
+                                                    }}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        padding: '6px 8px',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        background: isChecked ? 'var(--bg-card)' : 'transparent',
+                                                        transition: 'all 0.15s ease'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '14px', height: '14px', borderRadius: '4px',
+                                                        border: isChecked ? 'none' : '2px solid var(--border-color)',
+                                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                    }}>
+                                                        {isChecked && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                                    </div>
+                                                    <span style={{ fontSize: '12px', color: isChecked ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: isChecked ? '600' : '400' }}>{u.name}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            )}
 
-                            {/* Role */}
-                            <div>
-                                <label style={labelStyle}>Função</label>
-                                <select
-                                    value={editingUserId ? editForm.role : newUser.role}
-                                    onChange={e => editingUserId ? setEditForm({ ...editForm, role: e.target.value }) : setNewUser({ ...newUser, role: e.target.value })}
-                                    style={inputStyle}
+                                <Select
+                                    label="Vendedor Associado"
+                                    value={editingUserId ? editForm.allowedVendor : newUser.allowedVendor}
+                                    onChange={e => editingUserId ? setEditForm({ ...editForm, allowedVendor: e.target.value }) : setNewUser({ ...newUser, allowedVendor: e.target.value })}
                                 >
-                                    <option value="user">Usuário</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
+                                    <option value="">Acesso Irrestrito (Gerencial)</option>
+                                    {uniqueVendors.map(vendor => (
+                                        <option key={vendor} value={vendor}>{vendor}</option>
+                                    ))}
+                                </Select>
 
-                            {/* Group */}
-                            <div>
-                                <label style={labelStyle}>Grupo / Setor</label>
-                                <input
-                                    type="text"
-                                    value={editingUserId ? editForm.group : newUser.group}
-                                    onChange={e => editingUserId ? setEditForm({ ...editForm, group: e.target.value }) : setNewUser({ ...newUser, group: e.target.value })}
-                                    style={inputStyle}
-                                    placeholder="Ex: Comercial, Logística"
-                                />
-                            </div>
-
-                            {/* Conditional Fields for 'user' role (or anyone not admin) */}
-                            {((editingUserId ? editForm.role : newUser.role) !== 'admin') && (
-                                <>
-                                    <div>
-                                        <label style={labelStyle}>Unidade(s) de Acesso</label>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px solid var(--border-input)' }}>
-                                            {AVAILABLE_UNITS.map(u => {
-                                                const currentUnits = editingUserId ? (editForm.allowedUnit || []) : (newUser.allowedUnit || []);
-                                                const isChecked = currentUnits.includes(u.id);
-
-                                                return (
-                                                    <label key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer', color: 'var(--text-main)' }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isChecked}
-                                                            onChange={() => {
-                                                                const newUnits = isChecked
-                                                                    ? currentUnits.filter(id => id !== u.id)
-                                                                    : [...currentUnits, u.id];
-
-                                                                if (editingUserId) setEditForm({ ...editForm, allowedUnit: newUnits });
-                                                                else setNewUser({ ...newUser, allowedUnit: newUnits });
-                                                            }}
-                                                        />
-                                                        {u.name}
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    {/* VENDOR LINKING */}
-                                    <div>
-                                        <label style={labelStyle}>Vincular Vendedor (Dados)</label>
-                                        <select
-                                            value={editingUserId ? editForm.allowedVendor : newUser.allowedVendor}
-                                            onChange={e => editingUserId ? setEditForm({ ...editForm, allowedVendor: e.target.value }) : setNewUser({ ...newUser, allowedVendor: e.target.value })}
-                                            style={inputStyle}
-                                        >
-                                            <option value="">-- Nenhum / Acesso Completo --</option>
-                                            {uniqueVendors.map(vendor => (
-                                                <option key={vendor} value={vendor}>{vendor}</option>
-                                            ))}
-                                        </select>
-                                        <small style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                                            Restringe visualização aos dados deste vendedor.
-                                        </small>
-                                    </div>
-                                </>
-                            )}
-
-                            {/* Submit Button */}
-                            <button type="submit" style={{ ...buttonStyle, background: editingUserId ? '#22c55e' : 'var(--color-primary)', color: 'white', marginTop: '10px' }}>
-                                {editingUserId ? 'Salvar Alterações' : 'Criar Usuário'}
-                            </button>
-
-                            {/* Module Selector - Collapsible */}
-                            {((editingUserId ? editForm.role : newUser.role) !== 'admin') && (
                                 <ModulePermissionSelector
                                     selectedModules={editingUserId ? (editForm.allowedModules || []) : newUser.allowedModules}
                                     onToggle={toggleModuleAccess}
                                     isEditing={!!editingUserId}
                                 />
-                            )}
+                            </>
+                        )}
 
-                        </form>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            fullWidth
+                            loading={isRefreshing}
+                        >
+                            {editingUserId ? 'Salvar Alterações' : 'Criar Conta'}
+                        </Button>
 
-                        {error && <p style={{ color: '#ef4444', marginTop: '15px', fontSize: '13px', fontWeight: '500' }}>{error}</p>}
-                        {success && <p style={{ color: '#22c55e', marginTop: '15px', fontSize: '13px', fontWeight: '500' }}>{success}</p>}
-                    </div>
-                </div>
+                        {error && <p style={{ color: 'var(--color-error)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{error}</p>}
+                        {success && <p style={{ color: 'var(--color-success)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{success}</p>}
+                    </form>
+                </Card>
 
-                {/* RIGHT COLUMN: USER LIST (TABLE) */}
-                <div style={{
-                    background: 'var(--bg-card)',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border-color)',
-                    overflow: 'hidden',
-                    boxShadow: 'var(--shadow-sm)'
-                }}>
+                {/* RIGHT: LIST */}
+                <Card padding="0" style={{ overflow: 'hidden' }}>
                     <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)' }}>
-                                    <th style={thStyle}>Usuário</th>
-                                    <th style={thStyle}>Grupo / Setor</th>
-                                    <th style={thStyle}>Unidade</th>
-                                    <th style={thStyle}>Vendedor Vinc.</th>
-                                    <th style={thStyle}>Permissões</th>
+                                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+                                    <th style={thStyle}>Colaborador</th>
+                                    <th style={thStyle}>Grupo</th>
+                                    <th style={thStyle}>Unidades</th>
+                                    <th style={thStyle}>Acesso</th>
                                     <th style={{ ...thStyle, textAlign: 'right' }}>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredUsers.map(user => (
-                                    <tr
-                                        key={user.id}
-                                        style={{
-                                            borderBottom: '1px solid var(--border-color)',
-                                            cursor: 'pointer',
-                                            background: editingUserId === user.id ? 'var(--color-primary-light-10)' : 'transparent', // Light highlight if active
-                                            borderLeft: editingUserId === user.id ? '4px solid var(--color-primary)' : '4px solid transparent'
-                                        }}
-                                        onClick={() => startEdit(user)}
-                                        className="user-row"
-                                    >
-                                        <td style={tdStyle}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <div style={{
-                                                    width: '32px', height: '32px', borderRadius: '50%',
-                                                    background: user.role === 'admin' ? '#f59e0b' : 'var(--color-primary)',
-                                                    color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '12px'
+                                    <React.Fragment key={user.id}>
+                                        <tr
+                                            onClick={() => startEdit(user)}
+                                            style={{
+                                                borderBottom: '1px solid var(--border-color)',
+                                                cursor: 'pointer',
+                                                background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
+                                                transition: 'background 0.2s ease'
+                                            }}
+                                            className="admin-row"
+                                        >
+                                            <td style={tdStyle}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                                                    <div style={{
+                                                        width: '32px', height: '32px', borderRadius: '50%',
+                                                        background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
+                                                        color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '11px',
+                                                        border: '1px solid var(--border-color)'
+                                                    }}>
+                                                        {user.name.charAt(0)}
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontWeight: '600', fontSize: '13px', color: 'var(--text-main)' }}>{user.name}</span>
+                                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>@{user.username}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style={tdStyle}>
+                                                <span style={{
+                                                    fontSize: '11px',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '12px',
+                                                    background: 'var(--bg-input)',
+                                                    border: '1px solid var(--border-color)',
+                                                    color: 'var(--text-muted)',
+                                                    fontWeight: '600'
                                                 }}>
-                                                    {user.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{user.name}</div>
-                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>@{user.username}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td style={tdStyle}>
-                                            {user.group ? (
-                                                <span style={{ background: 'var(--bg-input)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', border: '1px solid var(--border-color)' }}>
-                                                    {user.group}
+                                                    {user.group || 'Geral'}
                                                 </span>
-                                            ) : <span style={{ color: 'var(--text-muted)' }}>-</span>}
-                                        </td>
-                                        <td style={tdStyle}>
-                                            {user.role === 'admin' ? (
-                                                <span style={{ fontWeight: '600', color: 'var(--text-muted)' }}>Todas</span>
-                                            ) : (
-                                                (() => {
-                                                    if (!user.allowedUnit) return '-';
-                                                    let ids = [];
-                                                    try {
-                                                        ids = JSON.parse(user.allowedUnit);
-                                                    } catch {
-                                                        ids = user.allowedUnit.split(',');
-                                                    }
-                                                    if (!Array.isArray(ids)) ids = [user.allowedUnit];
-
-                                                    return ids.map(id => {
-                                                        const unit = AVAILABLE_UNITS.find(u => u.id === id.trim().replace(/['"]+/g, ''));
-                                                        return unit ? unit.name : id;
-                                                    }).join(', ');
-                                                })()
-                                            )}
-                                        </td>
-                                        <td style={tdStyle}>
-                                            {user.allowedVendor ? (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-primary)' }}>
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                                    {user.allowedVendor}
+                                            </td>
+                                            <td style={tdStyle}>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '300px' }}>
+                                                    {user.role === 'admin' ? (
+                                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>Acesso Global</span>
+                                                    ) : (
+                                                        (() => {
+                                                            if (!user.allowedUnit) return '-';
+                                                            let ids = [];
+                                                            try { ids = JSON.parse(user.allowedUnit); } catch { ids = user.allowedUnit.split(','); }
+                                                            if (!Array.isArray(ids)) ids = [user.allowedUnit];
+                                                            const renderedUnits = ids.map(id => {
+                                                                const unit = AVAILABLE_UNITS.find(u => u.id === id.trim().replace(/['"]+/g, ''));
+                                                                return unit ? unit.name : null;
+                                                            }).filter(Boolean);
+                                                            return renderedUnits.length > 0 ? renderedUnits.join(', ') : '-';
+                                                        })()
+                                                    )}
                                                 </div>
-                                            ) : <span style={{ color: 'var(--text-muted)' }}>-</span>}
-                                        </td>
-                                        <td style={tdStyle}>
-                                            {user.role === 'admin' ? (
-                                                <span style={{ color: '#d97706', fontWeight: '600', fontSize: '11px' }}>ADMINISTRADOR</span>
-                                            ) : (
-                                                <span style={{ color: 'var(--text-muted)' }}>{user.allowedModules ? user.allowedModules.length : 0} módulos</span>
-                                            )}
-                                        </td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.username}?`)) deleteUser(user.username); }}
-                                                style={{
-                                                    background: 'transparent', border: '1px solid #fee2e2', color: '#ef4444',
-                                                    padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600'
-                                                }}
-                                            >
-                                                Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td style={tdStyle}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{
+                                                        width: '6px', height: '6px', borderRadius: '50%',
+                                                        background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--color-success)'
+                                                    }} />
+                                                    <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)' }}>
+                                                        {user.role === 'admin' ? 'ADMIN' : `${user.allowedModules?.length || 0} MOD.`}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
+                                                        style={{ color: 'var(--color-error)' }}
+                                                    >
+                                                        Remover
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {user.allowedVendor && (
+                                            <tr style={{ background: 'var(--bg-main)33' }}>
+                                                <td colSpan="5" style={{ padding: '0 16px 8px 58px', fontSize: '11px', color: 'var(--color-primary)', fontWeight: '600' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                                        Dados restritos ao vendedor: {user.allowedVendor}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                </div>
-
-                <style>{`
-                .user-row:hover {
-                    background-color: var(--bg-hover) !important;
-                }
-                summary::-webkit-details-marker {
-                    display: none;
-                }
-            `}</style>
+                </Card>
             </div>
-        </div>
-    );
-};
 
-// Styles
-const inputStyle = {
-    width: '100%',
-    padding: '8px 12px',
-    borderRadius: '6px',
-    border: '1px solid var(--border-input)',
-    background: 'var(--bg-input)',
-    color: 'var(--text-main)',
-    fontSize: '13px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
+            <style>{`
+                .admin-row:hover { background: var(--bg-hover) !important; }
+                summary::-webkit-details-marker { display: none; }
+                .admin-row td { vertical-align: middle; }
+            `}</style>
+        </PageContainer>
+    );
 };
 
 const labelStyle = {
     display: 'block',
-    fontSize: '11px',
-    fontWeight: '700',
+    fontSize: 'var(--text-xs)',
+    fontWeight: 'var(--font-bold)',
     color: 'var(--text-muted)',
-    marginBottom: '4px',
-    textTransform: 'uppercase'
-};
-
-const buttonStyle = {
-    padding: '10px',
-    borderRadius: '8px',
-    border: 'none',
-    fontWeight: '600',
-    fontSize: '13px',
-    cursor: 'pointer',
-    transition: 'transform 0.1s',
-};
-
-const actionButtonStyle = {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: '600',
-    fontSize: '13px'
+    marginBottom: 'var(--space-1)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em'
 };
 
 const thStyle = {
-    padding: '12px 16px',
+    padding: '16px',
     textAlign: 'left',
     fontSize: '11px',
-    fontWeight: '700',
+    fontWeight: 'var(--font-bold)',
     color: 'var(--text-muted)',
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em'
 };
 
 const tdStyle = {
-    padding: '12px 16px',
+    padding: '16px',
     color: 'var(--text-main)',
-    fontSize: '13px'
+    fontSize: '14px'
 };
 
 export default AdminPanel;

@@ -1,3 +1,8 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Textarea from '@/components/ui/Textarea';
+
 import React, { useState } from 'react';
 import { saveDelivery } from '../../services/api';
 import logoGmad from '../../assets/logo.png';
@@ -88,21 +93,21 @@ const CarrierScheduling = () => {
                     <p style={{ color: '#64748b', marginBottom: '30px' }}>
                         Os dados da entrega foram enviados com sucesso para nossa equipe de logística.
                     </p>
-                    <button
+                    <Button
                         onClick={() => setIsSubmitted(false)}
                         style={{
                             padding: '12px 24px',
                             background: '#2563eb',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: '16px',
                             fontWeight: '600',
                             cursor: 'pointer',
                             fontSize: '16px'
                         }}
                     >
                         Fazer Novo Agendamento
-                    </button>
+                    </Button>
                 </div>
             </div>
         );
@@ -131,25 +136,25 @@ const CarrierScheduling = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Unidade de Entrega</label>
-                            <select
+                            <Select
                                 name="unit"
                                 value={formData.unit}
                                 onChange={handleInputChange}
                                 required
-                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white' }}
+                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px', background: 'white' }}
                             >
                                 {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-                            </select>
+                            </Select>
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Data da Entrega</label>
-                            <input
+                            <Input
                                 type="date"
                                 name="date"
                                 value={formData.date}
                                 onChange={handleInputChange}
                                 required
-                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px' }}
                             />
                         </div>
                     </div>
@@ -157,60 +162,60 @@ const CarrierScheduling = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Horário Aproximado</label>
-                            <input
+                            <Input
                                 type="time"
                                 name="time"
                                 value={formData.time}
                                 onChange={handleInputChange}
                                 required
-                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px' }}
                             />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Transportadora</label>
-                            <select
+                            <Select
                                 name="carrier"
                                 value={formData.carrier}
                                 onChange={handleInputChange}
                                 required
-                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white' }}
+                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px', background: 'white' }}
                             >
                                 <option value="">Selecione...</option>
                                 {carriers.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
+                            </Select>
                         </div>
                     </div>
 
                     <div style={{ marginBottom: '20px' }}>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Fornecedor</label>
-                        <input
+                        <Input
                             type="text"
                             name="supplier"
                             value={formData.supplier}
                             onChange={handleInputChange}
                             required
                             placeholder="Ex: Madeireira ABC"
-                            style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                            style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px' }}
                         />
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Nota Fiscal</label>
-                            <input
+                            <Input
                                 type="text"
                                 name="invoiceNumber"
                                 value={formData.invoiceNumber}
                                 onChange={handleInputChange}
                                 required
                                 placeholder="000.000.000"
-                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px' }}
                             />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Qtd / Volume</label>
                             <div style={{ display: 'flex', gap: '8px' }}>
-                                <input
+                                <Input
                                     type="number"
                                     name="quantity"
                                     value={formData.quantity}
@@ -218,34 +223,34 @@ const CarrierScheduling = () => {
                                     required
                                     min="1"
                                     placeholder="0"
-                                    style={{ width: '80px', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                    style={{ width: '80px', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px' }}
                                 />
-                                <select
+                                <Select
                                     name="volumeType"
                                     value={formData.volumeType}
                                     onChange={handleInputChange}
                                     required
-                                    style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white' }}
+                                    style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px', background: 'white' }}
                                 >
                                     {volumeTypes.map(v => <option key={v} value={v}>{v}</option>)}
-                                </select>
+                                </Select>
                             </div>
                         </div>
                     </div>
 
                     <div style={{ marginBottom: '30px' }}>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Observações (Opcional)</label>
-                        <textarea
+                        <Textarea
                             name="observations"
                             value={formData.observations}
                             onChange={handleInputChange}
                             rows="3"
                             placeholder="Informações adicionais sobre o descarregamento..."
-                            style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', resize: 'none' }}
+                            style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '16px', resize: 'none' }}
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading}
                         style={{
@@ -254,7 +259,7 @@ const CarrierScheduling = () => {
                             background: '#2563eb',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: '16px',
                             fontSize: '16px',
                             fontWeight: '700',
                             cursor: loading ? 'not-allowed' : 'pointer',
@@ -263,7 +268,7 @@ const CarrierScheduling = () => {
                         }}
                     >
                         {loading ? 'Enviando...' : 'Confirmar Agendamento'}
-                    </button>
+                    </Button>
                 </form>
 
                 <p style={{ textAlign: 'center', marginTop: '30px', color: '#94a3b8', fontSize: '12px' }}>

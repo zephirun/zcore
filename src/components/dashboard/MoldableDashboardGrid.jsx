@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React, { useState, useRef } from 'react';
 import { ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 
@@ -41,12 +43,12 @@ const MoldableDashboardGrid = ({ children, isEditMode = false }) => {
                     position: 'absolute', top: -40, right: 0, zIndex: 50,
                     display: 'flex', gap: '10px'
                 }}>
-                    <button onClick={resetLayout} style={{
+                    <Button onClick={resetLayout} style={{
                         padding: '6px 12px', background: '#EF4444', color: 'white',
                         border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px'
                     }}>
                         Resetar Layout
-                    </button>
+                    </Button>
                     <div style={{
                         padding: '6px 12px', background: '#3B82F6', color: 'white',
                         borderRadius: '6px', fontSize: '12px'

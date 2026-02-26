@@ -23,7 +23,7 @@ const Footer = ({ transparent = false, textColor }) => {
                 textAlign: 'center',
             }}>
                 <p style={{ margin: 0, fontSize: '11px' }}>
-                    © {new Date().getFullYear()} ZEPH. Todos os direitos reservados.
+                    © {new Date().getFullYear()} Z.CORE. Todos os direitos reservados.
                 </p>
             </div>
 

@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React, { useState, useMemo } from 'react';
 import InsightCard from './InsightCard';
 
@@ -40,7 +42,7 @@ const InsightsPanel = ({ insights, onClose }) => {
     }, [insights, activeFilter, entityFilter]);
 
     const FilterButton = ({ filter, label, count, color }) => (
-        <button
+        <Button
             onClick={() => setActiveFilter(filter)}
             style={{
                 padding: '8px 16px',
@@ -68,7 +70,7 @@ const InsightsPanel = ({ insights, onClose }) => {
             }}>
                 {count}
             </span>
-        </button>
+        </Button>
     );
 
     return (
@@ -123,7 +125,7 @@ const InsightsPanel = ({ insights, onClose }) => {
                             Análise inteligente dos dados de vendas
                         </p>
                     </div>
-                    <button
+                    <Button
                         onClick={onClose}
                         style={{
                             background: 'var(--bg-input)',
@@ -141,7 +143,7 @@ const InsightsPanel = ({ insights, onClose }) => {
                         }}
                     >
                         ×
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Filters */}
@@ -161,7 +163,7 @@ const InsightsPanel = ({ insights, onClose }) => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
+                        <Button
                             onClick={() => setEntityFilter('all')}
                             style={{
                                 padding: '6px 12px',
@@ -175,8 +177,8 @@ const InsightsPanel = ({ insights, onClose }) => {
                             }}
                         >
                             Todos
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={() => setEntityFilter('customer')}
                             style={{
                                 padding: '6px 12px',
@@ -190,8 +192,8 @@ const InsightsPanel = ({ insights, onClose }) => {
                             }}
                         >
                             Clientes
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={() => setEntityFilter('salesperson')}
                             style={{
                                 padding: '6px 12px',
@@ -205,7 +207,7 @@ const InsightsPanel = ({ insights, onClose }) => {
                             }}
                         >
                             Vendedores
-                        </button>
+                        </Button>
                     </div>
                 </div>
 

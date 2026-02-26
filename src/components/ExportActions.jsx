@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React from 'react';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 
@@ -80,7 +82,7 @@ const ExportActions = ({ data }) => {
 
     return (
         <div style={{ display: 'flex', gap: '10px' }}>
-            <button
+            <Button
                 onClick={handlePrint}
                 className="btn-export-print"
                 style={{
@@ -101,9 +103,9 @@ const ExportActions = ({ data }) => {
                     <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
                 Imprimir
-            </button>
+            </Button>
 
-            <button
+            <Button
                 onClick={handleExportExcel}
                 className="btn-export-excel"
                 style={{
@@ -125,7 +127,7 @@ const ExportActions = ({ data }) => {
                     <line x1="9" y1="15" x2="15" y2="15"></line>
                 </svg>
                 Exportar Excel
-            </button>
+            </Button>
         </div>
     );
 };

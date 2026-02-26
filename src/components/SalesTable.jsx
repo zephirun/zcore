@@ -1,22 +1,25 @@
+import Button from '@/components/ui/Button';
+
 import React from 'react';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 
 const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, rowsPerPage }) => {
     // Styles for the compact corporate look
     const headerStyle = {
-        background: 'var(--bg-input)', // Adaptive Dark/Light
-        color: 'var(--text-main)',
-        padding: '12px 12px', // Increased padding
-        fontSize: '13px',    // Increased font size
-        fontWeight: 'bold',
+        background: 'var(--bg-input)',
+        color: 'var(--text-muted)',
+        padding: '10px 12px',
+        fontSize: '11px',
+        fontWeight: '800',
         textAlign: 'center',
         borderRight: '1px solid var(--border-color)',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em'
     };
 
     const cellStyle = {
-        padding: '10px 12px', // Increased padding
-        fontSize: '14px',     // Increased font size
+        padding: '10px 12px',
+        fontSize: '14px',
         borderBottom: '1px solid var(--border-color)',
         borderRight: '1px solid var(--border-color)',
         color: 'var(--text-main)'
@@ -29,8 +32,8 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
     };
 
     const paginationButtonStyle = {
-        padding: '8px 16px',  // Larger buttons
-        fontSize: '14px',     // Larger text
+        padding: '8px 16px',
+        fontSize: '14px',
         border: '1px solid var(--border-color)',
         background: 'var(--bg-input)',
         cursor: 'pointer',
@@ -47,7 +50,6 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
 
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-    // Calculate dynamic month names (Last 3 completed months)
     const getMonthName = (subtractMonths) => {
         const d = new Date();
         d.setDate(1);
@@ -63,37 +65,35 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
 
     return (
         <div className="table-container" style={{ padding: '20px 40px' }}>
-            {/* Pagination Info Top */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Mostrando <strong>{reportData.length}</strong> de <strong>{totalRows}</strong> registros
                 </div>
                 {totalPages > 1 && (
                     <div style={{ display: 'flex', gap: '5px' }}>
-                        <button
+                        <Button
                             disabled={currentPage === 1}
                             onClick={() => onPageChange(currentPage - 1)}
                             style={{ ...paginationButtonStyle, opacity: currentPage === 1 ? 0.5 : 1 }}
                         >
                             &larr; Anterior
-                        </button>
+                        </Button>
                         <span style={{ padding: '5px 10px', fontSize: '13px', fontWeight: 'bold' }}>
                             {currentPage} / {totalPages}
                         </span>
-                        <button
+                        <Button
                             disabled={currentPage === totalPages}
                             onClick={() => onPageChange(currentPage + 1)}
                             style={{ ...paginationButtonStyle, opacity: currentPage === totalPages ? 0.5 : 1 }}
                         >
                             Próxima &rarr;
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>
 
             <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #999' }}>
                 <thead>
-                    {/* Top Month Headers - Dynamic Names */}
                     <tr>
                         <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: 'var(--bg-input)' }}>CLIENTE / ID / VEND. / REPRES.</th>
                         <th colSpan="3" style={headerStyle}>{headers.m1}</th>
@@ -101,7 +101,6 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                         <th colSpan="3" style={headerStyle}>{headers.m3}</th>
                         <th colSpan="3" style={headerStyle}>TOTAL</th>
                     </tr>
-                    {/* Sub Headers */}
                     <tr style={{ background: 'var(--bg-input)', color: 'var(--text-main)' }}>
                         <th></th>
                         {[1, 2, 3, 4].map((block) => (
@@ -121,7 +120,6 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                                 <div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{row.client.vendor} | {row.client.representative}</div>
                             </td>
 
-                            {/* Monthly Data */}
                             {row.months.map((month, idx) => (
                                 <React.Fragment key={idx}>
                                     <td style={numberStyle}>{formatCurrency(month.amount).replace('R$', '').trim()}</td>
@@ -130,7 +128,6 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                                 </React.Fragment>
                             ))}
 
-                            {/* Row Total */}
                             <td style={{ ...numberStyle, fontWeight: 'bold', background: 'var(--bg-input)' }}>
                                 {formatCurrency(row.total.amount).replace('R$', '').trim()}
                             </td>
@@ -143,13 +140,11 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                         </tr>
                     ))}
 
-                    {/* Grand Total Row */}
                     <tr className="total-row" style={{ borderTop: '2px solid #000' }}>
                         <td style={{ ...cellStyle, textAlign: 'right', fontWeight: 'bold' }}>TOTAIS GERAIS:</td>
 
                         <GrandTotalCells reportData={reportData} />
 
-                        {/* Total Column Totals */}
                         <td style={{ ...numberStyle, fontWeight: 'bold' }}>{formatCurrency(totals.amount).replace('R$', '').trim()}</td>
                         <td style={{ ...numberStyle, fontWeight: 'bold' }}>{formatPercent(totals.margin_percent)}</td>
                         <td style={{ ...numberStyle, fontWeight: 'bold' }}>{Math.round(totals.deadline)}</td>
@@ -157,60 +152,55 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                 </tbody>
             </table>
 
-            {/* Pagination Bottom */}
             {totalPages > 1 && (
                 <div className="no-print" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-                    <button
+                    <Button
                         disabled={currentPage === 1}
                         onClick={() => onPageChange(currentPage - 1)}
                         style={{ ...paginationButtonStyle, opacity: currentPage === 1 ? 0.5 : 1 }}
                     >
                         &larr; Anterior
-                    </button>
+                    </Button>
 
-                    {/* Simple numeric pages for first few, current, and last few if many */}
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const pageNum = i + 1;
-                        // For simplicity, just show first 5 and then maybe current if far enough
                         return (
-                            <button
+                            <Button
                                 key={pageNum}
                                 onClick={() => onPageChange(pageNum)}
                                 style={currentPage === pageNum ? activePaginationButtonStyle : paginationButtonStyle}
                             >
                                 {pageNum}
-                            </button>
+                            </Button>
                         );
                     })}
 
                     {totalPages > 5 && (
                         <>
                             <span style={{ padding: '5px' }}>...</span>
-                            <button
+                            <Button
                                 onClick={() => onPageChange(totalPages)}
                                 style={currentPage === totalPages ? activePaginationButtonStyle : paginationButtonStyle}
                             >
                                 {totalPages}
-                            </button>
+                            </Button>
                         </>
                     )}
 
-                    <button
+                    <Button
                         disabled={currentPage === totalPages}
                         onClick={() => onPageChange(currentPage + 1)}
                         style={{ ...paginationButtonStyle, opacity: currentPage === totalPages ? 0.5 : 1 }}
                     >
                         Próxima &rarr;
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>
     );
 };
 
-// Helper for Vertical Column Totals
 const GrandTotalCells = ({ reportData }) => {
-    // Re-calculating vertical totals for the footer
     const montlyTotals = [0, 1, 2].map(monthIdx => {
         const totalAmount = reportData.reduce((sum, row) => sum + row.months[monthIdx].amount, 0);
         const totalMarginRevenue = reportData.reduce((sum, row) => sum + (row.months[monthIdx].margin_percent * row.months[monthIdx].amount), 0);

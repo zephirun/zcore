@@ -1,3 +1,9 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Textarea from '@/components/ui/Textarea';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@/components/ui/Table';
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -319,7 +325,7 @@ const ClientRecords = () => {
             }}>
                 <div style={{ flex: 1, minWidth: '250px' }}>
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase' }}>Pesquisar Cliente</div>
-                    <input
+                    <Input
                         type="text"
                         placeholder="Nome, ID ou Vendedor..."
                         value={searchTerm}
@@ -327,7 +333,7 @@ const ClientRecords = () => {
                         style={{
                             width: '100%',
                             padding: '12px 16px',
-                            borderRadius: '10px',
+                            borderRadius: '16px',
                             border: '1px solid var(--border-color)',
                             backgroundColor: 'var(--bg-input)',
                             color: 'var(--text-main)',
@@ -349,13 +355,13 @@ const ClientRecords = () => {
 
                 <div style={{ minWidth: '200px' }}>
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase' }}>Grupo Econômico</div>
-                    <select
+                    <Select
                         value={selectedGroupId}
                         onChange={e => setSelectedGroupId(e.target.value)}
                         style={{
                             width: '100%',
                             padding: '12px',
-                            borderRadius: '10px',
+                            borderRadius: '16px',
                             border: '1px solid var(--border-color)',
                             backgroundColor: 'var(--bg-input)',
                             color: 'var(--text-main)',
@@ -368,7 +374,7 @@ const ClientRecords = () => {
                         {economicGroups.map(g => (
                             <option key={g.id} value={g.id}>{g.name}</option>
                         ))}
-                    </select>
+                    </Select>
                 </div>
             </div>
 
@@ -377,7 +383,7 @@ const ClientRecords = () => {
             {viewMode === 'detail' && selectedClient ? (
                 /* --- DETAIL VIEW --- */
                 <div className="fade-in">
-                    <button
+                    <Button
                         onClick={() => { setSelectedClientId(null); setViewMode(searchTerm ? 'search' : 'dashboard'); }}
                         style={{
                             marginBottom: '20px',
@@ -392,7 +398,7 @@ const ClientRecords = () => {
                             fontWeight: '600'
                         }}>
                         ← Voltar para a lista
-                    </button>
+                    </Button>
 
                     {/* Quick Stats Header */}
                     <div style={{
@@ -456,7 +462,7 @@ const ClientRecords = () => {
                                                         <div style={{
                                                             backgroundColor: 'var(--bg-card)',
                                                             border: '1px solid var(--border-color)',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '16px',
                                                             padding: '10px',
                                                             color: 'var(--text-main)'
                                                         }}>
@@ -504,13 +510,13 @@ const ClientRecords = () => {
                                     <div style={{ marginBottom: '15px' }}>
                                         <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '5px' }}>Grupo Econômico</label>
                                         <div style={{ display: 'flex', gap: '10px' }}>
-                                            <select
+                                            <Select
                                                 value={editingRecord.economicGroupId || ''}
                                                 onChange={(e) => setEditingRecord({ ...editingRecord, economicGroupId: e.target.value })}
                                                 style={{
                                                     flex: 1,
                                                     padding: '10px',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     border: '1px solid var(--border-color)',
                                                     backgroundColor: 'var(--bg-input)',
                                                     color: 'var(--text-main)'
@@ -520,15 +526,15 @@ const ClientRecords = () => {
                                                 {economicGroups.map(g => (
                                                     <option key={g.id} value={g.id}>{g.name}</option>
                                                 ))}
-                                            </select>
-                                            <button
+                                            </Select>
+                                            <Button
                                                 type="button"
                                                 onClick={() => setIsGroupModalOpen(true)}
                                                 style={{
                                                     padding: '0 15px',
                                                     backgroundColor: 'transparent',
                                                     border: '1px solid var(--border-color)',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     color: 'var(--primary, #1565C0)',
                                                     fontSize: '20px',
                                                     cursor: 'pointer'
@@ -536,7 +542,7 @@ const ClientRecords = () => {
                                                 title="Criar Novo Grupo"
                                             >
                                                 +
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                     {/* Modal moved to logic section or kept global, but trigger is here. The modal render itself can stay outside or be moved. I will keep the modal render logic where it was or move it to end of file if it was inside the deleted block. */}
@@ -548,15 +554,15 @@ const ClientRecords = () => {
                                         }}>
                                             <div style={{ backgroundColor: 'var(--bg-card)', padding: '24px', borderRadius: '16px', width: '300px' }}>
                                                 <h3>Novo Grupo</h3>
-                                                <input
+                                                <Input
                                                     value={newGroupName}
                                                     onChange={e => setNewGroupName(e.target.value)}
                                                     placeholder="Nome do grupo..."
-                                                    style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-main)' }}
+                                                    style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid var(--border-color)', borderRadius: '16px', background: 'var(--bg-input)', color: 'var(--text-main)' }}
                                                 />
                                                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                                                    <button type="button" onClick={() => setIsGroupModalOpen(false)} style={{ padding: '8px 16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>Cancelar</button>
-                                                    <button type="button" onClick={handleCreateGroup} style={{ padding: '8px 16px', border: 'none', background: '#1565C0', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}>Criar</button>
+                                                    <Button type="button" onClick={() => setIsGroupModalOpen(false)} style={{ padding: '8px 16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>Cancelar</Button>
+                                                    <Button type="button" onClick={handleCreateGroup} style={{ padding: '8px 16px', border: 'none', background: '#1565C0', color: '#fff', borderRadius: '16px', cursor: 'pointer' }}>Criar</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -564,38 +570,38 @@ const ClientRecords = () => {
 
                                     <div style={{ marginBottom: '15px' }}>
                                         <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '5px' }}>Forma Pagamento</label>
-                                        <input
+                                        <Input
                                             type="text"
                                             value={editingRecord.paymentMethod}
                                             onChange={e => setEditingRecord({ ...editingRecord, paymentMethod: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
+                                            style={{ width: '100%', padding: '10px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
                                         />
                                     </div>
                                     <div style={{ marginBottom: '15px' }}>
                                         <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '5px' }}>Prazos</label>
-                                        <input
+                                        <Input
                                             type="text"
                                             value={editingRecord.deadlines}
                                             onChange={e => setEditingRecord({ ...editingRecord, deadlines: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
+                                            style={{ width: '100%', padding: '10px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)' }}
                                         />
                                     </div>
 
                                     <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '5px' }}>Observações</label>
-                                    <textarea
+                                    <Textarea
                                         rows="5"
                                         value={editingRecord.observations}
                                         onChange={e => setEditingRecord({ ...editingRecord, observations: e.target.value })}
-                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)', marginBottom: '15px', resize: 'vertical' }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-input)', color: 'var(--text-main)', marginBottom: '15px', resize: 'vertical' }}
                                     />
 
-                                    <button
+                                    <Button
                                         type="submit"
                                         disabled={saving}
-                                        style={{ width: '100%', padding: '12px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        style={{ width: '100%', padding: '12px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                                     >
                                         {saving ? 'Salvando...' : 'Salvar Alterações'}
-                                    </button>
+                                    </Button>
                                     {message.text && (
                                         <div style={{ marginTop: '10px', fontSize: '13px', color: message.type === 'success' ? '#2e7d32' : '#d32f2f', textAlign: 'center' }}>
                                             {message.text}
@@ -623,66 +629,53 @@ const ClientRecords = () => {
                         boxShadow: 'var(--glass-shadow)',
                         overflow: 'hidden'
                     }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cliente / ID</th>
-                                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Vendedor Freq.</th>
-                                    <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Faturamento (Tri)</th>
-                                    <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Margem</th>
-                                    <th style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Saúde</th>
-                                    <th style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table>
+                            <Thead>
+                                <Tr style={{ backgroundColor: 'var(--bg-card-dim, rgba(0,0,0,0.2))' }}>
+                                    <Th style={{ textAlign: 'left' }}>Cliente / ID</Th>
+                                    <Th style={{ textAlign: 'left' }}>Vendedor Freq.</Th>
+                                    <Th style={{ textAlign: 'right' }}>Faturamento (Tri)</Th>
+                                    <Th style={{ textAlign: 'right' }}>Margem</Th>
+                                    <Th style={{ textAlign: 'center' }}>Saúde</Th>
+                                    <Th style={{ textAlign: 'center' }}>Ação</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
                                 {displayClients.map(client => (
-                                    <tr
+                                    <Tr
                                         key={client.id}
                                         onClick={() => { setSelectedClientId(client.id); setViewMode('detail'); }}
-                                        style={{
-                                            cursor: 'pointer',
-                                            borderBottom: '1px solid var(--border-color)',
-                                            transition: 'background-color 0.2s'
-                                        }}
-                                        className="table-row"
+                                        style={{ cursor: 'pointer' }}
+                                        className="table-row hover-row"
                                     >
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ fontWeight: 'bold', color: 'var(--text-main)', fontSize: '14px' }}>{client.name}</div>
-                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>ID: {client.id}</div>
-                                        </td>
-                                        <td style={{ padding: '16px', color: 'var(--text-main)', fontSize: '13px' }}>
+                                        <Td>
+                                            <div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-sm)' }}>{client.name}</div>
+                                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>ID: {client.id}</div>
+                                        </Td>
+                                        <Td style={{ fontSize: '13px' }}>
                                             {client.vendor}
-                                        </td>
-                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: 'var(--text-main)', fontSize: '14px' }}>
+                                        </Td>
+                                        <Td style={{ textAlign: 'right', fontWeight: 'var(--font-semibold)' }}>
                                             {formatCurrency(client.totalRevenue)}
-                                        </td>
-                                        <td style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: client.avgMargin < 0.1 ? '#d32f2f' : '#2e7d32', fontSize: '14px' }}>
+                                        </Td>
+                                        <Td style={{ textAlign: 'right', fontWeight: 'var(--font-semibold)', color: client.avgMargin < 0.1 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                                             {formatPercent(client.avgMargin)}
-                                        </td>
-                                        <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        </Td>
+                                        <Td style={{ textAlign: 'center' }}>
                                             <div style={{
                                                 width: '12px', height: '12px', borderRadius: '50%', backgroundColor: client.healthColor,
                                                 margin: '0 auto', boxShadow: `0 0 8px ${client.healthColor}`
                                             }} />
-                                        </td>
-                                        <td style={{ padding: '16px', textAlign: 'center' }}>
-                                            <button style={{
-                                                padding: '6px 12px',
-                                                borderRadius: '8px',
-                                                border: '1px solid var(--primary, #1565C0)',
-                                                backgroundColor: 'rgba(21, 101, 192, 0.1)',
-                                                color: 'var(--primary, #1565C0)',
-                                                fontSize: '11px',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer'
-                                            }}>
+                                        </Td>
+                                        <Td style={{ textAlign: 'center' }}>
+                                            <Button variant="outline" size="sm">
                                                 VER FICHA
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </Button>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </Tbody>
+                        </Table>
                         {displayClients.length === 0 && (
                             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                                 Nenhum cliente encontrado.
@@ -741,7 +734,7 @@ const DashboardCard = ({ title, clients, color, onClickClient }) => (
                     onClick={() => onClickClient(c.id)}
                     style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '8px', borderRadius: '8px',
+                        padding: '8px', borderRadius: '16px',
                         backgroundColor: 'var(--bg-input)', cursor: 'pointer',
                         fontSize: '13px'
                     }}

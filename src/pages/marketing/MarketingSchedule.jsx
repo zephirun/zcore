@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React, { useState } from 'react';
 
 import { useData } from '../../context/DataContext';
@@ -116,9 +118,9 @@ const MarketingSchedule = () => {
                             <p style={{ color: '#64748b', margin: '5px 0 0 0' }}>Planejamento de campanhas e ações</p>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button style={buttonStyle(viewMode === 'month')} onClick={() => setViewMode('month')}>Mês</button>
-                            <button style={buttonStyle(viewMode === 'week')} onClick={() => setViewMode('week')}>Semana</button>
-                            <button style={{ ...buttonStyle(true), background: '#10b981' }}>+ Novo Evento</button>
+                            <Button style={buttonStyle(viewMode === 'month')} onClick={() => setViewMode('month')}>Mês</Button>
+                            <Button style={buttonStyle(viewMode === 'week')} onClick={() => setViewMode('week')}>Semana</Button>
+                            <Button style={{ ...buttonStyle(true), background: '#10b981' }}>+ Novo Evento</Button>
                         </div>
                     </div>
 

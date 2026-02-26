@@ -1,3 +1,5 @@
+import Input from '@/components/ui/Input';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { fetchDeliveries } from '../../services/api';
@@ -139,7 +141,7 @@ const PurchasingIntelligence = () => {
                 </div>
 
                 <div style={{ position: 'relative' }}>
-                    <input
+                    <Input
                         type="text"
                         placeholder="Buscar fornecedor..."
                         value={searchTerm}
@@ -225,7 +227,7 @@ const PurchasingIntelligence = () => {
                                                         contentStyle={{
                                                             backgroundColor: 'var(--bg-card)',
                                                             border: '1px solid var(--border-color)',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '16px',
                                                             color: 'var(--text-main)'
                                                         }}
                                                     />
@@ -268,7 +270,7 @@ const PurchasingIntelligence = () => {
                                                         contentStyle={{
                                                             backgroundColor: 'var(--bg-card)',
                                                             border: '1px solid var(--border-color)',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '16px',
                                                             color: 'var(--text-main)'
                                                         }}
                                                     />

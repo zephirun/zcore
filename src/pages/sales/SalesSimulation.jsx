@@ -1,3 +1,6 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '../../context/DataContext.jsx';
 import { RefreshCw, DollarSign, TrendingUp, Users, AlertCircle, Search, Sliders, RotateCcw, Target, Play, Save, CheckCircle, Trash2 } from 'lucide-react';
@@ -447,41 +450,37 @@ const SalesSimulation = () => {
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(4, 1fr)',
-                            gap: '20px',
-                            padding: '0 40px 30px 40px',
+                            gap: '16px',
+                            padding: '0 40px 24px 40px',
                             marginTop: '10px'
                         }}>
                             <div style={{
-                                background: 'var(--glass-bg)',
-                                backdropFilter: 'var(--glass-blur)',
-                                padding: '24px',
-                                borderRadius: 'var(--radius, 12px)',
-                                border: 'var(--glass-border)',
-                                borderLeft: '4px solid var(--color-primary)',
-                                boxShadow: 'var(--glass-shadow)'
+                                background: 'var(--bg-card)',
+                                padding: '20px 24px',
+                                borderRadius: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderLeft: '3px solid var(--color-primary)',
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Faturamento Realizado</span>
-                                    <DollarSign size={16} color="var(--color-primary)" />
+                                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Faturamento Realizado</span>
+                                    <DollarSign size={14} color="var(--color-primary)" />
                                 </div>
-                                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.realizedRevenue)}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--color-primary)', fontWeight: '600', marginTop: '4px' }}>Margem Realizada: {formatPercent(totals.realizedMarginPct || 0)}</div>
+                                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.realizedRevenue)}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--color-primary)', fontWeight: '600', marginTop: '4px' }}>Margem: {formatPercent(totals.realizedMarginPct || 0)}</div>
                             </div>
 
                             <div style={{
-                                background: 'var(--glass-bg)',
-                                backdropFilter: 'var(--glass-blur)',
-                                padding: '24px',
-                                borderRadius: 'var(--radius, 12px)',
-                                border: 'var(--glass-border)',
-                                borderLeft: '4px solid #f39c12',
-                                boxShadow: 'var(--glass-shadow)'
+                                background: 'var(--bg-card)',
+                                padding: '20px 24px',
+                                borderRadius: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderLeft: '3px solid var(--color-warning, #f59e0b)',
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{projectionMonthName} Projetado</span>
-                                    <Target size={16} color="#f39c12" />
+                                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{projectionMonthName} Projetado</span>
+                                    <Target size={14} color="var(--color-warning, #f59e0b)" />
                                 </div>
-                                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.projectedRevenue)}</div>
+                                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.projectedRevenue)}</div>
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -497,45 +496,41 @@ const SalesSimulation = () => {
                             </div>
 
                             <div style={{
-                                background: 'var(--glass-bg)',
-                                backdropFilter: 'var(--glass-blur)',
-                                padding: '24px',
-                                borderRadius: 'var(--radius, 12px)',
-                                border: 'var(--glass-border)',
-                                borderLeft: '4px solid var(--color-success)',
-                                boxShadow: 'var(--glass-shadow)'
+                                background: 'var(--bg-card)',
+                                padding: '20px 24px',
+                                borderRadius: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderLeft: '3px solid var(--color-success)',
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Margem Projetada</span>
-                                    <TrendingUp size={16} color="var(--color-success)" />
+                                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Margem Projetada</span>
+                                    <TrendingUp size={14} color="var(--color-success)" />
                                 </div>
-                                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)' }}>{formatPercent(totals.projectedMarginPct)}</div>
+                                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatPercent(totals.projectedMarginPct)}</div>
                             </div>
 
                             <div style={{
-                                background: 'var(--glass-bg)',
-                                backdropFilter: 'var(--glass-blur)',
-                                padding: '24px',
-                                borderRadius: 'var(--radius, 12px)',
-                                border: 'var(--glass-border)',
-                                boxShadow: 'var(--glass-shadow)',
-                                borderLeft: '4px solid var(--color-purple)',
+                                background: 'var(--bg-card)',
+                                padding: '20px 24px',
+                                borderRadius: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderLeft: '3px solid var(--color-purple, #8b5cf6)',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
-                                gap: '12px'
+                                gap: '10px'
                             }}>
-                                <input
+                                <Input
                                     type="text"
                                     placeholder="Nome da Versão"
                                     value={simulationName}
                                     onChange={(e) => setSimulationName(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '10px 12px',
+                                        padding: '8px 12px',
                                         background: 'var(--bg-input)',
                                         border: '1px solid var(--border-color)',
-                                        borderRadius: '8px',
+                                        borderRadius: '16px',
                                         color: 'var(--text-main)',
                                         fontSize: '12px',
                                         fontWeight: '600',
@@ -543,16 +538,16 @@ const SalesSimulation = () => {
                                     }}
                                 />
                                 <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                                    <button
+                                    <Button
                                         onClick={handleSave}
                                         disabled={saveStatus === 'saving'}
                                         style={{
                                             flex: 2,
-                                            padding: '12px',
+                                            padding: '10px',
                                             background: saveStatus === 'success' ? 'var(--color-success)' : (saveStatus === 'error' ? 'var(--color-error)' : 'var(--color-primary)'),
-                                            color: 'white',
+                                            color: 'var(--bg-main)',
                                             border: 'none',
-                                            borderRadius: '8px',
+                                            borderRadius: '16px',
                                             fontWeight: '700',
                                             fontSize: '13px',
                                             display: 'flex',
@@ -560,22 +555,21 @@ const SalesSimulation = () => {
                                             justifyContent: 'center',
                                             gap: '8px',
                                             cursor: 'pointer',
-                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                            boxShadow: '0 4px 12px var(--color-primary-glow)'
+                                            transition: 'background 0.3s',
                                         }}
                                     >
                                         {saveStatus === 'saving' ? <RefreshCw size={16} className="animate-spin" /> : saveStatus === 'success' ? <CheckCircle size={16} /> : <Save size={16} />}
                                         {saveStatus === 'saving' ? 'Salvando...' : saveStatus === 'success' ? 'Salvo!' : 'Salvar'}
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => setShowHistory(true)}
                                         style={{
                                             flex: 1,
-                                            padding: '12px',
-                                            background: 'rgba(255,255,255,0.05)',
+                                            padding: '10px',
+                                            background: 'var(--bg-input)',
                                             color: 'var(--text-main)',
                                             border: '1px solid var(--border-color)',
-                                            borderRadius: '8px',
+                                            borderRadius: '16px',
                                             fontWeight: '700',
                                             fontSize: '13px',
                                             display: 'flex',
@@ -583,38 +577,37 @@ const SalesSimulation = () => {
                                             justifyContent: 'center',
                                             gap: '8px',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <RotateCcw size={16} />
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
 
                         {/* Global Simulator Panel */}
-                        <div style={{ padding: '0 40px 30px 40px' }}>
-                            <div style={{ background: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border-color)', padding: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+                        <div style={{ padding: '0 40px 24px 40px' }}>
+                            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-color)', padding: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '40px', height: '40px', background: 'rgba(52, 152, 219, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
-                                            <Sliders size={20} />
+                                        <div style={{ width: '36px', height: '36px', background: 'var(--bg-input)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
+                                            <Sliders size={18} />
                                         </div>
                                         <div>
-                                            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800' }}>Simulador Global</h3>
+                                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '700', letterSpacing: '-0.02em' }}>Simulador Global</h3>
                                             <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>Aplique cenários em todos os clientes filtrados</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '40px', marginBottom: '30px' }}>
-                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '15px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '20px' }}>
+                                    <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '16px' }}>
                                         <div style={{ marginBottom: '20px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                 <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Cenário de Crescimento (%)</label>
-                                                <span style={{ fontSize: '12px', fontWeight: '800', color: growthScenario >= 0 ? '#2ecc71' : '#e74c3c' }}>{growthScenario >= 0 ? '+' : ''}{growthScenario}%</span>
+                                                <span style={{ fontSize: '12px', fontWeight: '700', color: growthScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{growthScenario >= 0 ? '+' : ''}{growthScenario}%</span>
                                             </div>
-                                            <input
+                                            <Input
                                                 type="range" min="-30" max="100" value={growthScenario}
                                                 onChange={(e) => setGrowthScenario(parseInt(e.target.value))}
                                                 style={{ width: '100%', height: '4px', background: 'var(--bg-input)', borderRadius: '2px', outline: 'none' }}
@@ -622,13 +615,13 @@ const SalesSimulation = () => {
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '15px' }}>
+                                    <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '16px' }}>
                                         <div style={{ marginBottom: '20px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                 <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Configurar Margem Direta (%)</label>
-                                                <span style={{ fontSize: '12px', fontWeight: '800', color: '#3498db' }}>{directMarginScenario > 0 ? `${directMarginScenario}%` : 'Usar Base'}</span>
+                                                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-info, #3b82f6)' }}>{directMarginScenario > 0 ? `${directMarginScenario}%` : 'Usar Base'}</span>
                                             </div>
-                                            <input
+                                            <Input
                                                 type="range" min="0" max="50" step="0.5" value={directMarginScenario}
                                                 onChange={(e) => setDirectMarginScenario(parseFloat(e.target.value))}
                                                 style={{ width: '100%', height: '4px', background: 'var(--bg-input)', borderRadius: '2px', outline: 'none' }}
@@ -637,13 +630,13 @@ const SalesSimulation = () => {
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '15px' }}>
+                                    <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '16px' }}>
                                         <div style={{ marginBottom: '20px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                 <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Ajuste de Margem (Pontos %)</label>
-                                                <span style={{ fontSize: '12px', fontWeight: '800', color: marginScenario >= 0 ? '#2ecc71' : '#e74c3c' }}>{marginScenario >= 0 ? '+' : ''}{marginScenario}%</span>
+                                                <span style={{ fontSize: '12px', fontWeight: '700', color: marginScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{marginScenario >= 0 ? '+' : ''}{marginScenario}%</span>
                                             </div>
-                                            <input
+                                            <Input
                                                 type="range" min="-10" max="15" value={marginScenario}
                                                 onChange={(e) => setMarginScenario(parseInt(e.target.value))}
                                                 style={{ width: '100%', height: '4px', background: 'var(--bg-input)', borderRadius: '2px', outline: 'none' }}
@@ -652,21 +645,20 @@ const SalesSimulation = () => {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '12px' }}>
-                                    <button onClick={clearScenarios} style={{ padding: '12px 20px', background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '10px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <Button onClick={clearScenarios} style={{ padding: '10px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '16px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <RotateCcw size={16} /> Resetar
-                                    </button>
-                                    <button onClick={applyScenarios} disabled={isSimulating} style={{ minWidth: '220px', padding: '12px 30px', background: 'var(--color-primary)', border: 'none', borderRadius: '10px', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(52, 152, 219, 0.3)' }}>
+                                    </Button>
+                                    <Button onClick={applyScenarios} disabled={isSimulating} style={{ minWidth: '200px', padding: '10px 24px', background: 'var(--color-primary)', border: 'none', borderRadius: '16px', color: 'var(--bg-main)', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         {isSimulating ? <RefreshCw size={16} className="animate-spin" /> : <Play size={16} />} Aplicar Cenários
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => setShowAIModal(true)}
-                                        className="hover-scale"
                                         style={{
-                                            padding: '12px 25px',
-                                            background: 'linear-gradient(135deg, #9b59b6, #8e44ad)',
+                                            padding: '10px 20px',
+                                            background: 'var(--color-purple, #8b5cf6)',
                                             border: 'none',
-                                            borderRadius: '10px',
+                                            borderRadius: '16px',
                                             color: 'white',
                                             fontSize: '13px',
                                             fontWeight: '700',
@@ -674,11 +666,10 @@ const SalesSimulation = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '8px',
-                                            boxShadow: '0 4px 15px rgba(155, 89, 182, 0.3)'
                                         }}
                                     >
-                                        <Target size={18} /> Consultor de IA
-                                    </button>
+                                        <Target size={16} /> Consultor de IA
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -700,44 +691,43 @@ const SalesSimulation = () => {
                                     width: '100%',
                                     maxWidth: '650px',
                                     background: 'var(--bg-main)',
-                                    borderRadius: '24px',
-                                    padding: '40px',
+                                    borderRadius: '16px',
+                                    padding: '32px',
                                     position: 'relative',
-                                    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                                     border: '1px solid var(--border-color)',
                                     margin: '20px'
                                 }}>
-                                    <button
+                                    <Button
                                         onClick={() => setShowAIModal(false)}
                                         style={{ position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                                     >
                                         <RotateCcw size={24} style={{ transform: 'rotate(45deg)' }} />
-                                    </button>
+                                    </Button>
 
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-                                        <div style={{ width: '45px', height: '45px', background: '#9b59b6', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                        <div style={{ width: '40px', height: '40px', background: 'var(--color-purple, #8b5cf6)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                                             <RefreshCw size={24} className={isAnalyzing ? 'animate-spin' : ''} />
                                         </div>
                                         <div>
-                                            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#9b59b6' }}>Consultor de IA</h2>
+                                            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--color-purple, #8b5cf6)' }}>Consultor de IA</h2>
                                             <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>Análise estratégica e definição de metas</p>
                                         </div>
                                     </div>
 
                                     {/* Modal Content: Targets */}
-                                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '24px', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
+                                    <div style={{ background: 'var(--bg-card)', borderRadius: '16px', padding: '20px', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
                                         {/* Projection Summary Section */}
                                         {aiInsights && !isAnalyzing && (
                                             <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', animate: 'fadeIn 0.4s ease' }}>
-                                                <div style={{ flex: 1, background: 'rgba(52, 152, 219, 0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(52, 152, 219, 0.1)' }}>
+                                                <div style={{ flex: 1, background: 'var(--bg-input)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '800', letterSpacing: '1px' }}>Projeção vs Base Historical</div>
-                                                    <div style={{ fontSize: '24px', fontWeight: '900', color: aiInsights.comparison.revDiffPct >= 0 ? '#2ecc71' : '#e74c3c' }}>
+                                                    <div style={{ fontSize: '22px', fontWeight: '900', color: aiInsights.comparison.revDiffPct >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
                                                         {aiInsights.comparison.revDiffPct >= 0 ? '+' : ''}{aiInsights.comparison.revDiffPct.toFixed(1)}% <span style={{ fontSize: '14px', fontWeight: '600', opacity: 0.8 }}>em Faturamento</span>
                                                     </div>
                                                 </div>
-                                                <div style={{ flex: 1, background: 'rgba(46, 204, 113, 0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(46, 204, 113, 0.1)' }}>
+                                                <div style={{ flex: 1, background: 'var(--bg-input)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '800', letterSpacing: '1px' }}>Delta de Margem Real</div>
-                                                    <div style={{ fontSize: '24px', fontWeight: '900', color: aiInsights.comparison.margDiff >= 0 ? '#2ecc71' : '#e74c3c' }}>
+                                                    <div style={{ fontSize: '22px', fontWeight: '900', color: aiInsights.comparison.margDiff >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
                                                         {aiInsights.comparison.margDiff >= 0 ? '+' : ''}{aiInsights.comparison.margDiff.toFixed(2)}% <span style={{ fontSize: '14px', fontWeight: '600', opacity: 0.8 }}>vs Realizado</span>
                                                     </div>
                                                 </div>
@@ -748,7 +738,7 @@ const SalesSimulation = () => {
                                         {aiInsights && !isAnalyzing && (
                                             <div className="animate-fade-in">
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                                    <h3 style={{ fontSize: '12px', fontWeight: '800', color: aiInsights.status === 'success' ? '#2ecc71' : '#f39c12', textTransform: 'uppercase', margin: 0, letterSpacing: '1px' }}>Recomendações de Otimização</h3>
+                                                    <h3 style={{ fontSize: '12px', fontWeight: '700', color: aiInsights.status === 'success' ? 'var(--color-success)' : 'var(--color-warning, #f59e0b)', textTransform: 'uppercase', margin: 0, letterSpacing: '1px' }}>Recomendações de Otimização</h3>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
                                                         {[
                                                             { id: 'all', label: 'Tudo' },
@@ -756,7 +746,7 @@ const SalesSimulation = () => {
                                                             { id: 'margin', label: 'Margem' },
                                                             { id: 'revenue', label: 'Volume' }
                                                         ].map(pill => (
-                                                            <button
+                                                            <Button
                                                                 key={pill.id}
                                                                 onClick={() => setAiFilter(pill.id)}
                                                                 style={{
@@ -773,7 +763,7 @@ const SalesSimulation = () => {
                                                                 }}
                                                             >
                                                                 {pill.label}
-                                                            </button>
+                                                            </Button>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -807,7 +797,7 @@ const SalesSimulation = () => {
                                                                     </div>
                                                                     <div style={{
                                                                         fontSize: '12px',
-                                                                        color: rec.type === 'margin' ? '#3498db' : (rec.type === 'tradeoff' ? '#9b59b6' : '#2ecc71'),
+                                                                        color: rec.type === 'margin' ? 'var(--color-info, #3b82f6)' : (rec.type === 'tradeoff' ? 'var(--color-purple, #8b5cf6)' : 'var(--color-success)'),
                                                                         fontWeight: '700'
                                                                     }}>
                                                                         {rec.suggestion}
@@ -823,12 +813,12 @@ const SalesSimulation = () => {
                                             </div>
                                         )}
 
-                                        <button
+                                        <Button
                                             onClick={() => setShowAIModal(false)}
-                                            style={{ width: '100%', padding: '15px', background: 'var(--color-primary)', border: 'none', borderRadius: '12px', color: 'white', fontSize: '14px', fontWeight: '800', cursor: 'pointer' }}
+                                            style={{ width: '100%', padding: '15px', background: 'var(--color-primary)', border: 'none', borderRadius: '12px', color: 'var(--bg-main)', fontSize: '14px', fontWeight: '800', cursor: 'pointer' }}
                                         >
                                             Fechar e Voltar ao Simulador
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -851,26 +841,25 @@ const SalesSimulation = () => {
                                     width: '100%',
                                     maxWidth: '600px',
                                     background: 'var(--bg-main)',
-                                    borderRadius: '24px',
-                                    padding: '30px',
+                                    borderRadius: '16px',
+                                    padding: '28px',
                                     position: 'relative',
-                                    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                                     border: '1px solid var(--border-color)',
                                     margin: '20px'
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '40px', height: '40px', background: 'rgba(52, 152, 219, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
+                                            <div style={{ width: '36px', height: '36px', background: 'var(--bg-input)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
                                                 <RotateCcw size={20} />
                                             </div>
                                             <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800' }}>Histórico de Simulações</h2>
                                         </div>
-                                        <button
+                                        <Button
                                             onClick={() => setShowHistory(false)}
                                             style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                                         >
                                             <RotateCcw size={24} style={{ transform: 'rotate(45deg)' }} />
-                                        </button>
+                                        </Button>
                                     </div>
 
                                     <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '5px' }}>
@@ -898,15 +887,15 @@ const SalesSimulation = () => {
                                                         </div>
                                                     </div>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button
+                                                        <Button
                                                             onClick={() => loadSpecificVersion(sim)}
                                                             className="hover-scale"
                                                             style={{
                                                                 padding: '10px 18px',
                                                                 background: 'var(--color-primary)',
-                                                                color: 'white',
+                                                                color: 'var(--bg-main)',
                                                                 border: 'none',
-                                                                borderRadius: '10px',
+                                                                borderRadius: '16px',
                                                                 fontSize: '12px',
                                                                 fontWeight: '700',
                                                                 cursor: 'pointer',
@@ -914,16 +903,16 @@ const SalesSimulation = () => {
                                                             }}
                                                         >
                                                             Carregar
-                                                        </button>
-                                                        <button
+                                                        </Button>
+                                                        <Button
                                                             onClick={() => handleDeleteVersion(sim.id)}
                                                             style={{
                                                                 width: '38px',
                                                                 height: '38px',
-                                                                background: 'rgba(231, 76, 60, 0.05)',
-                                                                color: '#e74c3c',
-                                                                border: '1px solid rgba(231, 76, 60, 0.1)',
-                                                                borderRadius: '10px',
+                                                                background: 'var(--color-primary-dim)',
+                                                                color: 'var(--color-error)',
+                                                                border: '1px solid var(--border-color)',
+                                                                borderRadius: '16px',
                                                                 cursor: 'pointer',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
@@ -932,18 +921,18 @@ const SalesSimulation = () => {
                                                             }}
                                                         >
                                                             <Trash2 size={16} />
-                                                        </button>
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             ))
                                         )}
                                     </div>
-                                    <button
+                                    <Button
                                         onClick={() => setShowHistory(false)}
-                                        style={{ width: '100%', marginTop: '25px', padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-main)', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                                        style={{ width: '100%', marginTop: '25px', padding: '14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-main)', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
                                     >
                                         Voltar ao Simulador
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         )}
@@ -965,9 +954,9 @@ const SalesSimulation = () => {
                                             <tr style={{ background: 'rgba(0,0,0,0.1)' }}>
                                                 <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cliente</th>
                                                 <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'right' }}>Faturamento Realizado</th>
-                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: '#3498db', textTransform: 'uppercase', textAlign: 'right' }}>Margem Realizada</th>
-                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: '#f39c12', textTransform: 'uppercase', textAlign: 'right' }}>{projectionMonthName} (Projetado)</th>
-                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: '#2ecc71', textTransform: 'uppercase', textAlign: 'right' }}>Margem Proj. (%)</th>
+                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--color-info)', textTransform: 'uppercase', textAlign: 'right' }}>Margem Realizada</th>
+                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--color-warning)', textTransform: 'uppercase', textAlign: 'right' }}>{projectionMonthName} (Projetado)</th>
+                                                <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--color-success)', textTransform: 'uppercase', textAlign: 'right' }}>Margem Proj. (%)</th>
                                                 <th style={{ padding: '15px 20px', fontSize: '11px', fontWeight: '800', color: 'var(--color-primary)', textTransform: 'uppercase', textAlign: 'right' }}>Diferença vs Média</th>
                                             </tr>
                                         </thead>
@@ -1003,7 +992,7 @@ const SalesSimulation = () => {
                                                         <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(client.realizedRevenue)}</td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: '600', color: '#3498db' }}>{formatPercent(client.realizedMarginPct)}</td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right' }}>
-                                                            <input
+                                                            <Input
                                                                 type="text"
                                                                 inputMode="numeric"
                                                                 value={formatBRLInput(simulation.revenue)}
@@ -1011,13 +1000,13 @@ const SalesSimulation = () => {
                                                                 style={{
                                                                     width: '180px', textAlign: 'right', padding: '8px 12px',
                                                                     background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                                                                    borderRadius: '6px', color: '#f39c12', fontWeight: '700', fontSize: '14px'
+                                                                    borderRadius: '6px', color: 'var(--color-warning)', fontWeight: '700', fontSize: '14px'
                                                                 }}
                                                             />
                                                         </td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right' }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                                                                <input
+                                                                <Input
                                                                     type="text"
                                                                     inputMode="decimal"
                                                                     value={simulation.margin !== undefined && simulation.margin !== null
@@ -1044,7 +1033,7 @@ const SalesSimulation = () => {
                                                                     style={{
                                                                         width: '80px', textAlign: 'right', padding: '8px 12px',
                                                                         background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                                                                        borderRadius: '6px', color: '#2ecc71', fontWeight: '700', fontSize: '14px'
+                                                                        borderRadius: '6px', color: 'var(--color-success)', fontWeight: '700', fontSize: '14px'
                                                                     }}
                                                                 />
                                                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>%</span>
@@ -1054,7 +1043,7 @@ const SalesSimulation = () => {
                                                             <div style={{
                                                                 fontSize: '15px',
                                                                 fontWeight: '800',
-                                                                color: (simulation.revenue - client.basisRevenue) >= 0 ? '#2ecc71' : '#e74c3c'
+                                                                color: (simulation.revenue - client.basisRevenue) >= 0 ? 'var(--color-success)' : 'var(--color-error)'
                                                             }}>
                                                                 {((simulation.revenue / (client.basisRevenue || 1)) * 100 - 100).toFixed(1)}%
                                                             </div>

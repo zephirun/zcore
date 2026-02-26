@@ -1,3 +1,10 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@/components/ui/Table';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -480,58 +487,18 @@ const Returns = () => {
     });
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#e8ecef',
-            fontFamily: '"Segoe UI", sans-serif'
-        }}>
-
-
-            <div style={{
-                padding: '30px',
-                maxWidth: '1400px',
-                margin: '0 auto'
-            }}>
-                {/* Page Header */}
-                {/* Page Header */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '30px'
-                }}>
-                    <div>
-                        <h1 style={{
-                            fontSize: '28px',
-                            fontWeight: '700',
-                            color: '#333',
-                            marginBottom: '8px'
-                        }}>
-                            Gestão de Devoluções
-                        </h1>
-                        <p style={{ color: '#666', fontSize: '14px' }}>
-                            Registre e gerencie devoluções de produtos
-                        </p>
-                    </div>
-
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
+            <PageContainer
+                maxWidth="1400px"
+                title="Gestão de Devoluções"
+                subtitle="Registre e gerencie devoluções de produtos"
+                actions={
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
-                            onClick={() => navigate('/menu')}
-                            style={{
-                                padding: '10px 20px',
-                                background: 'white',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                color: '#666'
-                            }}
-                        >
+                        <Button variant="ghost" onClick={() => navigate('/menu')}>
                             ← Voltar ao Menu
-                        </button>
-
-                        <button
+                        </Button>
+                        <Button
+                            variant={showForm ? 'danger' : 'success'}
                             onClick={() => {
                                 if (showForm && editingId) {
                                     // Cancel editing
@@ -549,21 +516,10 @@ const Returns = () => {
                                 setShowForm(!showForm);
                             }}
                             style={{
-                                background: showForm ? '#f44336' : '#2e7d32',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                padding: '10px 20px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 0.2s'
+                                gap: '8px'
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = showForm ? '#d32f2f' : '#1b5e20'}
-                            onMouseLeave={e => e.currentTarget.style.background = showForm ? '#f44336' : '#2e7d32'}
                         >
                             {!showForm && (
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -572,15 +528,16 @@ const Returns = () => {
                                 </svg>
                             )}
                             {showForm ? 'Cancelar' : 'Nova Devolução'}
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                }
+            >
 
                 {/* Form */}
                 {showForm && (
                     <div style={{
                         background: 'white',
-                        borderRadius: '8px',
+                        borderRadius: '16px',
                         padding: '30px',
                         marginBottom: '25px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
@@ -611,7 +568,7 @@ const Returns = () => {
                                     }}>
                                         ID NOTA *
                                     </label>
-                                    <input
+                                    <Input
                                         type="text"
                                         name="idNota"
                                         value={formData.idNota}
@@ -637,7 +594,7 @@ const Returns = () => {
                                     }}>
                                         Data *
                                     </label>
-                                    <input
+                                    <Input
                                         type="date"
                                         name="date"
                                         value={formData.date}
@@ -663,7 +620,7 @@ const Returns = () => {
                                     }}>
                                         Data de Emissão
                                     </label>
-                                    <input
+                                    <Input
                                         type="date"
                                         name="issueDate"
                                         value={formData.issueDate}
@@ -695,7 +652,7 @@ const Returns = () => {
                                     }}>
                                         Nome (Motorista/Vendedor) *
                                     </label>
-                                    <input
+                                    <Input
                                         type="text"
                                         name="driverName"
                                         value={formData.driverName}
@@ -721,7 +678,7 @@ const Returns = () => {
                                     }}>
                                         Nome do Cliente *
                                     </label>
-                                    <input
+                                    <Input
                                         type="text"
                                         name="customerName"
                                         value={formData.customerName}
@@ -753,65 +710,47 @@ const Returns = () => {
                                     borderRadius: '4px',
                                     overflow: 'hidden'
                                 }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                        <thead>
-                                            <tr style={{ background: '#f5f5f5' }}>
-                                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '13px', fontWeight: '600', width: '50px' }}>#</th>
-                                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '13px', fontWeight: '600' }}>Descrição</th>
-                                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '13px', fontWeight: '600', width: '150px' }}>Código</th>
-                                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '13px', fontWeight: '600', width: '120px' }}>Quantidade</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <Table>
+                                        <Thead>
+                                            <Tr>
+                                                <Th style={{ width: '50px', textTransform: 'uppercase' }}>#</Th>
+                                                <Th style={{ textTransform: 'uppercase' }}>Descrição</Th>
+                                                <Th style={{ width: '150px', textTransform: 'uppercase' }}>Código</Th>
+                                                <Th style={{ width: '120px', textTransform: 'uppercase' }}>Quantidade</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
                                             {formData.products.map((product, index) => (
-                                                <tr key={index} style={{ borderTop: '1px solid #eee' }}>
-                                                    <td style={{ padding: '8px', fontSize: '13px' }}>{index + 1}</td>
-                                                    <td style={{ padding: '8px' }}>
-                                                        <input
+                                                <Tr key={index}>
+                                                    <Td>{index + 1}</Td>
+                                                    <Td>
+                                                        <Input
                                                             type="text"
                                                             value={product.description}
                                                             onChange={(e) => handleProductChange(index, 'description', e.target.value)}
-                                                            style={{
-                                                                width: '100%',
-                                                                padding: '6px 8px',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '3px',
-                                                                fontSize: '13px'
-                                                            }}
+                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
                                                         />
-                                                    </td>
-                                                    <td style={{ padding: '8px' }}>
-                                                        <input
+                                                    </Td>
+                                                    <Td>
+                                                        <Input
                                                             type="text"
                                                             value={product.code}
                                                             onChange={(e) => handleProductChange(index, 'code', e.target.value)}
-                                                            style={{
-                                                                width: '100%',
-                                                                padding: '6px 8px',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '3px',
-                                                                fontSize: '13px'
-                                                            }}
+                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
                                                         />
-                                                    </td>
-                                                    <td style={{ padding: '8px' }}>
-                                                        <input
+                                                    </Td>
+                                                    <Td>
+                                                        <Input
                                                             type="number"
                                                             value={product.quantity}
                                                             onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                                                            style={{
-                                                                width: '100%',
-                                                                padding: '6px 8px',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '3px',
-                                                                fontSize: '13px'
-                                                            }}
+                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
                                                         />
-                                                    </td>
-                                                </tr>
+                                                    </Td>
+                                                </Tr>
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </Tbody>
+                                    </Table>
                                 </div>
                             </div>
 
@@ -825,7 +764,7 @@ const Returns = () => {
                                 }}>
                                     Observações
                                 </label>
-                                <textarea
+                                <Textarea
                                     name="observations"
                                     value={formData.observations}
                                     onChange={handleInputChange}
@@ -846,7 +785,7 @@ const Returns = () => {
                                 gap: '12px',
                                 justifyContent: 'flex-end'
                             }}>
-                                <button
+                                <Button
                                     type="button"
                                     onClick={() => setShowForm(false)}
                                     style={{
@@ -861,8 +800,8 @@ const Returns = () => {
                                     }}
                                 >
                                     Cancelar
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     style={{
                                         background: '#2e7d32',
@@ -876,7 +815,7 @@ const Returns = () => {
                                     }}
                                 >
                                     {editingId ? 'Atualizar Devolução' : 'Registrar Devolução'}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>
@@ -884,13 +823,7 @@ const Returns = () => {
 
                 {/* Filters Section */}
                 {!showForm && (
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '8px',
-                        padding: '25px',
-                        marginBottom: '25px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                    }}>
+                    <Card padding="25px" style={{ marginBottom: '25px' }}>
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -904,7 +837,7 @@ const Returns = () => {
                             }}>
                                 Filtros
                             </h3>
-                            <button
+                            <Button
                                 onClick={clearFilters}
                                 style={{
                                     background: '#95a5a6',
@@ -919,7 +852,7 @@ const Returns = () => {
                                 }}
                             >
                                 Limpar Filtros
-                            </button>
+                            </Button>
                         </div>
 
                         <div style={{
@@ -938,7 +871,7 @@ const Returns = () => {
                                 }}>
                                     ID NOTA
                                 </label>
-                                <input
+                                <Input
                                     type="text"
                                     name="idNota"
                                     value={filters.idNota}
@@ -964,7 +897,7 @@ const Returns = () => {
                                 }}>
                                     Data
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     name="date"
                                     value={filters.date}
@@ -990,7 +923,7 @@ const Returns = () => {
                                 }}>
                                     Data de Emissão
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     name="issueDate"
                                     value={filters.issueDate}
@@ -1016,7 +949,7 @@ const Returns = () => {
                                 }}>
                                     Cliente
                                 </label>
-                                <input
+                                <Input
                                     type="text"
                                     name="customerName"
                                     value={filters.customerName}
@@ -1042,7 +975,7 @@ const Returns = () => {
                                 }}>
                                     Responsável
                                 </label>
-                                <input
+                                <Input
                                     type="text"
                                     name="driverName"
                                     value={filters.driverName}
@@ -1070,16 +1003,11 @@ const Returns = () => {
                                 <strong>{filteredReturns.length}</strong> resultado(s) encontrado(s)
                             </div>
                         )}
-                    </div>
+                    </Card>
                 )}
 
                 {/* Returns List */}
-                <div style={{
-                    background: 'white',
-                    borderRadius: '8px',
-                    padding: '25px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                }}>
+                <Card padding="25px">
                     <h2 style={{
                         fontSize: '20px',
                         fontWeight: '700',
@@ -1157,7 +1085,7 @@ const Returns = () => {
                                             display: 'flex',
                                             gap: '8px'
                                         }}>
-                                            <button
+                                            <Button
                                                 onClick={() => handleEdit(returnData)}
                                                 style={{
                                                     background: '#4CAF50',
@@ -1178,8 +1106,8 @@ const Returns = () => {
                                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                                 </svg>
                                                 Editar
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={() => handlePrint(returnData)}
                                                 style={{
                                                     background: '#2196F3',
@@ -1201,8 +1129,8 @@ const Returns = () => {
                                                     <rect x="6" y="14" width="12" height="8"></rect>
                                                 </svg>
                                                 Imprimir
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={() => handleDelete(returnData.id)}
                                                 style={{
                                                     background: '#f44336',
@@ -1223,7 +1151,7 @@ const Returns = () => {
                                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                                 </svg>
                                                 Excluir
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
 
@@ -1268,8 +1196,8 @@ const Returns = () => {
                             ))}
                         </div>
                     )}
-                </div>
-            </div>
+                </Card>
+            </PageContainer>
         </div>
     );
 };

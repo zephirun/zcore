@@ -1,4 +1,4 @@
-const ORACLE_API_URL = 'http://localhost:3001/api';
+const ORACLE_API_URL = 'http://localhost:3000/api';
 
 /**
  * Executes a dynamic SQL query on the Oracle database via the API gateway.
@@ -84,5 +84,70 @@ export const fetchDetailedKPIs = async () => {
     } catch (error) {
         console.error('KPIs Error:', error.message);
         throw error;
+    }
+};
+/**
+ * Fetches the synthetic sales summary. Uses dedicated API endpoint: GET /api/synthetic-sales-summary
+ * @param {string} dtini - Start date (YYYY-MM-DD)
+ * @param {string} dtfim - End date (YYYY-MM-DD)
+ */
+export const fetchSyntheticSalesSummary = async (dtini, dtfim) => {
+    try {
+        const url = new URL(`${ORACLE_API_URL}/synthetic-sales-summary`);
+        if (dtini) url.searchParams.append('dtini', dtini);
+        if (dtfim) url.searchParams.append('dtfim', dtfim);
+
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Synthetic Sales Summary Error:', error.message);
+        throw error;
+    }
+};
+/**
+ * Fetches the client summary (Financeiro).
+ * @param {string|number} idpess - Client ID (optional)
+ */
+export const fetchClientSummary = async (idpess) => {
+    try {
+        const url = new URL(`${ORACLE_API_URL}/client-summary`);
+        if (idpess) url.searchParams.append('idpess', idpess);
+
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Client Summary Error:', error.message);
+        throw error;
+    }
+};
+
+/**
+ * Searches for clients by name or ID.
+ * @param {string} query - Name or ID to search for
+ */
+export const searchClients = async (query) => {
+    try {
+        const url = new URL(`${ORACLE_API_URL}/search-clients`);
+        url.searchParams.append('q', query);
+
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Search Clients Error:', error.message);
+        throw error;
+    }
+};
+
+/**
+ * Fetches the cached dashboard data via n8n sync schedule.
+ */
+export const fetchCachedDashboard = async () => {
+    try {
+        const response = await fetch(`${ORACLE_API_URL}/cached-dashboard`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Cached Dashboard Fetch Error:", error);
+        return { data: null, lastSync: null };
     }
 };

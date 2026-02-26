@@ -13,7 +13,7 @@ const AIAgents = () => {
                     Agentes de IA
                 </h2>
 
-                <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+                <div style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                     <div style={{
                         padding: '10px 15px',
                         background: activeUnit === 'madville' ? '#e3f2fd' : '#e8f5e9',

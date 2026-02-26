@@ -1,7 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { DataProvider, useData } from './context/DataContext.jsx';
+import { ToastProvider } from './context/ToastContext.jsx';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { queryClient } from './lib/react-query.js';
 import Home from './pages/Home';
+import Login from './pages/Login';
 import PostAuthLayout from './components/PostAuthLayout';
 
 import Admin from './pages/AdminPanel'; // Updated to AdminPanel
@@ -50,6 +55,7 @@ import CostCenter from './pages/financial/CostCenter';
 import SerasaSPC from './pages/financial/SerasaSPC';
 import FinancialIntelligence from './pages/financial/FinancialIntelligence';
 import CreditAuth from './pages/financial/CreditAuth';
+import ClientSummary from './pages/financial/ClientSummary';
 
 // Processes Pages
 import ProcessManagement from './pages/processes/ProcessManagement';
@@ -85,6 +91,7 @@ import MarketingSchedule from './pages/marketing/MarketingSchedule';
 
 // Board Pages
 import DRE from './pages/board/DRE';
+import StrategicDashboard from './pages/board/StrategicDashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -115,7 +122,7 @@ const AppRoutes = () => {
             <Routes>
                 {/* Public */}
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/agendamento" element={<CarrierScheduling />} />
                 {/* <Route path="/equipe" element={<TeamDashboard />} /> Moved to Protected Routes */}
 
@@ -180,6 +187,7 @@ const AppRoutes = () => {
                     <Route path="/financial/serasa-spc" element={<SerasaSPC />} />
                     <Route path="/financial/intelligence" element={<FinancialIntelligence />} />
                     <Route path="/financial/credit-auth" element={<CreditAuth />} />
+                    <Route path="/financial/client-summary" element={<ClientSummary />} />
 
                     {/* Processes Routes */}
                     <Route path="/processes/management" element={<ProcessManagement />} />
@@ -215,6 +223,7 @@ const AppRoutes = () => {
 
                     {/* Board Routes */}
                     <Route path="/board/dre" element={<DRE />} />
+                    <Route path="/board/strategic" element={<StrategicDashboard />} />
 
                     {/* Admin Only */}
                     <Route path="/admin" element={
@@ -253,8 +262,8 @@ const ThemeController = () => {
         root.style.removeProperty('--text-main');
         root.style.removeProperty('--bg-card');
 
-        // Force background color change for smooth transition
-        document.body.style.backgroundColor = theme === 'dark' ? '#020617' : '#f8fafc';
+        // Let CSS variables in index.css handle the background (no inline override)
+        document.body.style.backgroundColor = '';
     }, [theme]);
 
     return null;
@@ -262,10 +271,16 @@ const ThemeController = () => {
 
 function App() {
     return (
-        <DataProvider>
-            <ThemeController />
-            <AppRoutes />
-        </DataProvider>
+        <QueryClientProvider client={queryClient}>
+            <DataProvider>
+                <ThemeController />
+                <ToastProvider>
+                    <AppRoutes />
+                </ToastProvider>
+            </DataProvider>
+            {/* Devtools only appear in development mode */}
+            <ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
+        </QueryClientProvider>
     );
 }
 

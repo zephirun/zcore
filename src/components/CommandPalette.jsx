@@ -1,3 +1,5 @@
+import Input from '@/components/ui/Input';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories, allModules as sourceModules } from '../config/menuConfig';
@@ -85,7 +87,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                 left: 0,
                 width: '100vw',
                 height: '100vh',
-                background: 'rgba(15, 23, 42, 0.4)', // Executive Blue overlay
+                background: 'rgba(15, 23, 42, 0.4)', // Dark overlay
                 backdropFilter: 'blur(4px)',
                 zIndex: 9999,
                 display: 'flex',
@@ -115,7 +117,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                     gap: '12px'
                 }}>
                     <span style={{ fontSize: '20px', opacity: 0.4 }}>🔍</span>
-                    <input
+                    <Input
                         ref={inputRef}
                         type="text"
                         placeholder="O que você procura?"
@@ -179,7 +181,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                                     justifyContent: 'center',
                                     background: index === selectedIndex ? '#fff' : 'rgba(0,0,0,0.03)',
                                     borderRadius: '6px',
-                                    color: 'var(--color-executive)'
+                                    color: 'var(--color-primary)'
                                 }}>
                                     {item.icon || '⚡'}
                                 </div>

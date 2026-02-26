@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,7 +34,7 @@ const ModulePanel = ({ category, onBack }) => {
                 marginBottom: '20px',
                 border: `2px solid ${category.color}30`
             }}>
-                <button
+                <Button
                     onClick={onBack}
                     style={{
                         background: 'white',
@@ -62,7 +64,7 @@ const ModulePanel = ({ category, onBack }) => {
                         <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
                     VOLTAR
-                </button>
+                </Button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{

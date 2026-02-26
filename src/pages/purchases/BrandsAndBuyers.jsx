@@ -1,3 +1,7 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import * as api from '../../services/api';
@@ -173,7 +177,7 @@ const BrandsAndBuyers = () => {
         <div className="fade-in" style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px', color: 'var(--text-main)' }}>
+                    <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-main)' }}>
                         Marcas e Compradores
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -181,7 +185,7 @@ const BrandsAndBuyers = () => {
                     </p>
                 </div>
                 {userRole === 'admin' && (
-                    <button
+                    <Button
                         onClick={() => {
                             setFormData({ name: '', website: '', logoUrl: '' });
                             setSelectedBrand(null);
@@ -192,7 +196,7 @@ const BrandsAndBuyers = () => {
                             background: 'var(--color-primary)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: '16px',
                             fontWeight: '600',
                             cursor: 'pointer',
                             display: 'flex',
@@ -206,7 +210,7 @@ const BrandsAndBuyers = () => {
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                         Nova Marca
-                    </button>
+                    </Button>
                 )}
             </div>
 
@@ -227,7 +231,7 @@ const BrandsAndBuyers = () => {
                         <div style={{
                             position: 'relative',
                             background: 'var(--bg-input)',
-                            borderRadius: '8px',
+                            borderRadius: '16px',
                             border: '1px solid var(--border-input)',
                             display: 'flex',
                             alignItems: 'center'
@@ -239,7 +243,7 @@ const BrandsAndBuyers = () => {
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input
+                            <Input
                                 type="text"
                                 placeholder="Buscar marcas ou compradores..."
                                 value={searchQuery}
@@ -284,7 +288,7 @@ const BrandsAndBuyers = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <div style={{
                                             width: '40px', height: '40px',
-                                            borderRadius: '8px',
+                                            borderRadius: '16px',
                                             background: '#f3f4f6',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             fontSize: '18px', fontWeight: 'bold', color: '#666',
@@ -310,13 +314,13 @@ const BrandsAndBuyers = () => {
                                         </div>
                                     </div>
                                     {userRole === 'admin' && (
-                                        <button
+                                        <Button
                                             onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.id); }}
                                             style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.6 }}
                                             title="Excluir"
                                         >
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
+                                        </Button>
                                     )}
                                 </div>
                             ))
@@ -345,7 +349,7 @@ const BrandsAndBuyers = () => {
                                     <p style={{ color: 'var(--text-secondary)' }}>Gerenciamento de compradores vinculados</p>
                                 </div>
                                 {userRole === 'admin' && (
-                                    <button
+                                    <Button
                                         onClick={() => {
                                             setFormData({ ...selectedBrand, logoUrl: selectedBrand.logo_url || '' });
                                             setIsModalOpen(true);
@@ -356,7 +360,7 @@ const BrandsAndBuyers = () => {
                                         }}
                                     >
                                         Editar Info
-                                    </button>
+                                    </Button>
                                 )}
                             </div>
 
@@ -389,13 +393,13 @@ const BrandsAndBuyers = () => {
                                                     </div>
                                                 </div>
                                                 {userRole === 'admin' && (
-                                                    <button
+                                                    <Button
                                                         onClick={() => handleRemoveBuyer(buyer.id)}
                                                         style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}
                                                         title="Desvincular"
                                                     >
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                                    </button>
+                                                    </Button>
                                                 )}
                                             </div>
                                         ))
@@ -416,13 +420,13 @@ const BrandsAndBuyers = () => {
                                     }}>
                                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>Vincular Novo Comprador</label>
                                         <div style={{ display: 'flex', gap: '12px' }}>
-                                            <select
+                                            <Select
                                                 value={selectedBuyerId}
                                                 onChange={(e) => setSelectedBuyerId(e.target.value)}
                                                 style={{
                                                     flex: 1,
                                                     padding: '10px',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     border: '1px solid var(--border-color)',
                                                     background: 'var(--bg-card)',
                                                     color: 'var(--text-main)',
@@ -433,8 +437,8 @@ const BrandsAndBuyers = () => {
                                                 {users.map(u => (
                                                     <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
                                                 ))}
-                                            </select>
-                                            <button
+                                            </Select>
+                                            <Button
                                                 onClick={handleAddBuyer}
                                                 disabled={!selectedBuyerId}
                                                 style={{
@@ -442,13 +446,13 @@ const BrandsAndBuyers = () => {
                                                     background: selectedBuyerId ? 'var(--color-primary)' : 'var(--border-color)',
                                                     color: 'white',
                                                     border: 'none',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     fontWeight: '600',
                                                     cursor: selectedBuyerId ? 'pointer' : 'not-allowed'
                                                 }}
                                             >
                                                 Vincular
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 )}
@@ -463,7 +467,7 @@ const BrandsAndBuyers = () => {
                                     </h3>
                                     {userRole === 'admin' && (
                                         <div>
-                                            <input
+                                            <Input
                                                 type="file"
                                                 accept=".csv"
                                                 id="csvUpload"
@@ -477,7 +481,7 @@ const BrandsAndBuyers = () => {
                                                     padding: '8px 16px',
                                                     background: importing ? 'var(--text-muted)' : 'var(--color-primary)',
                                                     color: 'white',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '16px',
                                                     fontSize: '13px',
                                                     fontWeight: '600',
                                                     cursor: importing ? 'wait' : 'pointer',
@@ -523,13 +527,13 @@ const BrandsAndBuyers = () => {
                                                         </td>
                                                         <td style={{ padding: '8px', textAlign: 'right' }}>
                                                             {userRole === 'admin' && (
-                                                                <button
+                                                                <Button
                                                                     onClick={() => handleDeleteProduct(p.id)}
                                                                     style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.6 }}
                                                                     title="Excluir Produto"
                                                                 >
                                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                                                </button>
+                                                                </Button>
                                                             )}
                                                         </td>
                                                     </tr>
@@ -572,22 +576,22 @@ const BrandsAndBuyers = () => {
                         <form onSubmit={handleSaveBrand}>
                             <div style={{ marginBottom: '16px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>Nome da Marca</label>
-                                <input
+                                <Input
                                     type="text"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
                                     placeholder="Ex: Nike, Adidas..."
                                     required
                                 />
                             </div>
                             <div style={{ marginBottom: '16px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>Website (Opcional)</label>
-                                <input
+                                <Input
                                     type="url"
                                     value={formData.website}
                                     onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
                                     placeholder="https://..."
                                 />
                             </div>
@@ -609,7 +613,7 @@ const BrandsAndBuyers = () => {
                                         )}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <input
+                                        <Input
                                             type="file"
                                             accept="image/*"
                                             onChange={e => {
@@ -620,7 +624,7 @@ const BrandsAndBuyers = () => {
                                             style={{
                                                 width: '100%',
                                                 padding: '10px',
-                                                borderRadius: '8px',
+                                                borderRadius: '16px',
                                                 border: '1px solid var(--border-input)',
                                                 background: 'var(--bg-input)',
                                                 color: 'var(--text-main)',
@@ -634,8 +638,8 @@ const BrandsAndBuyers = () => {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-main)', cursor: 'pointer' }}>Cancelar</button>
-                                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Salvar</button>
+                                <Button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '12px', borderRadius: '16px', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-main)', cursor: 'pointer' }}>Cancelar</Button>
+                                <Button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Salvar</Button>
                             </div>
                         </form>
                     </div>

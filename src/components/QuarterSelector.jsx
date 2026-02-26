@@ -1,3 +1,5 @@
+import Select from '@/components/ui/Select';
+
 import React from 'react';
 
 const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
@@ -29,7 +31,7 @@ const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
                 📅 Selecione o Trimestre:
             </label>
 
-            <select
+            <Select
                 value={selectedQuarter}
                 onChange={(e) => onQuarterChange(parseInt(e.target.value))}
                 style={{
@@ -53,7 +55,7 @@ const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
                         {q.name}
                     </option>
                 ))}
-            </select>
+            </Select>
 
             <div style={{
                 fontSize: '12px',

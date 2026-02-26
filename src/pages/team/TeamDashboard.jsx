@@ -1,3 +1,8 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
+
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import * as api from '../../services/api';
@@ -427,13 +432,12 @@ const TeamDashboard = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-main)', width: '100%' }}>
-
-            <div style={{ flex: 1, padding: '40px 20px', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-main)', width: '100%', minHeight: '100vh', background: 'var(--bg-main)' }}>
+            <PageContainer maxWidth="1400px" title="Dashboard da Equipe" subtitle="Gestão interativa de comunicados, agenda e engajamento da equipe">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', marginTop: '20px' }}>
 
                     {/* MURAL DE COMUNICADOS */}
-                    <div style={{ background: 'var(--bg-card)', borderRadius: '24px', padding: '30px', boxShadow: 'var(--shadow-card)', border: '1px solid var(--border-color)', position: 'relative' }}>
+                    <Card padding="30px" style={{ position: 'relative' }}>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -441,14 +445,14 @@ const TeamDashboard = () => {
                                 <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mural de Comunicados</h2>
                             </div>
                             {userRole === 'admin' && (
-                                <button
+                                <Button
                                     onClick={() => setShowNoticeModal(true)}
                                     style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', transition: 'transform 0.2s ease' }}
                                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                                 >
                                     <IconPlus />
-                                </button>
+                                </Button>
                             )}
                         </div>
 
@@ -488,12 +492,12 @@ const TeamDashboard = () => {
                                                         {formatRelativeTime(notice.time)}
                                                     </span>
                                                     {userRole === 'admin' && notice.id !== 'default' && (
-                                                        <button
+                                                        <Button
                                                             onClick={() => handleDeleteNotice(notice.id)}
                                                             style={{ background: 'none', border: 'none', color: '#F87171', cursor: 'pointer', display: 'flex', padding: 0 }}
                                                         >
                                                             <IconTrash size={14} />
-                                                        </button>
+                                                        </Button>
                                                     )}
                                                 </div>
                                             </div>
@@ -532,7 +536,7 @@ const TeamDashboard = () => {
                                             )}
 
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                                <button
+                                                <Button
                                                     onClick={() => handleToggleReaction(notice.id)}
                                                     style={{
                                                         display: 'flex', alignItems: 'center', gap: '6px', background: userLiked ? '#FEE2E2' : 'var(--bg-card)',
@@ -544,28 +548,28 @@ const TeamDashboard = () => {
                                                     <span style={{ fontSize: '12px', fontWeight: '700', color: userLiked ? '#EF4444' : '#64748B' }}>
                                                         {reactionCount > 0 ? reactionCount : 'Curtir'}
                                                     </span>
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     );
                                 })}
                             </div>
                         )}
-                    </div>
+                    </Card>
 
                     {/* PRÓXIMAS ATIVIDADES / AGENDA */}
-                    <div style={{ background: 'var(--bg-card)', borderRadius: '24px', padding: '30px', boxShadow: 'var(--shadow-card)', border: '1px solid var(--border-color)' }}>
+                    <Card padding="30px">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setShowCalendarView(true)}>
                                 <IconCalendar color="#2563EB" />
                                 <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agenda da Equipe</h2>
                             </div>
-                            <button
+                            <Button
                                 onClick={() => setShowActivityModal(true)}
                                 style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}
                             >
                                 <IconPlus />
-                            </button>
+                            </Button>
                         </div>
 
                         {loadingAgenda ? (
@@ -602,7 +606,7 @@ const TeamDashboard = () => {
                                 )}
                             </div>
                         )}
-                        <button
+                        <Button
                             onClick={() => setShowFullAgenda(true)}
                             style={{
                                 width: '100%', marginTop: '30px', padding: '14px', background: '#F8FAFC', border: '1.5px solid #F1F5F9', borderRadius: '16px',
@@ -612,11 +616,11 @@ const TeamDashboard = () => {
                             onMouseLeave={e => e.currentTarget.style.borderColor = '#F1F5F9'}
                         >
                             Ver Agenda Completa
-                        </button>
-                    </div>
+                        </Button>
+                    </Card>
 
                     {/* CHAT RÁPIDO */}
-                    <div style={{ background: 'var(--bg-card)', borderRadius: '24px', padding: '30px', boxShadow: 'var(--shadow-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+                    <Card padding="30px" style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '30px' }}>
                             <IconMessage color="#2563EB" />
                             <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Membros da Equipe</h2>
@@ -688,11 +692,11 @@ const TeamDashboard = () => {
                                     {recipient ? <span>Conversando com <b style={{ color: '#2563EB' }}>{recipient.name.split(' ')[0]}</b></span> : 'Selecione um membro'}
                                 </p>
                                 {recipient && (
-                                    <button onClick={() => setRecipient(null)} style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '10px', fontWeight: '700', cursor: 'pointer' }}>Limpar</button>
+                                    <Button onClick={() => setRecipient(null)} style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '10px', fontWeight: '700', cursor: 'pointer' }}>Limpar</Button>
                                 )}
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <input
+                                <Input
                                     type="text"
                                     placeholder={recipient ? `Diga algo para ${recipient.name.split(' ')[0]}...` : "Selecione uma foto acima..."}
                                     value={message}
@@ -703,7 +707,7 @@ const TeamDashboard = () => {
                                         fontSize: '14px', outline: 'none', color: 'var(--text-main)'
                                     }}
                                 />
-                                <button
+                                <Button
                                     onClick={handleSendMessage}
                                     style={{
                                         position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
@@ -713,25 +717,25 @@ const TeamDashboard = () => {
                                     }}
                                 >
                                     <IconSend />
-                                </button>
+                                </Button>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* ENQUETES (POLLS) */}
-                    <div style={{ background: 'var(--bg-card)', borderRadius: '24px', padding: '30px', boxShadow: 'var(--shadow-card)', border: '1px solid var(--border-color)' }}>
+                    <Card padding="30px">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <IconBarChart color="#2563EB" />
                                 <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enquetes</h2>
                             </div>
                             {userRole === 'admin' && (
-                                <button
+                                <Button
                                     onClick={() => setShowPollModal(true)}
                                     style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}
                                 >
                                     <IconPlus />
-                                </button>
+                                </Button>
                             )}
                         </div>
 
@@ -790,11 +794,11 @@ const TeamDashboard = () => {
                                 })}
                             </div>
                         )}
-                    </div>
+                    </Card>
 
 
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 };

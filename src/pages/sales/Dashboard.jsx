@@ -1,3 +1,8 @@
+import Button from '@/components/ui/Button';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@/components/ui/Table';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
+
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -296,69 +301,64 @@ const Dashboard = () => {
 
             {/* Filters Bar */}
             {hasData && (
-                <Filters />
+                <div style={{ marginBottom: 'var(--space-6)' }}>
+                    <Filters />
+                </div>
             )}
 
             {hasData && !isBlankState && (
-                <KPICards
-                    totals={{
-                        amount: metrics.totalBilling,
-                        margin_percent: metrics.avgMargin,
-                        deadline: metrics.avgTerm
-                    }}
-                    extraInfo={{ count: filteredData.length }}
-                />
+                <>
+                    <div style={{ marginBottom: 'var(--space-6)' }}>
+                        <KPICards
+                            totals={{
+                                amount: metrics.totalBilling,
+                                margin_percent: metrics.avgMargin,
+                                deadline: metrics.avgTerm
+                            }}
+                            extraInfo={{ count: filteredData.length }}
+                        />
+                    </div>
+                </>
             )}
 
-            <main style={{ padding: '24px 40px', maxWidth: '1600px', margin: '0 auto' }}>
+            <PageContainer
+                maxWidth="1600px"
+                title="Dashboard Financeiro"
+                subtitle="Visão executiva consolidada e análise comercial."
+            >
                 {!hasData && (
-                    <div style={{
-                        background: 'var(--bg-card)',
-                        padding: '60px 40px',
-                        borderRadius: '16px',
-                        textAlign: 'center',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: 'var(--shadow-sm)'
-                    }}>
+                    <Card style={{ padding: '60px 40px', textAlign: 'center' }}>
                         <h2 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Nenhum dado disponível</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '16px', marginBottom: '20px' }}>
                             Faça o upload de um arquivo CSV na página de <strong>Admin</strong> para visualizar os dados aqui.
                         </p>
-                        <button
+                        <Button
                             onClick={handleRefresh}
                             style={{
-                                padding: '12px 24px',
-                                background: '#3498db',
-                                color: 'white',
+                                padding: '10px 20px',
+                                background: 'var(--text-main)',
+                                color: 'var(--bg-main)',
                                 border: 'none',
                                 borderRadius: '8px',
                                 cursor: 'pointer',
                                 fontWeight: '600',
-                                fontSize: '14px',
-                                boxShadow: '0 2px 5px rgba(52, 152, 219, 0.3)'
+                                fontSize: '13px',
+                                fontFamily: 'var(--font-main)',
                             }}
                         >
                             🔄 Verificar se há dados novos
-                        </button>
-                    </div>
+                        </Button>
+                    </Card>
                 )}
 
                 {hasData && isBlankState && (
-                    <div style={{
-                        padding: '80px',
-                        textAlign: 'center',
-                        color: 'var(--text-muted)',
-                        background: 'var(--bg-card)',
-                        borderRadius: '16px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: 'var(--shadow-sm)'
-                    }}>
+                    <Card style={{ padding: '80px', textAlign: 'center', color: 'var(--text-muted)' }}>
                         <h1 style={{ color: 'var(--text-main)', marginBottom: '10px', fontWeight: '800' }}>Bem-vindo ao Dashboard</h1>
                         <p style={{ fontSize: '18px' }}>
                             Para visualizar os dados, selecione um <strong>Vendedor</strong>, um <strong>Cliente</strong><br />
                             ou escolha a opção <strong>"Selecionar Todos"</strong> nos filtros acima.
                         </p>
-                    </div>
+                    </Card>
                 )}
 
                 {hasData && !isBlankState && (
@@ -367,26 +367,26 @@ const Dashboard = () => {
                         {/* Monthly Performance Section */}
                         <ChartCard title="Performance Mensal">
                             <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                                            <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Mês</th>
-                                            <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Faturamento</th>
-                                            <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Margem</th>
-                                            <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Prazo Médio</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <Table>
+                                    <Thead>
+                                        <Tr>
+                                            <Th style={{ textAlign: 'left' }}>Mês</Th>
+                                            <Th style={{ textAlign: 'right' }}>Faturamento</Th>
+                                            <Th style={{ textAlign: 'right' }}>Margem</Th>
+                                            <Th style={{ textAlign: 'right' }}>Prazo Médio</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
                                         {monthlyPerformance.map((month, idx) => (
-                                            <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }} className="hover-row">
-                                                <td style={{ padding: '16px', fontSize: '14px', color: 'var(--text-main)', fontWeight: '600' }}>{month.month}</td>
-                                                <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(month.revenue)}</td>
-                                                <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(month.margin)}</td>
-                                                <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', color: 'var(--text-main)', fontWeight: '500' }}>{month.deadline.toFixed(0)} dias</td>
-                                            </tr>
+                                            <Tr key={idx} className="hover-row">
+                                                <Td style={{ fontWeight: 'var(--font-semibold)' }}>{month.month}</Td>
+                                                <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatCurrency(month.revenue)}</Td>
+                                                <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatPercent(month.margin)}</Td>
+                                                <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{month.deadline.toFixed(0)} dias</Td>
+                                            </Tr>
                                         ))}
-                                    </tbody>
-                                </table>
+                                    </Tbody>
+                                </Table>
                             </div>
                         </ChartCard>
 
@@ -396,11 +396,11 @@ const Dashboard = () => {
                             action={
                                 <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-input)', padding: '4px', borderRadius: '8px' }}>
                                     {[
-                                        { id: 'revenue', label: 'Faturamento', color: '#3498db' },
-                                        { id: 'margin', label: 'Margem %', color: '#2ecc71' },
-                                        { id: 'deadline', label: 'Prazo', color: '#e74c3c' }
+                                        { id: 'revenue', label: 'Faturamento', color: 'var(--color-success, #10b981)' },
+                                        { id: 'margin', label: 'Margem %', color: 'var(--color-info, #3b82f6)' },
+                                        { id: 'deadline', label: 'Prazo', color: 'var(--color-error, #ef4444)' }
                                     ].map(m => (
-                                        <button
+                                        <Button
                                             key={m.id}
                                             onClick={() => setActiveMetric(m.id)}
                                             style={{
@@ -417,7 +417,7 @@ const Dashboard = () => {
                                             }}
                                         >
                                             {m.label}
-                                        </button>
+                                        </Button>
                                     ))}
                                 </div>
                             }
@@ -429,9 +429,9 @@ const Dashboard = () => {
                             }}>
                                 {monthlyClientData.map((month, idx) => {
                                     const config = {
-                                        revenue: { name: 'Faturamento', color: '#3498db', formatter: formatCurrency, axisFormatter: (val) => `R$${(val / 1000).toFixed(0)}k` },
-                                        margin: { name: 'Margem', color: '#2ecc71', formatter: formatPercent, axisFormatter: (val) => `${(val * 100).toFixed(0)}%` },
-                                        deadline: { name: 'Prazo Médio', color: '#e74c3c', formatter: (val) => `${val.toFixed(0)} dias`, axisFormatter: (val) => `${val.toFixed(0)}d` }
+                                        revenue: { name: 'Faturamento', color: 'var(--color-success, #10b981)', formatter: formatCurrency, axisFormatter: (val) => `R$${(val / 1000).toFixed(0)}k` },
+                                        margin: { name: 'Margem', color: 'var(--color-info, #3b82f6)', formatter: formatPercent, axisFormatter: (val) => `${(val * 100).toFixed(0)}%` },
+                                        deadline: { name: 'Prazo Médio', color: 'var(--color-error, #ef4444)', formatter: (val) => `${val.toFixed(0)} dias`, axisFormatter: (val) => `${val.toFixed(0)}d` }
                                     }[activeMetric];
 
                                     return (
@@ -520,32 +520,32 @@ const Dashboard = () => {
                             {/* Top Clients */}
                             <ChartCard
                                 title="Top 10 Clientes"
-                                headerBorderColor="#3498db"
+                                headerBorderColor="var(--color-info, #3b82f6)"
                             >
                                 <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                        <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
-                                            <tr style={{ background: 'var(--bg-input)' }}>
-                                                <th style={{ padding: '12px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Cliente</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Faturamento</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Margem</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <Table compact>
+                                        <Thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
+                                            <Tr style={{ background: 'var(--bg-input)' }}>
+                                                <Th style={{ textAlign: 'left' }}>Cliente</Th>
+                                                <Th style={{ textAlign: 'right' }}>Faturamento</Th>
+                                                <Th style={{ textAlign: 'right' }}>Margem</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
                                             {topClients.map((client, idx) => (
-                                                <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                    <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text-main)' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <Tr key={idx}>
+                                                    <Td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                                                             <Link
                                                                 to={`/sales/client-records?id=${client.id}`}
                                                                 title="Ver Ficha"
                                                                 style={{
-                                                                    color: '#3498db',
+                                                                    color: 'var(--color-info)',
                                                                     display: 'flex',
                                                                     alignItems: 'center',
-                                                                    padding: '6px',
-                                                                    background: 'rgba(52, 152, 219, 0.1)',
-                                                                    borderRadius: '6px',
+                                                                    padding: 'var(--space-2)',
+                                                                    background: 'var(--color-info-dim)',
+                                                                    borderRadius: 'var(--radius-sm)',
                                                                     transition: 'all 0.2s'
                                                                 }}
                                                             >
@@ -557,106 +557,106 @@ const Dashboard = () => {
                                                                 </svg>
                                                             </Link>
                                                             <div>
-                                                                <div style={{ fontWeight: '600', marginBottom: '2px' }}>{client.name}</div>
-                                                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                                                <div style={{ fontWeight: 'var(--font-semibold)', marginBottom: 'var(--space-1)' }}>{client.name}</div>
+                                                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
                                                                     {client.vendor} <span style={{ opacity: 0.5 }}>|</span> {client.representative} <span style={{ opacity: 0.5 }}>|</span> ID: {client.id}
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(client.revenue)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(client.margin)}</td>
-                                                </tr>
+                                                    </Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatCurrency(client.revenue)}</Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatPercent(client.margin)}</Td>
+                                                </Tr>
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </Tbody>
+                                    </Table>
                                 </div>
                             </ChartCard>
 
                             {/* Top Vendors */}
                             <ChartCard
                                 title="Top 10 Vendedores"
-                                headerBorderColor="#27ae60"
+                                headerBorderColor="var(--color-success, #10b981)"
                             >
                                 <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                        <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
-                                            <tr style={{ background: 'var(--bg-input)' }}>
-                                                <th style={{ padding: '12px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Vendedor</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Faturamento</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Margem</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Clientes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <Table compact>
+                                        <Thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
+                                            <Tr style={{ background: 'var(--bg-input)' }}>
+                                                <Th style={{ textAlign: 'left' }}>Vendedor</Th>
+                                                <Th style={{ textAlign: 'right' }}>Faturamento</Th>
+                                                <Th style={{ textAlign: 'right' }}>Margem</Th>
+                                                <Th style={{ textAlign: 'right' }}>Clientes</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
                                             {topVendors.map((vendor, idx) => (
-                                                <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                    <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text-main)' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <Tr key={idx}>
+                                                    <Td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                                                             <div style={{
-                                                                width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-input)',
+                                                                width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px',
-                                                                fontWeight: '800', color: 'var(--text-muted)'
+                                                                fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', border: '1px solid var(--border-color)'
                                                             }}>
                                                                 {idx + 1}
                                                             </div>
-                                                            <div style={{ fontWeight: '600' }}>{vendor.name}</div>
+                                                            <div style={{ fontWeight: 'var(--font-semibold)' }}>{vendor.name}</div>
                                                         </div>
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(vendor.revenue)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(vendor.margin)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{vendor.clients}</td>
-                                                </tr>
+                                                    </Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatCurrency(vendor.revenue)}</Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatPercent(vendor.margin)}</Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{vendor.clients}</Td>
+                                                </Tr>
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </Tbody>
+                                    </Table>
                                 </div>
                             </ChartCard>
 
                             {/* Top Representatives */}
                             <ChartCard
                                 title="Top 10 Representantes"
-                                headerBorderColor="#f39c12"
+                                headerBorderColor="var(--color-warning, #f59e0b)"
                             >
                                 <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                        <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
-                                            <tr style={{ background: 'var(--bg-input)' }}>
-                                                <th style={{ padding: '12px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Representante</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Faturamento</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Margem</th>
-                                                <th style={{ padding: '12px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', borderBottom: '2px solid var(--border-color)', textTransform: 'uppercase' }}>Clientes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <Table compact>
+                                        <Thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
+                                            <Tr style={{ background: 'var(--bg-input)' }}>
+                                                <Th style={{ textAlign: 'left' }}>Representante</Th>
+                                                <Th style={{ textAlign: 'right' }}>Faturamento</Th>
+                                                <Th style={{ textAlign: 'right' }}>Margem</Th>
+                                                <Th style={{ textAlign: 'right' }}>Clientes</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
                                             {topRepresentatives.map((rep, idx) => (
-                                                <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                    <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text-main)' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <Tr key={idx}>
+                                                    <Td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                                                             <div style={{
-                                                                width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-input)',
+                                                                width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px',
-                                                                fontWeight: '800', color: 'var(--text-muted)'
+                                                                fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', border: '1px solid var(--border-color)'
                                                             }}>
                                                                 {idx + 1}
                                                             </div>
-                                                            <div style={{ fontWeight: '600' }}>{rep.name}</div>
+                                                            <div style={{ fontWeight: 'var(--font-semibold)' }}>{rep.name}</div>
                                                         </div>
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatCurrency(rep.revenue)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{formatPercent(rep.margin)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>{rep.clients}</td>
-                                                </tr>
+                                                    </Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatCurrency(rep.revenue)}</Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatPercent(rep.margin)}</Td>
+                                                    <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{rep.clients}</Td>
+                                                </Tr>
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </Tbody>
+                                    </Table>
                                 </div>
                             </ChartCard>
                         </div>
 
                     </div>
                 )}
-            </main>
+            </PageContainer>
 
             <style>{`
                 .hover-row:hover {
@@ -668,27 +668,27 @@ const Dashboard = () => {
 };
 
 const ChartCard = ({ title, children, action, headerBorderColor }) => (
-    <div style={{
-        background: 'var(--bg-card)',
-        borderRadius: '16px',
-        padding: '24px',
-        boxShadow: 'var(--shadow-lg)',
-        border: '1px solid var(--border-color)',
-        transition: 'transform 0.2s, box-shadow 0.2s'
-    }}>
+    <Card style={{ padding: '24px' }}>
         <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '24px',
+            marginBottom: 'var(--space-4)',
+            paddingBottom: headerBorderColor ? 'var(--space-3)' : '0',
             borderBottom: headerBorderColor ? `2px solid ${headerBorderColor}` : 'none',
-            paddingBottom: headerBorderColor ? '12px' : '0'
         }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>{title}</h3>
+            <h3 style={{
+                fontSize: '11px',
+                fontWeight: '800',
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                margin: 0
+            }}>{title}</h3>
             {action && action}
         </div>
         {children}
-    </div>
+    </Card>
 );
 
 export default Dashboard;

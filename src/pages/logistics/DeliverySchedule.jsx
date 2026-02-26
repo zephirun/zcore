@@ -1,3 +1,10 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Textarea from '@/components/ui/Textarea';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,7 +44,7 @@ const DeliverySchedule = () => {
     useEffect(() => {
         const loadDeliveries = async () => {
             const data = await fetchDeliveries(activeUnit);
-            setDeliveries(data);
+            setDeliveries(data || []);
         };
         loadDeliveries();
     }, [activeUnit]);
@@ -63,9 +70,12 @@ const DeliverySchedule = () => {
             if (d.supplier) suppliers.add(d.supplier);
             if (d.carrier) uniqueCarriers.add(d.carrier);
             if (d.date) {
-                const [year, month] = d.date.split('-');
-                if (year) years.add(year);
-                if (month) months.add(month);
+                const parts = d.date.split('-');
+                if (parts.length >= 2) {
+                    const [year, month] = parts;
+                    if (year) years.add(year);
+                    if (month) months.add(month);
+                }
             }
         });
 
@@ -90,10 +100,20 @@ const DeliverySchedule = () => {
             if (filters.date && delivery.date !== filters.date) return false;
 
             // Month filter
-            if (filters.month && !delivery.date.startsWith(`${filters.year || delivery.date.split('-')[0]}-${filters.month}`)) return false;
+            if (filters.month) {
+                const deliveryParts = delivery.date?.split('-') || [];
+                const deliveryYear = deliveryParts[0];
+                const deliveryMonth = deliveryParts[1];
 
-            // Year filter
-            if (filters.year && !delivery.date.startsWith(filters.year)) return false;
+                if (filters.year) {
+                    if (deliveryYear !== filters.year || deliveryMonth !== filters.month) return false;
+                } else {
+                    if (deliveryMonth !== filters.month) return false;
+                }
+            } else if (filters.year) {
+                // Year filter only
+                if (!delivery.date?.startsWith(filters.year)) return false;
+            }
 
             // Supplier filter
             if (filters.supplier && delivery.supplier !== filters.supplier) return false;
@@ -153,7 +173,7 @@ const DeliverySchedule = () => {
         if (result.success) {
             // Refresh list
             const data = await fetchDeliveries(activeUnit);
-            setDeliveries(data);
+            setDeliveries(data || []);
 
             // Reset form
             setFormData({
@@ -169,7 +189,6 @@ const DeliverySchedule = () => {
             });
             setEditingId(null);
             setShowForm(false);
-            alert(editingId ? 'Agendamento atualizado!' : 'Agendamento salvo com sucesso!');
         } else {
             alert('Erro ao salvar agendamento: ' + result.error);
         }
@@ -228,21 +247,21 @@ const DeliverySchedule = () => {
                 <title>Relatório de Entregas - ${today}</title>
                 <style>
                     @page { size: A4 landscape; margin: 10mm; }
-                    body { font-family: Arial, sans-serif; font-size: 12px; }
+                    body { font-family: Inter, Arial, sans-serif; font-size: 11px; color: #111; }
                     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; font-weight: bold; }
-                    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-                    .logo { height: 50px; }
-                    .title { font-size: 18px; font-weight: bold; text-transform: uppercase; }
-                    .info { text-align: right; font-size: 12px; }
+                    th, td { border: 1px solid #eee; padding: 10px 8px; text-align: left; }
+                    th { background-color: #f9f9f9; font-weight: 700; text-transform: uppercase; font-size: 9px; color: #666; }
+                    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 10px; }
+                    .logo { height: 40px; }
+                    .title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; }
+                    .info { text-align: right; font-size: 10px; color: #666; }
                     @media print { .no-print { display: none; } }
                 </style>
             </head>
             <body>
                 <div class="header">
                     <img src="${logoPath}" alt="Logo" class="logo" />
-                    <div class="title">Relatório de Entregas</div>
+                    <div class="title">Agendamento de Entrega</div>
                     <div class="info">
                         Gerado em: ${today}<br>
                         Total de Registros: ${deliveriesToPrint.length}
@@ -253,7 +272,7 @@ const DeliverySchedule = () => {
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Horário</th>
+                            <th>Horal</th>
                             <th>Transportadora</th>
                             <th>Fornecedor</th>
                             <th>NF</th>
@@ -264,15 +283,15 @@ const DeliverySchedule = () => {
                     <tbody>
                         ${deliveriesToPrint.length > 0 ? deliveriesToPrint.map(d => `
                             <tr>
-                                <td>${d.date.split('-').reverse().join('/')}</td>
-                                <td>${d.time}</td>
-                                <td>${d.carrier}</td>
-                                <td>${d.supplier}</td>
-                                <td>${d.invoiceNumber}</td>
-                                <td>${d.quantity} ${d.volumeType}</td>
+                                <td>${d.date ? d.date.split('-').reverse().join('/') : '-'}</td>
+                                <td>${d.time || '-'}</td>
+                                <td>${d.carrier || '-'}</td>
+                                <td>${d.supplier || '-'}</td>
+                                <td>${d.invoiceNumber || '-'}</td>
+                                <td>${d.quantity || '0'} ${d.volumeType || ''}</td>
                                 <td>${d.observations || '-'}</td>
                             </tr>
-                        `).join('') : '<tr><td colspan="7" style="text-align: center; padding: 20px;">Nenhuma entrega encontrada para os filtros selecionados.</td></tr>'}
+                        `).join('') : '<tr><td colspan="7" style="text-align: center; padding: 30px;">Nenhuma entrega encontrada para os filtros selecionados.</td></tr>'}
                     </tbody>
                 </table>
                 <script>
@@ -287,768 +306,348 @@ const DeliverySchedule = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#e8ecef' }}>
-
-
-            <div style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
-                {/* Page Header */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '30px'
-                }}>
-                    <div>
-                        <h1 style={{
-                            fontSize: '28px',
-                            fontWeight: '700',
-                            color: '#333',
-                            marginBottom: '8px'
-                        }}>
-                            Agendamento de Entrega
-                        </h1>
-                        <p style={{ color: '#666', fontSize: '14px' }}>
-                            Registre e gerencie as entregas programadas
-                        </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
-                            onClick={() => navigate('/menu')}
-                            style={{
-                                padding: '10px 20px',
-                                background: 'white',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                color: '#666'
-                            }}
-                        >
-                            ← Voltar ao Menu
-                        </button>
-
-                        <button
-                            onClick={handlePrint}
-                            style={{
-                                padding: '10px 20px',
-                                background: '#546e7a',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                color: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}
-                        >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                <rect x="6" y="14" width="12" height="8"></rect>
-                            </svg>
-                            Imprimir Lista
-                        </button>
-
-                        {!showForm && (
-                            <button
-                                onClick={() => setShowForm(true)}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: '#2e7d32',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    color: 'white'
-                                }}
-                            >
-                                + Nova Entrega
-                            </button>
-                        )}
-                    </div>
+        <PageContainer
+            maxWidth="1400px"
+            title="Agendamento de Entrega"
+            subtitle="Registre e gerencie as entregas programadas"
+            actions={
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button variant="ghost" onClick={() => navigate('/menu')}>
+                        Voltar ao Menu
+                    </Button>
+                    <Button variant="secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        Imprimir
+                    </Button>
+                    {!showForm && (
+                        <Button variant="primary" onClick={() => setShowForm(true)}>
+                            Nova Entrega
+                        </Button>
+                    )}
                 </div>
+            }
+        >
 
-                {/* Filters */}
-                {deliveries.length > 0 && !showForm && (
+            {/* Filters Section */}
+            {!showForm && (
+                <Card style={{ marginBottom: '24px' }} padding="var(--space-5)">
                     <div style={{
-                        background: 'white',
-                        padding: '20px 30px',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                        marginBottom: '20px'
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                        gap: '16px',
+                        alignItems: 'end'
                     }}>
+                        <Input
+                            label="Data Específica"
+                            type="date"
+                            value={filters.date}
+                            onChange={(e) => handleFilterChange('date', e.target.value)}
+                        />
+
+                        <Select
+                            label="Mês"
+                            value={filters.month}
+                            onChange={(e) => handleFilterChange('month', e.target.value)}
+                            disabled={!!filters.date}
+                        >
+                            <option value="">Todos os meses</option>
+                            {filterOptions.months.map(m => (
+                                <option key={m} value={m}>{monthNames[m]}</option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            label="Ano"
+                            value={filters.year}
+                            onChange={(e) => handleFilterChange('year', e.target.value)}
+                            disabled={!!filters.date}
+                        >
+                            <option value="">Todos os anos</option>
+                            {filterOptions.years.map(y => (
+                                <option key={y} value={y}>{y}</option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            label="Fornecedor"
+                            value={filters.supplier}
+                            onChange={(e) => handleFilterChange('supplier', e.target.value)}
+                        >
+                            <option value="">Todos os fornecedores</option>
+                            {filterOptions.suppliers.map(s => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            label="Transportadora"
+                            value={filters.carrier}
+                            onChange={(e) => handleFilterChange('carrier', e.target.value)}
+                        >
+                            <option value="">Todas</option>
+                            {filterOptions.carriers.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
+                        </Select>
+
+                        <Button
+                            variant="ghost"
+                            onClick={clearFilters}
+                            style={{ height: 'var(--density-input-height)' }}
+                        >
+                            Limpar
+                        </Button>
+                    </div>
+
+                    {/* Active Filters Summary */}
+                    {(filters.date || filters.month || filters.year || filters.supplier || filters.carrier) && (
                         <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                            gap: '15px',
-                            alignItems: 'end'
+                            marginTop: '16px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid var(--border-color)',
+                            fontSize: '12px',
+                            color: 'var(--text-muted)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                         }}>
-                            {/* Date Filter */}
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Data Específica
-                                </label>
-                                <input
-                                    type="date"
-                                    value={filters.date}
-                                    onChange={(e) => handleFilterChange('date', e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
-
-                            {/* Month Filter */}
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Mês
-                                </label>
-                                <select
-                                    value={filters.month}
-                                    onChange={(e) => handleFilterChange('month', e.target.value)}
-                                    disabled={!!filters.date}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px',
-                                        opacity: filters.date ? 0.5 : 1
-                                    }}
-                                >
-                                    <option value="">Todos os meses</option>
-                                    {filterOptions.months.map(m => (
-                                        <option key={m} value={m}>{monthNames[m]}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Year Filter */}
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Ano
-                                </label>
-                                <select
-                                    value={filters.year}
-                                    onChange={(e) => handleFilterChange('year', e.target.value)}
-                                    disabled={!!filters.date}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px',
-                                        opacity: filters.date ? 0.5 : 1
-                                    }}
-                                >
-                                    <option value="">Todos os anos</option>
-                                    {filterOptions.years.map(y => (
-                                        <option key={y} value={y}>{y}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Supplier Filter */}
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Fornecedor
-                                </label>
-                                <select
-                                    value={filters.supplier}
-                                    onChange={(e) => handleFilterChange('supplier', e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                >
-                                    <option value="">Todos</option>
-                                    {filterOptions.suppliers.map(s => (
-                                        <option key={s} value={s}>{s}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Carrier Filter */}
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Transportadora
-                                </label>
-                                <select
-                                    value={filters.carrier}
-                                    onChange={(e) => handleFilterChange('carrier', e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                >
-                                    <option value="">Todas</option>
-                                    {filterOptions.carriers.map(c => (
-                                        <option key={c} value={c}>{c}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Clear Filters Button */}
-                            <button
-                                onClick={clearFilters}
-                                style={{
-                                    padding: '8px 16px',
-                                    background: '#95a5a6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase'
-                                }}
-                            >
-                                Limpar Filtros
-                            </button>
-                        </div>
-
-                        {/* Active Filters Summary */}
-                        {(filters.date || filters.month || filters.year || filters.supplier || filters.carrier) && (
-                            <div style={{
-                                marginTop: '15px',
-                                paddingTop: '15px',
-                                borderTop: '1px solid #eee',
-                                fontSize: '13px',
-                                color: '#666'
-                            }}>
-                                <strong>Filtros ativos:</strong>{' '}
-                                {filters.date && `Data: ${filters.date.split('-').reverse().join('/')} • `}
+                            <span>
+                                <strong>Filtros:</strong>{' '}
+                                {filters.date && `Escopo: ${filters.date.split('-').reverse().join('/')} • `}
                                 {filters.month && !filters.date && `Mês: ${monthNames[filters.month]} • `}
                                 {filters.year && !filters.date && `Ano: ${filters.year} • `}
                                 {filters.supplier && `Fornecedor: ${filters.supplier} • `}
-                                {filters.carrier && `Transportadora: ${filters.carrier}`}
-                                {' '}
-                                <span style={{ color: '#2e7d32', fontWeight: '600' }}>
-                                    ({filteredDeliveries.length} {filteredDeliveries.length === 1 ? 'resultado' : 'resultados'})
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                {filters.carrier && `Carrier: ${filters.carrier}`}
+                            </span>
+                            <span style={{ color: 'var(--color-success)', fontWeight: '700' }}>
+                                {filteredDeliveries.length} registros encontrados
+                            </span>
+                        </div>
+                    )}
+                </Card>
+            )}
 
-                {/* Form */}
-                {showForm && (
-                    <div style={{
-                        background: 'white',
-                        padding: '30px',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                        marginBottom: '30px'
+            {/* Form Section */}
+            {showForm && (
+                <Card style={{ marginBottom: '24px' }} padding="var(--space-8)">
+                    <h2 style={{
+                        fontSize: '20px',
+                        fontWeight: '800',
+                        color: 'var(--text-main)',
+                        marginBottom: '24px',
+                        letterSpacing: '-0.03em'
                     }}>
-                        <h2 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: '#333',
-                            marginBottom: '25px'
-                        }}>
-                            {editingId ? 'Editar Entrega' : 'Nova Entrega'}
-                        </h2>
+                        {editingId ? 'Editar Agendamento' : 'Novo Agendamento'}
+                    </h2>
 
-                        <form onSubmit={handleSubmit}>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                gap: '20px',
-                                marginBottom: '20px'
-                            }}>
-                                {/* Data */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Data *
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date"
-                                        value={formData.date}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Horário */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Horário *
-                                    </label>
-                                    <input
-                                        type="time"
-                                        name="time"
-                                        value={formData.time}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Transportadora */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Transportadora *
-                                    </label>
-                                    <select
-                                        name="carrier"
-                                        value={formData.carrier}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {carriers.map(c => (
-                                            <option key={c} value={c}>{c}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* Fornecedor */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Fornecedor *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="supplier"
-                                        value={formData.supplier}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Nome do fornecedor"
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Nota Fiscal */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Nota Fiscal *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="invoiceNumber"
-                                        value={formData.invoiceNumber}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Número da NF"
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Quantidade */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Quantidade *
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="quantity"
-                                        value={formData.quantity}
-                                        onChange={handleInputChange}
-                                        required
-                                        min="1"
-                                        placeholder="0"
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Volume */}
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555'
-                                    }}>
-                                        Volume *
-                                    </label>
-                                    <select
-                                        name="volumeType"
-                                        value={formData.volumeType}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    >
-                                        {volumeTypes.map(v => (
-                                            <option key={v} value={v}>{v}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* XML */}
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '8px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    color: '#555'
-                                }}>
-                                    XML
-                                </label>
-                                <input
-                                    type="text"
-                                    name="xml"
-                                    value={formData.xml}
-                                    onChange={handleInputChange}
-                                    placeholder="Código XML (opcional)"
-                                    style={{
-                                        width: '100%',
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '14px'
-                                    }}
-                                />
-                            </div>
-
-                            {/* Observação */}
-                            <div style={{ marginBottom: '25px' }}>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '8px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    color: '#555'
-                                }}>
-                                    Observação
-                                </label>
-                                <textarea
-                                    name="observations"
-                                    value={formData.observations}
-                                    onChange={handleInputChange}
-                                    placeholder="Observações adicionais (opcional)"
-                                    rows="3"
-                                    style={{
-                                        width: '100%',
-                                        padding: '10px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '14px',
-                                        fontFamily: 'inherit',
-                                        resize: 'vertical'
-                                    }}
-                                />
-                            </div>
-
-                            {/* Form Actions */}
-                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    style={{
-                                        padding: '10px 24px',
-                                        background: 'white',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#666'
-                                    }}
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    style={{
-                                        padding: '10px 24px',
-                                        background: '#2e7d32',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        color: 'white'
-                                    }}
-                                >
-                                    {editingId ? 'Atualizar' : 'Salvar'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Deliveries List */}
-                {filteredDeliveries.length > 0 ? (
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                        overflow: 'hidden'
-                    }}>
+                    <form onSubmit={handleSubmit}>
                         <div style={{
-                            padding: '20px 30px',
-                            borderBottom: '1px solid #eee'
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                            gap: '20px',
+                            marginBottom: '20px'
                         }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#333'
-                            }}>
-                                Entregas Registradas ({filteredDeliveries.length})
-                            </h3>
+                            <Input
+                                label="Data *"
+                                type="date"
+                                name="date"
+                                value={formData.date}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <Input
+                                label="Horário *"
+                                type="time"
+                                name="time"
+                                value={formData.time}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <Select
+                                label="Transportadora *"
+                                name="carrier"
+                                value={formData.carrier}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="">Selecione...</option>
+                                {carriers.map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </Select>
+
+                            <Input
+                                label="Fornecedor *"
+                                type="text"
+                                name="supplier"
+                                value={formData.supplier}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Nome do fornecedor"
+                            />
+
+                            <Input
+                                label="Nota Fiscal *"
+                                type="text"
+                                name="invoiceNumber"
+                                value={formData.invoiceNumber}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Número da NF"
+                            />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <Input
+                                    label="Quantidade *"
+                                    type="number"
+                                    name="quantity"
+                                    value={formData.quantity}
+                                    onChange={handleInputChange}
+                                    required
+                                    min="1"
+                                />
+
+                                <Select
+                                    label="Volume *"
+                                    name="volumeType"
+                                    value={formData.volumeType}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    {volumeTypes.map(v => (
+                                        <option key={v} value={v}>{v}</option>
+                                    ))}
+                                </Select>
+                            </div>
                         </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '14px'
-                            }}>
-                                <thead>
-                                    <tr style={{ background: '#f8f9fa' }}>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Data</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Horário</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Transportadora</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Fornecedor</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>NF</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Qtd</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: '600', color: '#555' }}>Volume</th>
-                                        <th style={{ padding: '12px 20px', textAlign: 'center', fontWeight: '600', color: '#555' }}>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredDeliveries.map((delivery, index) => (
-                                        <tr key={delivery.id} style={{
-                                            borderBottom: '1px solid #f0f0f0',
-                                            background: index % 2 === 0 ? 'white' : '#fafafa'
-                                        }}>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>
-                                                {delivery.date.split('-').reverse().join('/')}
-                                            </td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.time}</td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.carrier}</td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.supplier}</td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.invoiceNumber}</td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.quantity}</td>
-                                            <td style={{ padding: '12px 20px', color: '#333' }}>{delivery.volumeType}</td>
-                                            <td style={{ padding: '12px 20px', textAlign: 'center' }}>
-                                                <button
-                                                    onClick={() => handleEdit(delivery)}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        background: '#2196F3',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        color: 'white',
-                                                        fontSize: '12px',
-                                                        cursor: 'pointer',
-                                                        marginRight: '8px'
-                                                    }}
-                                                >
-                                                    Editar
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(delivery.id)}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        background: '#f44336',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        color: 'white',
-                                                        fontSize: '12px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    Excluir
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <Input
+                            label="XML (Opcional)"
+                            type="text"
+                            name="xml"
+                            value={formData.xml}
+                            onChange={handleInputChange}
+                            placeholder="Código ou link do XML"
+                        />
+
+                        <Textarea
+                            label="Observação"
+                            name="observations"
+                            value={formData.observations}
+                            onChange={handleInputChange}
+                            placeholder="Notas adicionais sobre a entrega..."
+                            containerStyle={{ marginTop: '20px' }}
+                        />
+
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '32px' }}>
+                            <Button
+                                variant="secondary"
+                                onClick={handleCancel}
+                                type="button"
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                            >
+                                {editingId ? 'Atualizar' : 'Salvar'}
+                            </Button>
                         </div>
-                    </div>
-                ) : deliveries.length > 0 && !showForm ? (
-                    <div style={{
-                        background: 'white',
-                        padding: '60px 30px',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                        textAlign: 'center'
-                    }}>
-                        <p style={{ color: '#999', fontSize: '16px', marginBottom: '20px' }}>
-                            Nenhuma entrega encontrada com os filtros selecionados
-                        </p>
-                        <button
-                            onClick={clearFilters}
-                            style={{
-                                padding: '12px 24px',
-                                background: '#95a5a6',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                color: 'white'
-                            }}
-                        >
-                            Limpar Filtros
-                        </button>
-                    </div>
-                ) : !showForm && (
-                    <div style={{
-                        background: 'white',
-                        padding: '60px 30px',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                        textAlign: 'center'
-                    }}>
-                        <p style={{ color: '#999', fontSize: '16px', marginBottom: '20px' }}>
-                            Nenhuma entrega registrada ainda
-                        </p>
-                        <button
-                            onClick={() => setShowForm(true)}
-                            style={{
-                                padding: '12px 24px',
-                                background: '#2e7d32',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                color: 'white'
-                            }}
-                        >
-                            + Registrar Primeira Entrega
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
+                    </form>
+                </Card>
+            )}
+
+            {/* List Section */}
+            {!showForm && (
+                <>
+                    {filteredDeliveries.length > 0 ? (
+                        <Card style={{ padding: 0, overflow: 'hidden' }}>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-elevated)' }}>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Data</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Hora</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Transportadora</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Fornecedor</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>NF</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Qtd/Vol</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'right', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredDeliveries.map((delivery) => (
+                                            <tr key={delivery.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                                <td style={{ padding: '14px 20px', fontWeight: '600' }}>
+                                                    {delivery.date ? delivery.date.split('-').reverse().join('/') : '-'}
+                                                </td>
+                                                <td style={{ padding: '14px 20px' }}>{delivery.time}</td>
+                                                <td style={{ padding: '14px 20px', fontWeight: '500' }}>{delivery.carrier}</td>
+                                                <td style={{ padding: '14px 20px' }}>{delivery.supplier}</td>
+                                                <td style={{ padding: '14px 20px' }}>{delivery.invoiceNumber}</td>
+                                                <td style={{ padding: '14px 20px' }}>{delivery.quantity} {delivery.volumeType}</td>
+                                                <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                        <Button variant="ghost" dense onClick={() => handleEdit(delivery)} style={{ color: 'var(--color-info)' }}>
+                                                            Editar
+                                                        </Button>
+                                                        <Button variant="ghost" dense onClick={() => handleDelete(delivery.id)} style={{ color: 'var(--color-error)' }}>
+                                                            Excluir
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    ) : deliveries.length > 0 ? (
+                        <Card padding="64px 24px" style={{ textAlign: 'center' }}>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+                                Nenhum agendamento encontrado para os filtros selecionados.
+                            </p>
+                            <Button variant="secondary" onClick={clearFilters}>
+                                Limpar Filtros
+                            </Button>
+                        </Card>
+                    ) : (
+                        <Card padding="80px 24px" style={{ textAlign: 'center' }}>
+                            <div style={{
+                                width: '64px', height: '64px',
+                                background: 'var(--bg-elevated)',
+                                borderRadius: '24px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 24px',
+                                color: 'var(--text-muted)'
+                            }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                                </svg>
+                            </div>
+                            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>Sem agenda</h3>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+                                Ainda não há entregas registradas nesta unidade.
+                            </p>
+                            <Button variant="primary" onClick={() => setShowForm(true)}>
+                                Nova Entrega
+                            </Button>
+                        </Card>
+                    )}
+                </>
+            )}
+        </PageContainer>
     );
 };
 

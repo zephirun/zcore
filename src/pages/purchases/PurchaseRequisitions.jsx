@@ -13,7 +13,7 @@ const PurchaseRequisitions = () => {
                     Requisições de Compras
                 </h2>
 
-                <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-card)' }}>
                     <div style={{
                         padding: '10px 15px',
                         background: activeUnit === 'madville' ? 'rgba(33, 150, 243, 0.1)' : 'rgba(76, 175, 80, 0.1)',

@@ -1,3 +1,5 @@
+import Input from '@/components/ui/Input';
+
 import React, { useCallback } from 'react';
 import Papa from 'papaparse';
 
@@ -63,7 +65,7 @@ const FileUpload = ({ onDataParsed }) => {
                     Você pode usar o <b>CSV Padrão</b> ou o <b>Formato Exportado</b> (Largo).
                 </p>
 
-                <input
+                <Input
                     type="file"
                     accept=".csv"
                     onChange={handleFileUpload}

@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -36,7 +38,7 @@ class ErrorBoundary extends React.Component {
                         <br />
                         {this.state.errorInfo && this.state.errorInfo.componentStack}
                     </details>
-                    <button
+                    <Button
                         onClick={() => window.location.reload()}
                         style={{
                             marginTop: '15px',
@@ -49,7 +51,7 @@ class ErrorBoundary extends React.Component {
                         }}
                     >
                         Recarregar Página
-                    </button>
+                    </Button>
                 </div>
             );
         }

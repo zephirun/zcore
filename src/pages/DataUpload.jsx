@@ -1,10 +1,15 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Card from '@/components/ui/Card';
+import PageContainer from '@/components/ui/PageContainer';
+
 import React, { useState } from 'react';
 
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 
 const DataUpload = () => {
-    const { saveReportData, clearData, activeUnit, AVAILABLE_UNITS } = useData();
+    const { saveReportData, salesData, clearData, activeUnit, AVAILABLE_UNITS } = useData();
     const navigate = useNavigate();
     const [uploadStatus, setUploadStatus] = useState({ message: '', type: '' });
     const [isProcessing, setIsProcessing] = useState(false);
@@ -172,6 +177,41 @@ const DataUpload = () => {
         }
     };
 
+    const handleDownloadBackup = () => {
+        if (!salesData || salesData.length === 0) {
+            setUploadStatus({ message: "Não há dados para salvar nesta unidade.", type: 'error' });
+            return;
+        }
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+            JSON.stringify(salesData)
+        )}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = `backup_${activeUnit}_${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+    };
+
+    const handleRestoreBackup = (e) => {
+        const fileReader = new FileReader();
+        if (e.target.files && e.target.files[0]) {
+            fileReader.readAsText(e.target.files[0], "UTF-8");
+            fileReader.onload = async (event) => {
+                try {
+                    const parsedData = JSON.parse(event.target.result);
+                    if (Array.isArray(parsedData)) {
+                        await saveReportData(parsedData);
+                        setUploadStatus({ message: "Backup JSON restaurado com sucesso!", type: 'success' });
+                    } else {
+                        setUploadStatus({ message: "Arquivo de backup inválido.", type: 'error' });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    setUploadStatus({ message: "Erro ao ler o arquivo de backup.", type: 'error' });
+                }
+            };
+        }
+    };
+
     const uploadOptions = [
         {
             id: 'sales-analysis',
@@ -190,97 +230,110 @@ const DataUpload = () => {
     ];
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f1f5f9' }}>
-
-
-            <div style={{ padding: '40px 20px', maxWidth: '1000px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '32px' }}>
-                    <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>Upload de Dados</h1>
-                    <p style={{ color: '#64748b' }}>Central de importação de arquivos para alimentação dos módulos.</p>
-                </div>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
+            <PageContainer maxWidth="800px" title="Central de Importação" subtitle="Importação de dados oficiais para alimentação dos módulos estratégicos.">
 
                 {uploadStatus.message && (
                     <div style={{
-                        padding: '16px',
-                        borderRadius: '12px',
-                        marginBottom: '24px',
-                        background: uploadStatus.type === 'success' ? '#f0fdf4' : uploadStatus.type === 'error' ? '#fef2f2' : '#eff6ff',
-                        color: uploadStatus.type === 'success' ? '#15803d' : uploadStatus.type === 'error' ? '#b91c1c' : '#1d4ed8',
-                        border: `1px solid ${uploadStatus.type === 'success' ? '#bbf7d0' : uploadStatus.type === 'error' ? '#fecaca' : '#bfdbfe'}`,
+                        padding: 'var(--space-4) var(--space-5)',
+                        borderRadius: '16px',
+                        marginBottom: 'var(--space-6)',
+                        background: uploadStatus.type === 'success' ? 'rgba(34, 197, 94, 0.08)' : uploadStatus.type === 'error' ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-card)',
+                        color: uploadStatus.type === 'success' ? 'var(--color-success)' : uploadStatus.type === 'error' ? 'var(--color-error)' : 'var(--text-main)',
+                        border: `1px solid ${uploadStatus.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : uploadStatus.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'var(--border-color)'}`,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px'
+                        gap: 'var(--space-3)',
+                        animation: 'slideDown 0.3s ease-out'
                     }}>
-                        {uploadStatus.type === 'success' ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        )}
-                        <span style={{ fontWeight: '500' }}>{uploadStatus.message}</span>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            background: uploadStatus.type === 'success' ? 'var(--color-success)' : uploadStatus.type === 'error' ? 'var(--color-error)' : 'var(--bg-input)',
+                            color: 'white'
+                        }}>
+                            {uploadStatus.type === 'success' ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            )}
+                        </div>
+                        <span style={{ fontSize: '13px', fontWeight: 'var(--font-bold)' }}>{uploadStatus.message}</span>
                     </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'var(--space-6)' }}>
                     {uploadOptions.map(option => (
-                        <div key={option.id} style={{
-                            background: 'white',
-                            borderRadius: '16px',
-                            padding: '32px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            border: '1px solid #e2e8f0',
+                        <Card key={option.id} padding="var(--space-8)" style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '24px'
+                            gap: 'var(--space-8)'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)' }}>
                                 <div style={{
-                                    width: '56px',
-                                    height: '56px',
-                                    borderRadius: '12px',
-                                    background: '#eff6ff',
-                                    color: '#2563eb',
+                                    width: '64px',
+                                    height: '64px',
+                                    borderRadius: '16px',
+                                    background: 'var(--bg-input)',
+                                    color: 'var(--color-primary)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+                                    border: '1px solid var(--border-color)',
+                                    boxShadow: 'var(--shadow-sm)'
                                 }}>
                                     {option.icon}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>{option.title}</h3>
-                                    <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>{option.description}</p>
+                                    <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)', marginBottom: 'var(--space-1)', letterSpacing: '-0.02em' }}>{option.title}</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.5', maxWidth: '400px' }}>{option.description}</p>
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => navigate(option.targetPage)}
                                     style={{
-                                        padding: '10px 16px',
-                                        borderRadius: '8px',
-                                        background: '#f8fafc',
-                                        border: '1px solid #e2e8f0',
-                                        color: '#64748b',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px'
+                                        fontSize: '12px',
+                                        fontWeight: 'var(--font-bold)',
+                                        color: 'var(--color-primary)'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                                    onMouseLeave={e => e.currentTarget.style.background = '#f8fafc'}
                                 >
-                                    Ver Módulo
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                                </button>
+                                    Abrir Módulo &rarr;
+                                </Button>
                             </div>
 
                             <div style={{
-                                height: '1px',
-                                background: '#f1f5f9'
-                            }}></div>
+                                padding: 'var(--space-8)',
+                                border: '2px dashed var(--border-color)',
+                                borderRadius: '20px',
+                                background: 'var(--bg-main)44',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 'var(--space-4)',
+                                position: 'relative',
+                                transition: 'all 0.2s ease'
+                            }}>
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" style={{ opacity: 0.3 }}>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
 
-                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                <div style={{ position: 'relative', flex: 1 }}>
-                                    <input
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '14px', fontWeight: 'var(--font-bold)', color: 'var(--text-main)', marginBottom: '4px' }}>
+                                        {isProcessing ? 'Enviando...' : 'Arraste seu arquivo CSV ou clique abaixo'}
+                                    </div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                        Formatos aceitos: .csv (separado por ponto e vírgula)
+                                    </div>
+                                </div>
+
+                                <div style={{ position: 'relative', width: '240px', marginTop: 'var(--space-2)' }}>
+                                    <Input
                                         type="file"
                                         accept=".csv"
                                         onChange={handleFileUpload}
@@ -289,53 +342,71 @@ const DataUpload = () => {
                                             position: 'absolute',
                                             inset: 0,
                                             opacity: 0,
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            zIndex: 1
                                         }}
                                     />
-                                    <div style={{
-                                        padding: '14px',
-                                        background: '#2563eb',
-                                        color: 'white',
-                                        borderRadius: '10px',
-                                        textAlign: 'center',
-                                        fontWeight: '600',
-                                        fontSize: '14px',
-                                        transition: 'all 0.2s',
-                                        opacity: isProcessing ? 0.7 : 1
-                                    }}>
-                                        {isProcessing ? 'Enviando...' : 'Selecionar Arquivo CSV'}
+                                    <Button
+                                        variant="primary"
+                                        fullWidth
+                                        disabled={isProcessing}
+                                        style={{ pointerEvents: 'none' }}
+                                    >
+                                        Selecionar Arquivo
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: 'var(--space-6)', background: 'var(--bg-input)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                                    <div>
+                                        <h4 style={{ fontSize: '13px', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)', margin: 0 }}>Backup & Restauração Local</h4>
+                                        <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>Exportar ou importar banco de dados em formato JSON.</p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={handleDownloadBackup}
+                                            style={{ fontSize: '11px' }}
+                                        >
+                                            Exportar JSON
+                                        </Button>
+                                        <div style={{ position: 'relative' }}>
+                                            <Button variant="secondary" size="sm" style={{ pointerEvents: 'none', fontSize: '11px' }}>
+                                                Restaurar JSON
+                                            </Button>
+                                            <Input
+                                                type="file"
+                                                accept=".json"
+                                                onChange={handleRestoreBackup}
+                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', padding: 0 }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-
-                                <button
-                                    onClick={handleClearData}
-                                    style={{
-                                        padding: '14px 20px',
-                                        borderRadius: '10px',
-                                        background: 'transparent',
-                                        border: '1px solid #ef4444',
-                                        color: '#ef4444',
-                                        fontWeight: '600',
-                                        fontSize: '14px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    Limpar Dados
-                                </button>
+                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '0 0 var(--space-4) 0' }}></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                                            Unidade: <span style={{ color: 'var(--text-main)' }}>{AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name}</span>
+                                        </span>
+                                    </div>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={handleClearData}
+                                        style={{ opacity: 0.8, fontSize: '11px' }}
+                                    >
+                                        Limpar Base de Dados
+                                    </Button>
+                                </div>
                             </div>
-
-                            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
-                                <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
-                                    Unidade Ativa: <strong>{AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name}</strong>
-                                </p>
-                            </div>
-                        </div>
+                        </Card>
                     ))}
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 };

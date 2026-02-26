@@ -1,3 +1,5 @@
+import Input from '@/components/ui/Input';
+
 import React, { useState, useRef, useEffect } from 'react';
 
 const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..." }) => {
@@ -35,7 +37,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                 style={{
                     padding: '8px 12px',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '4px',
+                    borderRadius: '8px',
                     background: 'var(--bg-input)',
                     cursor: 'pointer',
                     display: 'flex',
@@ -66,8 +68,8 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                     right: 0,
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '0 0 4px 4px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    borderRadius: '8px',
+                    boxShadow: 'var(--shadow-md)',
                     zIndex: 1000,
                     maxHeight: '300px',
                     overflowY: 'auto',
@@ -75,7 +77,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                 }}>
                     {/* Search Input */}
                     <div style={{ padding: '8px', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: 'var(--bg-card)' }}>
-                        <input
+                        <Input
                             type="text"
                             autoFocus
                             placeholder="Digite para buscar..."
@@ -107,7 +109,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                                         cursor: 'pointer',
                                         borderBottom: '1px solid var(--border-color)',
                                         background: value === opt ? 'var(--color-primary)' : 'var(--bg-card)',
-                                        color: value === opt ? 'white' : 'var(--text-main)'
+                                        color: value === opt ? 'var(--bg-main)' : 'var(--text-main)'
                                     }}
                                     onMouseEnter={(e) => e.target.style.background = 'var(--bg-input)'}
                                     onMouseLeave={(e) => e.target.style.background = value === opt ? 'var(--color-primary)' : 'var(--bg-card)'}

@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -26,13 +28,13 @@ class ErrorBoundary extends React.Component {
                         <br />
                         {this.state.errorInfo && this.state.errorInfo.componentStack}
                     </details>
-                    <button
+                    <Button
                         onClick={() => window.location.href = '/'}
                         style={{ marginTop: '20px', padding: '10px 20px', background: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}
                     >
                         Voltar para a Home
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={() => {
                             localStorage.clear();
                             window.location.reload();
@@ -40,7 +42,7 @@ class ErrorBoundary extends React.Component {
                         style={{ marginLeft: '10px', marginTop: '20px', padding: '10px 20px', background: '#e74c3c', color: 'white', border: 'none', cursor: 'pointer' }}
                     >
                         Limpar Dados e Recarregar
-                    </button>
+                    </Button>
                 </div>
             );
         }

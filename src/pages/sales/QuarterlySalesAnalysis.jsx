@@ -1,38 +1,37 @@
 import React from 'react';
-
 import { useData } from '../../context/DataContext';
+import PageContainer from '@/components/ui/PageContainer';
+import Card from '@/components/ui/Card';
 
 const QuarterlySalesAnalysis = () => {
     const { activeUnit } = useData();
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'var(--font-main)' }}>
-
-            <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
-                <h2 style={{ color: '#2c3e50', marginBottom: '20px', borderBottom: '2px solid #2e7d32', paddingBottom: '10px', display: 'inline-block' }}>
-                    Faturamento Trimestral
-                </h2>
-
-                <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <div style={{
-                        padding: '10px 15px',
-                        background: activeUnit === 'madville' ? '#e3f2fd' : '#e8f5e9',
-                        color: activeUnit === 'madville' ? '#1565c0' : '#2e7d32',
-                        borderRadius: '4px',
-                        marginBottom: '20px',
-                        fontWeight: '600',
-                        display: 'inline-block'
-                    }}>
-                        UNIDADE ATIVA: {activeUnit === 'madville' ? 'Madville' : 'Curitiba'}
-                    </div>
-
-                    <p style={{ color: '#666' }}>
-                        Módulo de Análise Trimestral de Vendas em desenvolvimento.
-                        Aqui serão exibidos os dados de vendedores X clientes por trimestre para a unidade <strong>{activeUnit === 'madville' ? 'Madville' : 'Curitiba'}</strong>.
-                    </p>
+        <PageContainer maxWidth="1200px" title="Faturamento Trimestral" subtitle={`Visão consolidada para a unidade ${activeUnit === 'madville' ? 'Madville' : 'Curitiba'}`}>
+            <Card padding="40px">
+                <div style={{
+                    padding: '8px 16px',
+                    backgroundColor: 'var(--color-primary-dim)',
+                    color: 'var(--color-primary)',
+                    borderRadius: '16px',
+                    marginBottom: '24px',
+                    fontWeight: '800',
+                    fontSize: '12px',
+                    display: 'inline-block',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                }}>
+                    Módulo em Desenvolvimento
                 </div>
-            </div>
-        </div>
+
+                <p style={{ color: 'var(--text-main)', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
+                    O módulo de Análise Trimestral de Vendas está sendo preparado para oferecer uma visão multidimensional de vendedores X clientes para a unidade <strong>{activeUnit === 'madville' ? 'Madville' : 'Curitiba'}</strong>.
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '16px', margin: '16px 0 0' }}>
+                    Esta funcionalidade permitirá comparar a evolução do mix de produtos e faturamento entre trimestres consecutivos, utilizando o novo motor de inteligência estratégica do ZCORE.
+                </p>
+            </Card>
+        </PageContainer>
     );
 };
 

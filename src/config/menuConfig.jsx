@@ -604,6 +604,21 @@ export const allModules = [
         path: '/financial/intelligence'
     },
     {
+        id: 'client-summary',
+        title: 'Resumo do Cliente',
+        subtitle: 'Débitos, Créditos e Situação',
+        category: 'financeiro',
+        health: 'stable',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <polyline points="16 11 18 13 22 9"></polyline>
+            </svg>
+        ),
+        path: '/financial/client-summary'
+    },
+    {
         id: 'marketing-schedule',
         title: 'Cronograma',
         subtitle: 'Planejamento de Marketing',
@@ -645,6 +660,21 @@ export const allModules = [
             </svg>
         ),
         path: '/it/assets',
+    },
+    {
+        id: 'strategic-dashboard',
+        title: 'Radar Estratégico',
+        subtitle: 'Visão Executiva ZR',
+        category: 'diretoria',
+        size: 'large',
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m16 12-4-4-4 4"></path>
+                <path d="m12 8v8"></path>
+            </svg>
+        ),
+        path: '/board/strategic'
     },
     {
         id: 'team-portal',

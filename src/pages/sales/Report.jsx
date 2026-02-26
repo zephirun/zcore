@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+
 import React, { useState, useMemo } from 'react';
 import logoGmad from '../../assets/logo.png';
 import KPICards from '../../components/KPICards';
@@ -78,31 +80,35 @@ const Report = () => {
     if (!salesData || salesData.length === 0) {
         return (
             <div style={{
-                padding: '50px', textAlign: 'center', fontFamily: 'var(--font-main)'
+                padding: '80px 40px', textAlign: 'center', fontFamily: 'var(--font-main)',
+                color: 'var(--text-muted)',
             }}>
-                <h2>Nenhum dado disponível.</h2>
+                <h2 style={{ color: 'var(--text-main)', fontWeight: '700', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+                    Nenhum dado disponível
+                </h2>
 
                 {userRole === 'admin' ? (
                     <>
-                        <p>É necessário carregar a base de dados mensal.</p>
-                        <button
+                        <p style={{ fontSize: '14px', marginBottom: '24px' }}>É necessário carregar a base de dados mensal.</p>
+                        <Button
                             onClick={() => navigate('/admin/upload')}
                             style={{
-                                marginTop: '20px',
                                 padding: '10px 20px',
-                                background: '#3498db',
-                                color: 'white',
+                                background: 'var(--text-main)',
+                                color: 'var(--bg-main)',
                                 border: 'none',
-                                borderRadius: '4px',
+                                borderRadius: '16px',
                                 cursor: 'pointer',
-                                fontWeight: 'bold'
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                fontFamily: 'var(--font-main)',
                             }}
                         >
                             Ir para Central de Upload
-                        </button>
+                        </Button>
                     </>
                 ) : (
-                    <p>Por favor, solicite ao administrador para carregar os dados do mês.</p>
+                    <p style={{ fontSize: '14px' }}>Por favor, solicite ao administrador para carregar os dados do mês.</p>
                 )}
             </div>
         );
@@ -196,12 +202,12 @@ const Report = () => {
                 <Filters
                     rightElement={
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <button
+                            <Button
                                 onClick={() => setShowInsights(true)}
                                 className="btn-insights"
                                 style={{
                                     padding: '8px 16px',
-                                    borderRadius: '8px',
+                                    borderRadius: '16px',
                                     cursor: 'pointer',
                                     fontSize: '13px',
                                     fontWeight: '600',
@@ -217,7 +223,7 @@ const Report = () => {
                                     <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
                                 </svg>
                                 Insights
-                            </button>
+                            </Button>
                             <ExportActions data={filteredData} />
                         </div>
                     }

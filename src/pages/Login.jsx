@@ -1,26 +1,49 @@
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+import logoZeph from '../assets/logo_zeph_new.png';
+
+// 1. Definição do Schema de Validação
+const loginSchema = z.object({
+    username: z.string().min(1, 'Informe seu usuário para acessar.'),
+    password: z.string().min(1, 'A senha é obrigatória.'),
+});
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [authError, setAuthError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login, switchUnit } = useData();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    // 2. Setup do React Hook Form + Zod
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            username: '',
+            password: ''
+        }
+    });
+
+    const onFormSubmit = async (data) => {
+        setAuthError('');
+        setIsLoading(true);
 
         try {
-            const result = await login(username, password);
+            const result = await login(data.username, data.password);
             if (result && result.success) {
                 const foundUser = result.user;
-                // Check if user is restricted to a single unit
                 const allowedUnit = foundUser.allowedUnit;
-
                 if (allowedUnit && allowedUnit !== 'null') {
                     switchUnit(allowedUnit);
                     navigate('/menu');
@@ -28,214 +51,145 @@ const Login = () => {
                     navigate('/units');
                 }
             } else {
-                setError('Usuário ou senha incorretos');
+                setAuthError('Usuário ou senha incorretos');
             }
         } catch (err) {
-            setError('Erro ao realizar login');
+            setAuthError('Erro ao realizar login no servidor');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div style={{
-            height: '100vh',
+            minHeight: '100vh',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#F3F4F6', // GMAD Soft Gray background
+            background: 'var(--bg-main)',
             fontFamily: 'var(--font-main)',
-            padding: '20px'
         }}>
+            {/* LEFT — Branding */}
             <div style={{
-                background: 'var(--bg-card)',
-                borderRadius: '12px',
-                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
-                width: '100%',
-                maxWidth: '900px',
+                flex: 1,
                 display: 'flex',
-                overflow: 'hidden',
-                minHeight: '550px'
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '48px 56px',
+                borderRight: '1px solid var(--border-color)',
             }}>
-                {/* LEFT COLUMN: Branding & Slogan */}
-                <div style={{
-                    flex: '1',
-                    background: 'var(--bg-card)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '60px',
-                    borderRight: '1px solid #F1F1F1',
-                    textAlign: 'center'
-                }}>
-                    <img
-                        src={logo}
-                        alt="GMAD"
-                        style={{
-                            height: '80px',
-                            marginBottom: '40px',
-                            objectFit: 'contain'
-                        }}
-                    />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img src={logoZeph} alt="ZCore" style={{ height: '32px', objectFit: 'contain' }} />
+                </div>
+
+                <div>
                     <h1 style={{
-                        fontSize: '32px',
+                        fontSize: '40px',
                         fontWeight: '800',
                         color: 'var(--text-main)',
+                        letterSpacing: '-0.04em',
+                        lineHeight: '1.1',
                         marginBottom: '16px',
-                        letterSpacing: '-0.02em',
-                        lineHeight: '1.1'
                     }}>
-                        Plataforma Integrada
+                        Plataforma<br />Integrada Z.CORE
                     </h1>
                     <p style={{
-                        color: '#666',
-                        fontSize: '16px',
+                        color: 'var(--text-muted)',
+                        fontSize: '15px',
                         lineHeight: '1.6',
-                        maxWidth: '280px'
+                        maxWidth: '340px',
+                        letterSpacing: '-0.01em',
                     }}>
-                        A solução completa para inteligência de dados, gestão comercial e controle de processos.
+                        Inteligência de dados, gestão comercial e controle de processos num único lugar.
                     </p>
                 </div>
 
-                {/* RIGHT COLUMN: Login Form */}
-                <div style={{
-                    flex: '1',
-                    padding: '60px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center'
-                }}>
-                    <div style={{ marginBottom: '32px' }}>
-                        <h2 style={{
-                            fontSize: '24px',
-                            fontWeight: '800',
-                            color: 'var(--text-main)',
-                            marginBottom: '8px'
-                        }}>
-                            Bem-vindo de volta!
-                        </h2>
-                        <p style={{
-                            color: '#666',
-                            fontSize: '14px'
-                        }}>
-                            Insira suas credenciais para acessar
-                        </p>
-                    </div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>
+                    © {new Date().getFullYear()} Z.CORE. Todos os direitos reservados.
+                </p>
+            </div>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div style={{ textAlign: 'left' }}>
-                            <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                color: '#444',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em'
-                            }}>Usuário</label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Seu usuário"
-                                style={{
-                                    width: '100%',
-                                    padding: '14px 16px',
-                                    border: '1px solid #E5E7EB',
-                                    borderRadius: '8px',
-                                    fontSize: '15px',
-                                    background: 'var(--bg-input)',
-                                    color: 'var(--text-main)',
-                                    outline: 'none',
-                                    transition: 'all 0.2s',
-                                    fontFamily: 'var(--font-main)'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = 'var(--color-primary)';
-                                    e.target.style.boxShadow = '0 0 0 4px rgba(228, 87, 55, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = '#E5E7EB';
-                                    e.target.style.boxShadow = 'none';
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ textAlign: 'left' }}>
-                            <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                color: '#444',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em'
-                            }}>Senha</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                style={{
-                                    width: '100%',
-                                    padding: '14px 16px',
-                                    border: '1px solid #E5E7EB',
-                                    borderRadius: '8px',
-                                    fontSize: '15px',
-                                    background: 'var(--bg-input)',
-                                    color: 'var(--text-main)',
-                                    outline: 'none',
-                                    transition: 'all 0.2s',
-                                    fontFamily: 'var(--font-main)'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = 'var(--color-primary)';
-                                    e.target.style.boxShadow = '0 0 0 4px rgba(228, 87, 55, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = '#E5E7EB';
-                                    e.target.style.boxShadow = 'none';
-                                }}
-                            />
-                        </div>
-
-                        {error && (
-                            <div style={{
-                                padding: '12px',
-                                background: '#FFF5F5',
-                                color: '#E02424',
-                                fontSize: '13px',
-                                borderRadius: '8px',
-                                fontWeight: '600',
-                                border: '1px solid #FDA4AF'
-                            }}>
-                                {error}
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            className="active-press"
-                            style={{
-                                padding: '16px',
-                                background: 'var(--color-primary)', // GMAD Orange
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '16px',
-                                fontWeight: '800',
-                                marginTop: '10px',
-                                letterSpacing: '0.05em',
-                                textTransform: 'uppercase',
-                                fontFamily: 'var(--font-main)',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 4px 6px -1px rgba(228, 87, 55, 0.3)'
-                            }}
-                        >
-                            ENTRAR
-                        </button>
-                    </form>
+            {/* RIGHT — Login form */}
+            <div style={{
+                width: '420px',
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                padding: '48px 56px',
+                background: 'var(--bg-card)',
+            }}>
+                <div style={{ marginBottom: '36px' }}>
+                    <h2 style={{
+                        fontSize: '22px',
+                        fontWeight: '700',
+                        color: 'var(--text-main)',
+                        letterSpacing: '-0.03em',
+                        marginBottom: '6px',
+                    }}>
+                        Bem-vindo de volta
+                    </h2>
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>
+                        Insira suas credenciais para continuar
+                    </p>
                 </div>
+
+                <form onSubmit={handleSubmit(onFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                    <Input
+                        label="Usuário"
+                        placeholder="Seu usuário de acesso"
+                        autoComplete="username"
+                        error={errors.username?.message}
+                        {...register('username')}
+                    />
+
+                    <Input
+                        type="password"
+                        label="Senha"
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        error={errors.password?.message}
+                        {...register('password')}
+                    />
+
+                    {authError && (
+                        <div style={{
+                            marginTop: '8px',
+                            padding: '10px 14px',
+                            background: 'rgba(239, 68, 68, 0.08)',
+                            color: 'var(--color-error)',
+                            fontSize: '13px',
+                            borderRadius: '16px',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            letterSpacing: '-0.01em',
+                        }}>
+                            {authError}
+                        </div>
+                    )}
+
+                    <Button
+                        type="submit"
+                        disabled={isLoading}
+                        style={{
+                            marginTop: '12px',
+                            padding: '12px',
+                            background: 'var(--text-main)',
+                            color: 'var(--bg-main)',
+                            border: 'none',
+                            borderRadius: '16px',
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            letterSpacing: '-0.01em',
+                            fontFamily: 'var(--font-main)',
+                            transition: 'transform var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard)',
+                            opacity: isLoading ? 0.6 : 1,
+                        }}
+                        onMouseEnter={e => { if (!isLoading) e.currentTarget.style.opacity = '0.85'; }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = isLoading ? '0.6' : '1'; }}
+                    >
+                        {isLoading ? 'Entrando...' : 'Entrar'}
+                    </Button>
+                </form>
             </div>
         </div>
     );
