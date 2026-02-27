@@ -1,12 +1,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as api from '../services/api';
 import { fetchSyntheticSalesSummary, executeOracleQuery, fetchClientSummary, searchClients } from '../services/oracleService';
+import { useCompany } from './CompanyContext';
 
 export const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+    const { activeCompanyId } = useCompany();
     const [salesData, setSalesData] = useState([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeUnit, setActiveUnit] = useState('madville');
@@ -24,16 +26,11 @@ export const DataProvider = ({ children }) => {
     const [selectedQuarter, setSelectedQuarter] = useState(0); // Q1 by default
     const [quarterData, setQuarterData] = useState([]);
     const [globalFilters, setGlobalFilters] = useState({ vendor: 'Selecionar Todos', client: 'Selecionar Todos', representative: 'Selecionar Todos', ranking: 'Sem Ordenação' });
-    // Initialize with system preference if no localStorage
+    // Initialize — always dark by default (premium SaaS default)
     const [theme, setTheme] = useState(() => {
         const storedTheme = localStorage.getItem('gmad_theme');
         if (storedTheme) return storedTheme;
-
-        // OS level preference fallback
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
+        return 'dark'; // Default to dark — premium SaaS experience
     });
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Sidebar state
 
@@ -574,10 +571,10 @@ export const DataProvider = ({ children }) => {
             setDensity,
             sidebarCollapsed,
             setSidebarCollapsed,
-            fetchSyntheticSummary: fetchSyntheticSalesSummary,
-            fetchClientSummary,
-            searchClients,
-            executeOracleQuery
+            fetchSyntheticSummary: (dtini, dtfim) => fetchSyntheticSalesSummary(dtini, dtfim, activeCompanyId),
+            fetchClientSummary: (idpess) => fetchClientSummary(idpess, activeCompanyId),
+            searchClients: (q) => searchClients(q, activeCompanyId),
+            executeOracleQuery: (sql, binds) => executeOracleQuery(sql, binds, activeCompanyId)
         }}>
             {children}
         </DataContext.Provider>

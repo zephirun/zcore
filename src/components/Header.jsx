@@ -7,10 +7,12 @@ import logoGmad from '../assets/logo.png';
 import logoGmadWhite from '../assets/logo2.png';
 import logoZeph from '../assets/logo_zeph_new.png';
 import { useData } from '../context/DataContext';
+import { useCompany } from '../context/CompanyContext';
 import { categories, allModules } from '../config/menuConfig';
 
 const Header = () => {
     const { username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed, setSidebarCollapsed, toggleTheme, density, setDensity } = useData();
+    const { activeCompany, switchCompany, companies } = useCompany();
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -294,38 +296,46 @@ const Header = () => {
                 {/* Right: Actions */}
                 <div style={{ flex: 1, display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'flex-end' }}>
 
-                    {/* Unit selector */}
+                    {/* Company/Unit selector */}
                     <div ref={unitRef} onClick={() => setIsUnitMenuOpen(!isUnitMenuOpen)}
                         style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', position: 'relative', padding: '5px 10px', borderRadius: '8px', transition: 'background 0.15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={activeCompany?.color || 'var(--text-muted)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Unidade</span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Empresa</span>
                             <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
-                                {(AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name || 'Selecione')}
+                                {activeCompany?.shortName || activeCompany?.name || 'Selecione'}
                             </span>
                         </div>
                         {isUnitMenuOpen && (
                             <div style={{ ...dropdownStyle, top: '46px', right: '0', width: '180px', padding: '6px' }}>
-                                {AVAILABLE_UNITS.map(unit => (
+                                {Object.values(companies).map(company => (
                                     <div
-                                        key={unit.id}
-                                        onClick={() => { switchUnit(unit.id); setIsUnitMenuOpen(false); }}
+                                        key={company.id}
+                                        onClick={() => {
+                                            switchCompany(company.id);
+                                            // Sync with legacy unit
+                                            if (AVAILABLE_UNITS.some(u => u.id === company.id)) {
+                                                switchUnit(company.id);
+                                            }
+                                            setIsUnitMenuOpen(false);
+                                        }}
                                         style={{
                                             ...dropdownItemStyle,
-                                            color: activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)',
-                                            fontWeight: activeUnit === unit.id ? '600' : '400',
+                                            color: activeCompany.id === company.id ? 'var(--text-main)' : 'var(--text-muted)',
+                                            fontWeight: activeCompany.id === company.id ? '600' : '400',
                                             borderRadius: '6px'
                                         }}
                                         onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = activeCompany.id === company.id ? 'var(--text-main)' : 'var(--text-muted)'; }}
                                     >
-                                        {unit.name}
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: company.color, marginRight: '8px' }} />
+                                        {company.name}
                                     </div>
                                 ))}
                             </div>

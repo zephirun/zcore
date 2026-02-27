@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
+import { CompanyProvider } from './context/CompanyContext.jsx';
+import { DbModeProvider } from './context/DbModeContext.jsx';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/react-query.js';
@@ -92,6 +94,10 @@ import MarketingSchedule from './pages/marketing/MarketingSchedule';
 // Board Pages
 import DRE from './pages/board/DRE';
 import StrategicDashboard from './pages/board/StrategicDashboard';
+
+// Settings Pages
+import SettingsBilling from './pages/settings/SettingsBilling';
+import SettingsApi from './pages/settings/SettingsApi';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -225,6 +231,10 @@ const AppRoutes = () => {
                     <Route path="/board/dre" element={<DRE />} />
                     <Route path="/board/strategic" element={<StrategicDashboard />} />
 
+                    {/* Settings Routes */}
+                    <Route path="/settings/billing" element={<SettingsBilling />} />
+                    <Route path="/settings/api" element={<SettingsApi />} />
+
                     {/* Admin Only */}
                     <Route path="/admin" element={
                         <AdminRoute>
@@ -271,16 +281,20 @@ const ThemeController = () => {
 
 function App() {
     return (
-        <QueryClientProvider client={queryClient}>
-            <DataProvider>
-                <ThemeController />
-                <ToastProvider>
-                    <AppRoutes />
-                </ToastProvider>
-            </DataProvider>
-            {/* Devtools only appear in development mode */}
-            <ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
-        </QueryClientProvider>
+        <CompanyProvider>
+            <DbModeProvider>
+                <QueryClientProvider client={queryClient}>
+                    <DataProvider>
+                        <ThemeController />
+                        <ToastProvider>
+                            <AppRoutes />
+                        </ToastProvider>
+                    </DataProvider>
+                    {/* Devtools only appear in development mode */}
+                    <ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
+                </QueryClientProvider>
+            </DbModeProvider>
+        </CompanyProvider>
     );
 }
 

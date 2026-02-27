@@ -1,16 +1,31 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { allModules, categories } from '../config/menuConfig';
-import { ChevronRight, Grid } from 'lucide-react';
+import { Grid } from 'lucide-react';
+
+
+// Derive icon palette from the category's own color (same source as sidebar)
+const hexToRgba = (hex, alpha) => {
+    const h = (hex || '#7C6EF8').replace('#', '');
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+};
+
+const getPalette = (cat) => {
+    if (!cat?.color) return { bg: 'rgba(124,110,248,0.12)', color: '#7C6EF8' };
+    return { color: cat.color, bg: hexToRgba(cat.color, 0.12) };
+};
 
 const Menu = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { userRole, allowedModules, name } = useData();
-
-    // The active category for the module grid at the bottom
-    const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || categories[0].id);
+    const [activeCategory, setActiveCategory] = useState(
+        searchParams.get('category') || categories[0]?.id
+    );
 
     const handleCategoryClick = (id) => {
         setActiveCategory(id);
@@ -18,26 +33,28 @@ const Menu = () => {
     };
 
     const visibleCategories = categories.filter(cat => {
-        const categoryModules = allModules.filter(m => m.category === cat.id);
-        if (categoryModules.length === 0) return false;
-        return categoryModules.some(m =>
-            userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)) || m.id === 'sales-simulation'
-        ) && !cat.hidden;
+        if (cat.hidden) return false;
+        return allModules.some(m =>
+            m.category === cat.id &&
+            (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)))
+        );
     });
 
     const currentModules = allModules.filter(m =>
-        (activeCategory ? m.category === activeCategory : true) &&
-        (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)) || m.id === 'sales-simulation')
+        m.category === activeCategory &&
+        (userRole === 'admin' || (allowedModules && allowedModules.includes(m.id)))
     );
-    const firstName = name ? name.split(' ')[0] : 'Usuário';
 
-    // Greeting logic based on São Paulo time
+    const firstName = name ? name.split(' ')[0] : 'Usuário';
     const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour >= 5 && hour < 12) return "Bom dia";
-        if (hour >= 12 && hour < 18) return "Boa tarde";
-        return "Boa noite";
+        const h = new Date().getHours();
+        if (h >= 5 && h < 12) return 'Bom dia';
+        if (h >= 12 && h < 18) return 'Boa tarde';
+        return 'Boa noite';
     };
+
+    const activeCat = categories.find(c => c.id === activeCategory);
+    const activePalette = getPalette(activeCat);
 
     return (
         <div style={{
@@ -46,103 +63,177 @@ const Menu = () => {
             background: 'var(--bg-main)',
             color: 'var(--text-main)',
         }}>
-            <style>
-                {`
-                    @keyframes fadeInUp {
-                        from { opacity: 0; transform: translateY(10px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    @keyframes fadeInDown {
-                        from { opacity: 0; transform: translateY(-10px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    .module-card:hover {
-                        background: var(--bg-hover) !important;
-                        border-color: var(--border-input) !important;
-                    }
-                    .hide-scrollbar::-webkit-scrollbar {
-                        display: none;
-                    }
-                    .hide-scrollbar {
-                        -ms-overflow-style: none;
-                        scrollbar-width: none;
-                    }
-                `}
-            </style>
+            <style>{`
+                .greeting-gradient {
+                    /* Dark mode: electric gradient text */
+                    background: linear-gradient(135deg, var(--text-primary, #EEEEF5) 0%, var(--text-accent, #A89EFF) 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                /* Light mode: solid dark text — gradient is invisible on light bg */
+                :root:not([data-theme='dark']) .greeting-gradient {
+                    background: none !important;
+                    -webkit-text-fill-color: var(--text-main) !important;
+                    color: var(--text-main);
+                }
+
+
+                .cat-pill-active {
+                    background: var(--mod-bg) !important;
+                    border-color: var(--mod-color) !important;
+                    color: var(--mod-color) !important;
+                    font-weight: 700 !important;
+                    box-shadow: 0 0 10px color-mix(in srgb, var(--mod-color) 25%, transparent) !important;
+                }
+
+                .cat-pill:hover:not(.cat-pill-active) {
+                    border-color: var(--border-strong, var(--border-input)) !important;
+                    color: var(--text-primary, var(--text-main)) !important;
+                    background: var(--bg-elevated, var(--bg-elevated)) !important;
+                }
+
+                .mod-card-wrap {
+                    position: relative;
+                    border-radius: 14px;
+                    min-height: 80px;
+                    cursor: pointer;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 18px 20px;
+                    background: var(--bg-surface, var(--bg-card));
+                    border: 1px solid var(--border-subtle, var(--border-color));
+                    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                .mod-card-wrap::before {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0;
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+                    pointer-events: none;
+                }
+                .mod-card-wrap:hover {
+                    border-color: var(--border-strong, var(--border-input)) !important;
+                    background: var(--bg-elevated) !important;
+                    transform: translateY(-1px);
+                    box-shadow: var(--shadow-md);
+                }
+                .mod-card-wrap.cs-card {
+                    opacity: 0.45;
+                    cursor: not-allowed;
+                }
+                .mod-card-wrap.cs-card:hover {
+                    transform: none !important;
+                    box-shadow: none !important;
+                    border-color: var(--border-subtle, var(--border-color)) !important;
+                    background: var(--bg-surface, var(--bg-card)) !important;
+                }
+
+                /* Light mode overrides */
+                :root:not([data-theme='dark']) .mod-card-wrap {
+                    background: #FFFFFF !important;
+                    border: 1px solid #E8E8F0 !important;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                }
+                :root:not([data-theme='dark']) .mod-card-wrap:hover {
+                    border-color: #C8C8D8 !important;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+                }
+                :root:not([data-theme='dark']) .sidebar-container {
+                    background: #FFFFFF !important;
+                    border-right: 1px solid #E8E8F0 !important;
+                }
+                :root:not([data-theme='dark']) .header-container {
+                    background: rgba(255,255,255,0.88) !important;
+                    backdrop-filter: blur(20px) !important;
+                    -webkit-backdrop-filter: blur(20px) !important;
+                    border-bottom: 1px solid #E8E8F0 !important;
+                    box-shadow: 0 1px 0 rgba(0,0,0,0.04) !important;
+                }
+                :root:not([data-theme='dark']) body,
+                :root:not([data-theme='dark']) #root {
+                    background-color: #F4F4F8 !important;
+                }
+            `}</style>
+
             <div style={{
-                width: '100%',
-                maxWidth: '1600px',
+                maxWidth: '1400px',
                 margin: '0 auto',
-                padding: '24px 20px 40px',
+                padding: '28px 24px 48px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px'
+                gap: '24px',
             }}>
-
-                {/* --- PERSONALIZED WELCOME HEADER --- */}
-                <div style={{ marginBottom: '32px', animation: 'fadeInDown 0.5s ease-out' }}>
-                    <h1 style={{
-                        fontSize: '24px',
-                        fontWeight: '800',
-                        color: 'var(--text-main)',
-                        margin: '0',
-                        letterSpacing: '-0.04em',
-                        lineHeight: '1.2'
+                {/* ── GREETING ─────────────────────────────────── */}
+                <div style={{ animation: 'fadeSlideIn 280ms ease forwards' }}>
+                    <h1 className="greeting-gradient" style={{
+                        fontSize: '26px',
+                        fontWeight: 800,
+                        margin: '0 0 6px 0',
+                        letterSpacing: '-0.5px',
+                        lineHeight: '1.2',
                     }}>
                         {getGreeting()}, {firstName}
                     </h1>
                     <p style={{
                         fontSize: '14px',
-                        color: 'var(--text-muted)',
-                        margin: '4px 0 0 0',
-                        fontWeight: '500',
-                        letterSpacing: '-0.01em'
+                        color: 'var(--text-secondary, var(--text-muted))',
+                        margin: 0,
+                        letterSpacing: '-0.01em',
                     }}>
                         O que você deseja acessar hoje?
                     </p>
                 </div>
 
+                {/* ── MODULES SECTION ──────────────────────────── */}
                 <div>
-                    <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Grid size={18} color="var(--color-primary)" strokeWidth={2.5} />
-                        <h2 style={{ fontSize: '11px', fontWeight: '900', color: 'var(--text-muted)', letterSpacing: '0.1em', margin: 0, textTransform: 'uppercase' }}>
-                            Módulos Disponíveis
-                        </h2>
+                    {/* Section label */}
+                    <div className="section-label" style={{ marginBottom: '14px' }}>
+                        <Grid size={11} style={{ color: 'var(--text-tertiary, var(--text-muted))' }} />
+                        Módulos Disponíveis
                     </div>
 
-                    {/* Category pills */}
+                    {/* Category filter pills */}
                     <div
-                        className="hide-scrollbar category-grid"
+                        className="hide-scrollbar"
                         style={{
                             display: 'flex',
                             gap: '6px',
-                            paddingBottom: '20px',
+                            paddingBottom: '16px',
                             overflowX: 'auto',
-                            flexWrap: 'wrap'
-                        }}>
+                            flexWrap: 'wrap',
+                            // Inject the active palette as CSS variables so pills + icons share the same color
+                            '--mod-bg': activePalette.bg,
+                            '--mod-color': activePalette.color,
+                        }}
+                    >
                         {visibleCategories.map(cat => {
                             const isActive = activeCategory === cat.id;
                             return (
                                 <button
                                     key={cat.id}
                                     onClick={() => handleCategoryClick(cat.id)}
+                                    className={`cat-pill${isActive ? ' cat-pill-active' : ''}`}
                                     style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        gap: '6px',
                                         padding: '6px 14px',
-                                        borderRadius: '16px',
-                                        background: isActive ? `${cat.color}14` : 'var(--bg-elevated)',
-                                        border: '1px solid',
-                                        borderColor: isActive ? `${cat.color}40` : 'var(--border-color)',
-                                        color: isActive ? cat.color : 'var(--text-muted)',
+                                        borderRadius: '9999px',
+                                        background: 'var(--bg-surface, var(--bg-card))',
+                                        border: '1px solid var(--border-default, var(--border-color))',
+                                        color: 'var(--text-secondary, var(--text-muted))',
                                         cursor: 'pointer',
-                                        transition: 'all 0.15s ease',
-                                        fontSize: '12px',
-                                        fontWeight: isActive ? '600' : '500',
+                                        transition: 'all 180ms ease',
+                                        fontSize: '11px',
+                                        fontWeight: 600,
                                         whiteSpace: 'nowrap',
-                                        letterSpacing: '-0.01em',
-                                        textTransform: 'uppercase'
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                        userSelect: 'none',
+                                        fontFamily: 'var(--font-main)',
                                     }}
                                 >
                                     {cat.name}
@@ -151,33 +242,37 @@ const Menu = () => {
                         })}
                     </div>
 
-                    {/* Modules grid */}
+                    {/* Module cards grid — inject palette for icon coloring */}
                     {currentModules.length > 0 ? (
                         <div
-                            className="menu-grid"
                             style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                                gap: '12px',
-                            }}>
-                            {currentModules.map((module, index) => {
-                                const catColor = categories.find(c => c.id === module.category)?.color || null;
-                                return (
-                                    <div key={module.id} style={{ animation: `fadeInUp 0.3s ease-out ${index * 0.04}s backwards` }}>
-                                        <ModuleCard
-                                            module={module}
-                                            categoryColor={catColor}
-                                            onClick={(m) => {
-                                                if (m.path.startsWith('http')) window.open(m.path, '_blank');
-                                                else navigate(m.path);
-                                            }}
-                                        />
-                                    </div>
-                                );
-                            })}
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+                                gap: '10px',
+                                '--mod-bg': activePalette.bg,
+                                '--mod-color': activePalette.color,
+                            }}
+                        >
+                            {currentModules.map((module, index) => (
+                                <ModuleCard
+                                    key={module.id}
+                                    module={module}
+                                    index={index}
+                                    onClick={(m) => {
+                                        if (m.status === 'coming-soon') return;
+                                        if (m.path.startsWith('http')) window.open(m.path, '_blank');
+                                        else navigate(m.path);
+                                    }}
+                                />
+                            ))}
                         </div>
                     ) : (
-                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                        <div style={{
+                            padding: '48px',
+                            textAlign: 'center',
+                            color: 'var(--text-secondary, var(--text-muted))',
+                            fontSize: '13px',
+                        }}>
                             Nenhum módulo nesta categoria.
                         </div>
                     )}
@@ -187,96 +282,79 @@ const Menu = () => {
     );
 };
 
-// Reused ModuleCard Component
-const ModuleCard = ({ module, categoryColor, onClick }) => {
+// ─── ModuleCard ───────────────────────────────────────────────────────────────
+const ModuleCard = ({ module, index, onClick }) => {
     const isComingSoon = module.status === 'coming-soon';
-    const [isHovered, setIsHovered] = useState(false);
-    const iconColor = categoryColor || 'var(--text-muted)';
 
     return (
         <div
             className="module-card"
-            onClick={() => !isComingSoon && onClick(module)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{
-                borderRadius: '16px',
-                padding: '16px 20px',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: isComingSoon ? 'default' : 'pointer',
-                transition: 'all 0.2s ease',
-                background: 'var(--bg-card)',
-                border: '1px solid',
-                borderColor: isHovered && !isComingSoon ? 'var(--border-input)' : 'var(--border-color)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                opacity: isComingSoon ? 0.5 : 1,
-            }}
+            style={{ animationDelay: `${Math.min(index * 40, 480)}ms` }}
         >
-            <div style={{
-                width: '40px', height: '40px',
-                borderRadius: '12px',
-                background: isHovered && !isComingSoon ? `${categoryColor}20` : 'var(--bg-input)',
-                border: '1px solid',
-                borderColor: categoryColor ? `${categoryColor}25` : 'var(--border-color)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: isHovered ? categoryColor : 'var(--text-muted)',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-            }}>
-                {React.cloneElement(module.icon, { width: 18, height: 18, strokeWidth: 1.8 })}
-            </div>
+            <div
+                className={`mod-card-wrap${isComingSoon ? ' cs-card' : ''}`}
+                onClick={() => onClick(module)}
+            >
+                {/* Icon — color controlled by CSS variable from parent grid */}
+                <div
+                    className="card-icon"
+                    style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '11px',
+                        background: 'var(--mod-bg)',
+                        color: 'var(--mod-color)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transition: 'all 180ms ease',
+                    }}
+                >
+                    {React.cloneElement(module.icon, { width: 18, height: 18, strokeWidth: 2 })}
+                </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    color: 'var(--text-main)',
-                    margin: '0 0 2px 0',
-                    lineHeight: '1.2',
-                    letterSpacing: '-0.01em',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                }}>
-                    {module.title}
-                </h3>
-                {module.subtitle && (
-                    <p style={{
-                        fontSize: '11px',
-                        color: 'var(--text-muted)',
-                        margin: 0,
+                {/* Text */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="card-title" style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--text-primary, var(--text-main))',
+                        letterSpacing: '-0.01em',
                         lineHeight: '1.3',
-                        whiteSpace: 'nowrap',
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
                     }}>
-                        {module.subtitle}
-                    </p>
+                        {module.title}
+                    </div>
+                    {module.subtitle && (
+                        <div className="card-subtitle" style={{
+                            fontSize: '11px',
+                            color: 'var(--text-secondary, var(--text-muted))',
+                            marginTop: '2px',
+                            lineHeight: '1.4',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}>
+                            {module.subtitle}
+                        </div>
+                    )}
+                </div>
+
+                {/* Em Breve badge */}
+                {isComingSoon && (
+                    <span className="badge-soon" style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        flexShrink: 0,
+                    }}>
+                        Em Breve
+                    </span>
                 )}
             </div>
-
-
-
-            {isComingSoon && (
-                <span style={{
-                    fontSize: '9px',
-                    fontWeight: '700',
-                    color: 'var(--text-muted)',
-                    background: 'var(--bg-elevated)',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    textTransform: 'uppercase',
-                    position: 'absolute',
-                    top: '8px', right: '8px'
-                }}>
-                    Em Breve
-                </span>
-            )}
         </div>
     );
 };

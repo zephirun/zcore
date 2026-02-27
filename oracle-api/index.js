@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3001; // Porta 3001 para não conflitar com out
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Health Check
+// Health Check — generic (kept for backward compat)
 app.get('/api/health', async (req, res) => {
     try {
         const result = await db.execute('SELECT 1 FROM dual');
@@ -33,10 +33,25 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+// Health Check — per-company (used by DbModeContext auto-recover loop)
+async function companyHealthCheck(companyId, res) {
+    try {
+        // executeForCompany does a real SELECT 1 to validate the pool is alive
+        await db.executeForCompany(companyId, 'SELECT 1 FROM dual');
+        res.status(200).json({ status: 'ok', company: companyId });
+    } catch (err) {
+        res.status(503).json({ status: 'error', company: companyId, message: err.message });
+    }
+}
+
+app.get('/api/madville/health', (req, res) => companyHealthCheck('madville', res));
+app.get('/api/curitiba/health', (req, res) => companyHealthCheck('curitiba', res));
+
 // === VENDAS E KPIs ===
 
 // Ranking de Vendedores (Valor Bruto via V_IA_VENDA + COMISPREDOC_NOTAS + V_VENDEDORFUNCIONARIOFILIAL)
-app.get('/api/sellers-performance', async (req, res) => {
+app.get('/api/:companyId/sellers-performance', async (req, res) => {
+    const { companyId } = req.params;
     try {
         const sql = `
             SELECT vf.NOME as vendedor_nome, SUM(t.VALCONT) as faturamento
@@ -49,7 +64,7 @@ app.get('/api/sellers-performance', async (req, res) => {
             ORDER BY faturamento DESC
             FETCH FIRST 10 ROWS ONLY
         `;
-        const result = await db.execute(sql);
+        const result = await db.executeForCompany(companyId, sql);
         const rows = result.rows;
         const maxVal = rows.length > 0 ? rows[0].faturamento : 1;
         res.json(rows.map(row => ({
@@ -64,7 +79,8 @@ app.get('/api/sellers-performance', async (req, res) => {
 });
 
 // KPIs Gerais do Mês
-app.get('/api/kpis', async (req, res) => {
+app.get('/api/:companyId/kpis', async (req, res) => {
+    const { companyId } = req.params;
     try {
         const sqlTotal = `
             SELECT 
@@ -86,7 +102,10 @@ app.get('/api/kpis', async (req, res) => {
             WHERE EXTRACT(YEAR FROM EMISSAO) = EXTRACT(YEAR FROM SYSDATE)
             AND EXTRACT(MONTH FROM EMISSAO) = EXTRACT(MONTH FROM SYSDATE)
         `;
-        const [r1, r2] = await Promise.all([db.execute(sqlTotal), db.execute(sqlDetails)]);
+        const [r1, r2] = await Promise.all([
+            db.executeForCompany(companyId, sqlTotal),
+            db.executeForCompany(companyId, sqlDetails)
+        ]);
         const s = r1.rows[0] || {};
         const d = r2.rows[0] || {};
         res.json({
@@ -106,14 +125,13 @@ app.get('/api/kpis', async (req, res) => {
 });
 
 // Resumo do Cliente (Financeiro - SQL Completo)
-app.get('/api/client-summary', async (req, res) => {
+app.get('/api/:companyId/client-summary', async (req, res) => {
+    const { companyId } = req.params;
     const { idpess } = req.query;
 
     try {
-        // Se idpess for fornecido, retorna o detalhamento completo (mais lento, mas específico)
-        // Se idpess NÃO for fornecido, retorna um resumo por cliente para o Dashboard (mais rápido)
+        // ... (sql truncated for brevity but stays same)
         const whereClause = idpess ? `AND LP.IDPESS = :idpess` : '';
-
         const sql = `
             SELECT
               X.*,
@@ -269,7 +287,7 @@ app.get('/api/client-summary', async (req, res) => {
             ORDER BY 1, 9 ASC
             ${idpess ? '' : 'FETCH FIRST 100 ROWS ONLY'}
         `;
-        const result = await db.execute(sql, idpess ? { idpess: parseInt(idpess) } : {});
+        const result = await db.executeForCompany(companyId, sql, idpess ? { idpess: parseInt(idpess) } : {});
         res.json(result.rows);
     } catch (error) {
         console.error('Client Summary Error:', error);
@@ -278,7 +296,8 @@ app.get('/api/client-summary', async (req, res) => {
 });
 
 // Resumo Sintético de Vendas (SQL Completo)
-app.get('/api/synthetic-sales-summary', async (req, res) => {
+app.get('/api/:companyId/synthetic-sales-summary', async (req, res) => {
+    const { companyId } = req.params;
     const { dtini, dtfim } = req.query;
 
     // Default to current month if not provided
@@ -370,7 +389,7 @@ app.get('/api/synthetic-sales-summary', async (req, res) => {
             ORDER BY
                 VDALIQ DESC
         `;
-        const result = await db.execute(sql, {
+        const result = await db.executeForCompany(companyId, sql, {
             dtini: start,
             dtfim: end,
             sql_flag: 0
@@ -383,7 +402,8 @@ app.get('/api/synthetic-sales-summary', async (req, res) => {
 });
 
 // Busca de Clientes/Parceiros por nome ou ID
-app.get('/api/search-clients', async (req, res) => {
+app.get('/api/:companyId/search-clients', async (req, res) => {
+    const { companyId } = req.params;
     const { q } = req.query;
     const queryTerm = (q || '').trim();
 
@@ -400,8 +420,8 @@ app.get('/api/search-clients', async (req, res) => {
             ORDER BY nome
             FETCH FIRST 20 ROWS ONLY
         `;
-        const result = await db.execute(sql, { q: queryTerm });
-        console.log(`[SEARCH] Query: "${queryTerm}" | Hits: ${result.rows.length}`);
+        const result = await db.executeForCompany(companyId, sql, { q: queryTerm });
+        console.log(`[SEARCH][${companyId}] Query: "${queryTerm}" | Hits: ${result.rows.length}`);
         res.json(result.rows);
     } catch (error) {
         console.error('Search Clients Error [NJS-533?]:', error);
@@ -414,7 +434,8 @@ app.get('/api/search-clients', async (req, res) => {
 });
 
 // Endpoint de Consulta Dinâmica (Uso restrito)
-app.post('/api/query', async (req, res) => {
+app.post('/api/:companyId/query', async (req, res) => {
+    const { companyId } = req.params;
     const { sql, binds } = req.body;
 
     if (!sql) {
@@ -422,7 +443,7 @@ app.post('/api/query', async (req, res) => {
     }
 
     try {
-        const result = await db.execute(sql, binds || []);
+        const result = await db.executeForCompany(companyId, sql, binds || []);
         res.json({
             success: true,
             rows: result.rows,
@@ -442,37 +463,42 @@ const fs = require('fs');
 const path = require('path');
 const CACHE_FILE = path.join(__dirname, 'dashboard_cache.json');
 
-app.post('/api/sync-cache', async (req, res) => {
+app.post('/api/:companyId/sync-cache', async (req, res) => {
+    const { companyId } = req.params;
     try {
-        console.log('🔄 Sync Dashboard Cache (n8n)...');
+        console.log(`🔄 Sync Dashboard Cache (n8n) [${companyId}]...`);
         const fetchLocal = async (route) => {
-            const response = await fetch(`http://127.0.0.1:${PORT}${route}`);
+            const response = await fetch(`http://127.0.0.1:${PORT}/api/${companyId}${route}`);
             return response.json();
         };
-        const kpis = await fetchLocal('/api/kpis');
-        console.log(`📊 KPIs Synced - Margin: ${kpis.margem}%`);
-        const clients = await fetchLocal('/api/client-summary');
-        console.log(`📊 Clients Synced - Count: ${clients.length}`);
-        const sellers = await fetchLocal('/api/sellers-performance');
-        console.log(`📊 Sellers Synced - Count: ${sellers.length}`);
+        const kpis = await fetchLocal('/kpis');
+        console.log(`📊 KPIs Synced [${companyId}] - Margin: ${kpis.margem}%`);
+        const clients = await fetchLocal('/client-summary');
+        console.log(`📊 Clients Synced [${companyId}] - Count: ${clients.length}`);
+        const sellers = await fetchLocal('/sellers-performance');
+        console.log(`📊 Sellers Synced [${companyId}] - Count: ${sellers.length}`);
 
         const cacheData = {
             lastSync: new Date().toISOString(),
+            company: companyId,
             data: { kpis, clients, sellers }
         };
-        fs.writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2), 'utf-8');
-        console.log('✅ Dashboard Cache updated successfully!');
+        const companyCacheFile = path.join(__dirname, `dashboard_cache_${companyId}.json`);
+        fs.writeFileSync(companyCacheFile, JSON.stringify(cacheData, null, 2), 'utf-8');
+        console.log(`✅ Dashboard Cache updated successfully for ${companyId}!`);
         res.json({ success: true, lastSync: cacheData.lastSync });
     } catch (err) {
-        console.error('Cache Sync Error:', err);
+        console.error(`Cache Sync Error [${companyId}]:`, err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-app.get('/api/cached-dashboard', (req, res) => {
-    if (fs.existsSync(CACHE_FILE)) {
+app.get('/api/:companyId/cached-dashboard', (req, res) => {
+    const { companyId } = req.params;
+    const companyCacheFile = path.join(__dirname, `dashboard_cache_${companyId}.json`);
+    if (fs.existsSync(companyCacheFile)) {
         res.setHeader('Content-Type', 'application/json');
-        res.send(fs.readFileSync(CACHE_FILE, 'utf-8'));
+        res.send(fs.readFileSync(companyCacheFile, 'utf-8'));
     } else {
         res.json({ lastSync: null, data: null });
     }

@@ -1,20 +1,24 @@
 import React from 'react';
 
+/**
+ * Card — Premium surface container with optional hover elevation effect.
+ */
 const Card = ({
     children,
     className = '',
-    padding = 'var(--space-6)',
+    padding = 'var(--density-card-padding, var(--space-6))',
     noBorder = false,
     hoverEffect = false,
+    accentBorder = false, // Purple accent border on hover
     ...props
 }) => {
     const cardStyle = {
         background: 'var(--bg-card)',
-        borderRadius: 'var(--radius)',
-        border: noBorder ? 'none' : '1px solid var(--border-color)',
+        borderRadius: 'var(--radius-lg)',
+        border: noBorder ? 'none' : `1px solid ${accentBorder ? 'var(--color-accent-glow)' : 'var(--border-color)'}`,
         padding: padding,
         boxShadow: 'var(--shadow-sm)',
-        transition: hoverEffect ? 'transform 0.2s, box-shadow 0.2s' : 'none',
+        transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
         ...(props.style || {})
@@ -23,17 +27,19 @@ const Card = ({
     return (
         <div
             style={cardStyle}
-            className={`ui-card ${className}`}
+            className={`ui-card ${hoverEffect ? 'card-elevated-hover' : ''} ${className}`}
             onMouseEnter={(e) => {
                 if (hoverEffect) {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.borderColor = 'var(--border-input)';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px var(--color-accent-glow)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
                 }
             }}
             onMouseLeave={(e) => {
                 if (hoverEffect) {
-                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = accentBorder ? 'var(--color-accent-glow)' : 'var(--border-color)';
                     e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                 }
             }}
             {...props}

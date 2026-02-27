@@ -5,9 +5,10 @@ const Modal = ({
     isOpen,
     onClose,
     title,
+    subtitle,
     children,
     footer,
-    width = '500px',
+    width = '520px',
     ...props
 }) => {
     useEffect(() => {
@@ -29,18 +30,19 @@ const Modal = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(2px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(4px)',
         zIndex: 5000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 'var(--space-4)',
-        animation: 'fadeIn var(--motion-base) var(--ease-standard) forwards',
+        animation: 'fadeIn 150ms var(--ease-decelerate) forwards',
     };
 
     const modalStyle = {
-        background: 'var(--bg-card)',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-xl)',
         width: '100%',
         maxWidth: width,
@@ -48,16 +50,17 @@ const Modal = ({
         display: 'flex',
         flexDirection: 'column',
         boxShadow: 'var(--shadow-xl)',
-        animation: 'fadeInUp var(--motion-slow) var(--ease-decelerate) forwards',
+        animation: 'modalEnter 200ms var(--ease-decelerate) forwards',
         overflow: 'hidden',
     };
 
     const headerStyle = {
-        padding: 'var(--space-4) var(--space-6)',
+        padding: '20px 24px 16px',
         borderBottom: '1px solid var(--border-color)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-between',
+        gap: '12px',
     };
 
     const contentStyle = {
@@ -67,9 +70,9 @@ const Modal = ({
     };
 
     const footerStyle = {
-        padding: 'var(--space-4) var(--space-6)',
+        padding: '16px 24px',
         borderTop: '1px solid var(--border-color)',
-        background: 'var(--bg-elevated)',
+        background: 'var(--bg-card)',
         display: 'flex',
         justifyContent: 'flex-end',
         gap: 'var(--space-3)',
@@ -80,30 +83,56 @@ const Modal = ({
             <div style={modalStyle} onClick={e => e.stopPropagation()} className="ui-modal">
                 {(title || onClose) && (
                     <div style={headerStyle}>
-                        {title && <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: 'var(--font-semibold)' }}>{title}</h3>}
+                        <div>
+                            {title && (
+                                <h3 style={{
+                                    margin: 0,
+                                    fontSize: 'var(--text-base)',
+                                    fontWeight: 600,
+                                    color: 'var(--text-main)',
+                                    letterSpacing: '-0.02em',
+                                    lineHeight: '1.3'
+                                }}>
+                                    {title}
+                                </h3>
+                            )}
+                            {subtitle && (
+                                <p style={{
+                                    margin: '4px 0 0',
+                                    fontSize: 'var(--text-xs)',
+                                    color: 'var(--text-muted)',
+                                    lineHeight: '1.4'
+                                }}>
+                                    {subtitle}
+                                </p>
+                            )}
+                        </div>
                         {onClose && (
                             <button
                                 onClick={onClose}
                                 style={{
                                     background: 'transparent',
-                                    border: 'none',
+                                    border: '1px solid var(--border-color)',
                                     color: 'var(--text-muted)',
                                     cursor: 'pointer',
                                     display: 'flex',
-                                    padding: 'var(--space-1)',
+                                    padding: '4px',
                                     borderRadius: 'var(--radius-sm)',
-                                    transition: 'background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard)'
+                                    transition: 'all var(--motion-fast) var(--ease-standard)',
+                                    flexShrink: 0
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.background = 'var(--bg-hover)';
+                                    e.currentTarget.style.borderColor = 'var(--border-input)';
                                     e.currentTarget.style.color = 'var(--text-main)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.borderColor = 'var(--border-color)';
                                     e.currentTarget.style.color = 'var(--text-muted)';
                                 }}
                             >
-                                <X size={20} />
+                                <X size={16} />
                             </button>
                         )}
                     </div>

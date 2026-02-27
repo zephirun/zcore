@@ -10,7 +10,7 @@ import * as z from 'zod';
 
 import logoZeph from '../assets/logo_zeph_new.png';
 
-// 1. Definição do Schema de Validação
+// Validation schema
 const loginSchema = z.object({
     username: z.string().min(1, 'Informe seu usuário para acessar.'),
     password: z.string().min(1, 'A senha é obrigatória.'),
@@ -22,7 +22,6 @@ const Login = () => {
     const { login, switchUnit } = useData();
     const navigate = useNavigate();
 
-    // 2. Setup do React Hook Form + Zod
     const {
         register,
         handleSubmit,
@@ -155,11 +154,11 @@ const Login = () => {
                         <div style={{
                             marginTop: '8px',
                             padding: '10px 14px',
-                            background: 'rgba(239, 68, 68, 0.08)',
+                            background: 'var(--color-error-bg, rgba(224, 48, 80, 0.08))',
                             color: 'var(--color-error)',
                             fontSize: '13px',
                             borderRadius: '16px',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            border: '1px solid var(--color-error-border, rgba(224, 48, 80, 0.2))',
                             letterSpacing: '-0.01em',
                         }}>
                             {authError}
@@ -181,7 +180,7 @@ const Login = () => {
                             fontWeight: '600',
                             letterSpacing: '-0.01em',
                             fontFamily: 'var(--font-main)',
-                            transition: 'transform var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard)',
+                            transition: 'transform var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard)',
                             opacity: isLoading ? 0.6 : 1,
                         }}
                         onMouseEnter={e => { if (!isLoading) e.currentTarget.style.opacity = '0.85'; }}

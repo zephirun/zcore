@@ -6,9 +6,9 @@ const ORACLE_API_URL = 'http://localhost:3000/api';
  * @param {Array|Object} binds - Binds/parameters for the query.
  * @returns {Promise<Object>} - The query results.
  */
-export const executeOracleQuery = async (sql, binds = []) => {
+export const executeOracleQuery = async (sql, binds = [], companyId = 'madville') => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/query`, {
+        const response = await fetch(`${ORACLE_API_URL}/${companyId}/query`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,9 +36,9 @@ export const executeOracleQuery = async (sql, binds = []) => {
  * Checks the health and connectivity of the Oracle API.
  * @returns {Promise<Object>} - Health status.
  */
-export const checkOracleHealth = async () => {
+export const checkOracleHealth = async (companyId = 'madville') => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/health`);
+        const response = await fetch(`${ORACLE_API_URL}/${companyId}/health`);
         return await response.json();
     } catch (error) {
         return { status: 'offline', error: error.message };
@@ -49,14 +49,14 @@ export const checkOracleHealth = async () => {
  * Fetches the total monthly billing (faturamento líquido) from Oracle.
  * Net = VALCONT - DEVOLUCOES
  */
-export const fetchMonthlyBilling = async () => {
+export const fetchMonthlyBilling = async (companyId = 'madville') => {
     const sql = `
         SELECT SUM(VALCONT) - SUM(DEVOLUCOES) as faturamento_total
         FROM VIASOFTFISCAL.FFATURAMENTO 
         WHERE ANO = EXTRACT(YEAR FROM SYSDATE) 
         AND MES = EXTRACT(MONTH FROM SYSDATE)
     `;
-    const result = await executeOracleQuery(sql);
+    const result = await executeOracleQuery(sql, [], companyId);
     return result.rows[0]?.faturamento_total || 0;
 };
 
@@ -64,9 +64,9 @@ export const fetchMonthlyBilling = async () => {
  * Fetches the performance of sellers for the current month.
  * Uses dedicated API endpoint: GET /api/sellers-performance
  */
-export const fetchSellersPerformance = async () => {
+export const fetchSellersPerformance = async (companyId = 'madville') => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/sellers-performance`);
+        const response = await fetch(`${ORACLE_API_URL}/${companyId}/sellers-performance`);
         return await response.json();
     } catch (error) {
         console.error('Sellers Performance Error:', error.message);
@@ -77,9 +77,9 @@ export const fetchSellersPerformance = async () => {
 /**
  * Fetches detailed KPIs. Uses dedicated API endpoint: GET /api/kpis
  */
-export const fetchDetailedKPIs = async () => {
+export const fetchDetailedKPIs = async (companyId = 'madville') => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/kpis`);
+        const response = await fetch(`${ORACLE_API_URL}/${companyId}/kpis`);
         return await response.json();
     } catch (error) {
         console.error('KPIs Error:', error.message);
@@ -91,13 +91,13 @@ export const fetchDetailedKPIs = async () => {
  * @param {string} dtini - Start date (YYYY-MM-DD)
  * @param {string} dtfim - End date (YYYY-MM-DD)
  */
-export const fetchSyntheticSalesSummary = async (dtini, dtfim) => {
+export const fetchSyntheticSalesSummary = async (dtini, dtfim, companyId = 'madville') => {
     try {
-        const url = new URL(`${ORACLE_API_URL}/synthetic-sales-summary`);
+        const url = new URL(`${ORACLE_API_URL}/${companyId}/synthetic-sales-summary`);
         if (dtini) url.searchParams.append('dtini', dtini);
         if (dtfim) url.searchParams.append('dtfim', dtfim);
 
-        const response = await fetch(url);
+        const response = await fetch(url.toString());
         return await response.json();
     } catch (error) {
         console.error('Synthetic Sales Summary Error:', error.message);
@@ -108,12 +108,12 @@ export const fetchSyntheticSalesSummary = async (dtini, dtfim) => {
  * Fetches the client summary (Financeiro).
  * @param {string|number} idpess - Client ID (optional)
  */
-export const fetchClientSummary = async (idpess) => {
+export const fetchClientSummary = async (idpess, companyId = 'madville') => {
     try {
-        const url = new URL(`${ORACLE_API_URL}/client-summary`);
+        const url = new URL(`${ORACLE_API_URL}/${companyId}/client-summary`);
         if (idpess) url.searchParams.append('idpess', idpess);
 
-        const response = await fetch(url);
+        const response = await fetch(url.toString());
         return await response.json();
     } catch (error) {
         console.error('Client Summary Error:', error.message);
@@ -125,12 +125,12 @@ export const fetchClientSummary = async (idpess) => {
  * Searches for clients by name or ID.
  * @param {string} query - Name or ID to search for
  */
-export const searchClients = async (query) => {
+export const searchClients = async (query, companyId = 'madville') => {
     try {
-        const url = new URL(`${ORACLE_API_URL}/search-clients`);
+        const url = new URL(`${ORACLE_API_URL}/${companyId}/search-clients`);
         url.searchParams.append('q', query);
 
-        const response = await fetch(url);
+        const response = await fetch(url.toString());
         return await response.json();
     } catch (error) {
         console.error('Search Clients Error:', error.message);
@@ -141,9 +141,9 @@ export const searchClients = async (query) => {
 /**
  * Fetches the cached dashboard data via n8n sync schedule.
  */
-export const fetchCachedDashboard = async () => {
+export const fetchCachedDashboard = async (companyId = 'madville') => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/cached-dashboard`);
+        const response = await fetch(`${ORACLE_API_URL}/${companyId}/cached-dashboard`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {

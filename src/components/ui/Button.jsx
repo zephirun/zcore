@@ -7,12 +7,14 @@ const Button = ({
     className = '',
     fullWidth = false,
     isLoading = false,
+    icon = null,
     ...props
 }) => {
     const baseStyle = {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: '7px',
         border: 'none',
         borderRadius: 'var(--radius)',
         fontFamily: 'var(--font-main)',
@@ -23,48 +25,52 @@ const Button = ({
         outline: 'none',
         opacity: props.disabled ? 0.5 : 1,
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        textDecoration: 'none',
+        userSelect: 'none',
+        flexShrink: 0,
     };
 
     const sizeStyles = {
         sm: {
-            padding: '0 var(--density-padding-sm)',
+            padding: '6px 12px',
             fontSize: 'var(--text-xs)',
             borderRadius: 'var(--radius-sm)',
-            minHeight: 'calc(var(--density-input-height) * 0.75)'
+            minHeight: '30px'
         },
         md: {
-            padding: '0 var(--density-padding-md)',
+            padding: '8px 16px',
             fontSize: 'var(--text-sm)',
-            minHeight: 'var(--density-input-height)'
+            minHeight: '36px'
         },
         lg: {
-            padding: '0 var(--density-padding-md)',
+            padding: '10px 20px',
             fontSize: 'var(--text-base)',
             borderRadius: 'var(--radius-lg)',
-            minHeight: 'calc(var(--density-input-height) * 1.25)'
+            minHeight: '44px'
         }
     };
 
     const variantStyles = {
         primary: {
-            background: 'var(--text-main)',
-            color: 'var(--bg-main)',
+            background: 'var(--btn-primary-bg, #6C63FF)',
+            color: '#ffffff',
+            border: '1px solid transparent',
         },
         secondary: {
-            background: 'var(--bg-elevated)',
+            background: 'transparent',
             color: 'var(--text-main)',
-            border: '1px solid var(--border-color)',
-            boxShadow: 'var(--shadow-sm)'
+            border: '1px solid var(--btn-secondary-border, var(--border-color))',
         },
         danger: {
-            background: 'var(--color-error)',
-            color: '#ffffff',
-            boxShadow: 'var(--shadow-sm)'
+            background: 'transparent',
+            color: 'var(--color-error)',
+            border: '1px solid var(--color-error-border, var(--color-error))',
         },
         ghost: {
             background: 'transparent',
-            color: 'var(--text-main)',
+            color: 'var(--text-muted)',
+            border: '1px solid transparent',
         }
     };
 
@@ -84,13 +90,18 @@ const Button = ({
         >
             {isLoading ? (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg className="animate-spin" style={{ width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" style={{ opacity: 0.25 }}></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" style={{ opacity: 0.75 }}></path>
+                    <svg style={{ width: '14px', height: '14px', animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" style={{ opacity: 0.25 }}></circle>
+                        <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" style={{ opacity: 0.75 }}></path>
                     </svg>
                     Carregando...
                 </span>
-            ) : children}
+            ) : (
+                <>
+                    {icon && <span style={{ flexShrink: 0, display: 'flex' }}>{icon}</span>}
+                    {children}
+                </>
+            )}
         </button>
     );
 };
