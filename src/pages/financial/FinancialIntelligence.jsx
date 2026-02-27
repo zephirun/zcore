@@ -225,7 +225,7 @@ const FinancialIntelligence = () => {
 
                                         {/* Risks */}
                                         <Card>
-                                            <h3 style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Métricas de Crédito</h3>
+                                            <h3 style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px', margin: '0 0 20px 0' }}>Métricas de Crédito</h3>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                                 {selectedClient.risks.map((risk, index) => (
                                                     <div key={index}>
