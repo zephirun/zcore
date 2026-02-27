@@ -13,6 +13,7 @@ import {
     DollarSign, Percent, CornerDownLeft, ShoppingCart,
     Tag, Truck, Hash, Users, BarChart2, Zap
 } from 'lucide-react';
+import { CacheBanner } from '../../components/CacheBanner';
 
 // MOCK DATA FOR 50k STRESS TEST
 const MOCK_SALES_DATA = Array.from({ length: 50000 }).map((_, i) => ({
@@ -106,6 +107,11 @@ const SalesAnalysis = () => {
                 </Button>
             }
         >
+            <CacheBanner
+                fromCache={kpisData?.fromCache || sellersData?.fromCache || billingTotal?.fromCache}
+                savedAt={kpisData?.savedAt}
+                error={sellersError || sellersData?.error}
+            />
 
             {/* ── Top KPI Strip ── */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>

@@ -1,26 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchMonthlyBilling, fetchSellersPerformance, fetchDetailedKPIs } from '../services/oracleService';
+import { useApiData } from './useApiData';
 
 export const useMonthlyBillingQuery = () => {
-    return useQuery({
-        queryKey: ['sales', 'monthly-billing'],
-        queryFn: fetchMonthlyBilling,
-        staleTime: 1000 * 60 * 5, // 5 minutes fresh
-    });
+    const { data, loading, error, fromCache } = useApiData('monthly-billing');
+    return { data, isPending: loading, error, isFetching: loading, fromCache };
 };
 
 export const useSellersPerformanceQuery = () => {
-    return useQuery({
-        queryKey: ['sales', 'sellers-performance'],
-        queryFn: fetchSellersPerformance,
-        staleTime: 1000 * 60 * 5,
-    });
+    const { data, loading, error, fromCache } = useApiData('sellers-performance');
+    return { data, isPending: loading, error, isFetching: loading, fromCache };
 };
 
 export const useDetailedKPIsQuery = () => {
-    return useQuery({
-        queryKey: ['sales', 'detailed-kpis'],
-        queryFn: fetchDetailedKPIs,
-        staleTime: 1000 * 60 * 5,
-    });
+    const { data, loading, error, fromCache } = useApiData('kpis');
+    return { data, isPending: loading, error, isFetching: loading, fromCache };
 };

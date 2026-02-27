@@ -2,13 +2,15 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
-import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { formatCurrency } from '../../utils/formatters';
+import { useApiData } from '../../hooks/useApiData';
+import { CacheBanner } from '../../components/CacheBanner';
 import { Calendar, Search, Download, Filter, TrendingUp, DollarSign, PieChart, Users, AlertCircle, Loader2 } from 'lucide-react';
 
 const SyntheticSalesSummary = () => {
-    const { fetchSyntheticSummary, theme } = useData();
+    const { theme } = useData();
 
     const formatDateLocal = (d) => {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -20,10 +22,19 @@ const SyntheticSalesSummary = () => {
     const lastDay = formatDateLocal(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
     const [dates, setDates] = useState({ start: firstDay, end: lastDay });
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Unified data fetching with automatic cache/company/params handling
+    const endpoint = `synthetic-sales-summary?dtini=${dates.start}&dtfim=${dates.end}`;
+    const {
+        data: results = [],
+        loading,
+        error,
+        fromCache,
+        savedAt
+    } = useApiData(endpoint, [dates.start, dates.end]);
+
+    const data = results || [];
 
     const handleShortcut = (type) => {
         const today = new Date();
@@ -59,24 +70,6 @@ const SyntheticSalesSummary = () => {
             end: formatDateLocal(end)
         });
     };
-
-    const loadData = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const results = await fetchSyntheticSummary(dates.start, dates.end);
-            setData(results || []);
-        } catch (err) {
-            console.error("Error loading synthetic summary:", err);
-            setError("Falha ao comunicar com a API Oracle. Verifique se o Gateway está online.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadData();
-    }, [dates]);
 
     const filteredData = useMemo(() => {
         if (!searchTerm) return data;
@@ -163,7 +156,6 @@ const SyntheticSalesSummary = () => {
                             </div>
 
                             <Button
-                                onClick={loadData}
                                 disabled={loading}
                                 style={{
                                     padding: '10px',
@@ -180,6 +172,9 @@ const SyntheticSalesSummary = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Status Banner (visible only on cache/offline) */}
+                <CacheBanner fromCache={fromCache} savedAt={savedAt} error={error} />
 
                 {/* KPI Overview */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
@@ -233,11 +228,11 @@ const SyntheticSalesSummary = () => {
                         </Button>
                     </div>
 
-                    {error && (
+                    {error && data.length === 0 && (
                         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-error)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <AlertCircle size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
                             <h3 style={{ fontSize: '16px', fontWeight: '700' }}>{error}</h3>
-                            <Button onClick={loadData} style={{ marginTop: '16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', padding: '8px 24px', borderRadius: '16px', color: 'var(--text-main)', cursor: 'pointer' }}>Tentar Novamente</Button>
+                            <p style={{ fontSize: '13px', marginTop: '4px' }}>Verifique se o Gateway Oracle está online.</p>
                         </div>
                     )}
 

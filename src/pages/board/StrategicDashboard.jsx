@@ -1,42 +1,25 @@
 import Button from '@/components/ui/Button';
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchDetailedKPIs, fetchCachedDashboard } from '../../services/oracleService';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useApiData } from '../../hooks/useApiData';
+import { CacheBanner } from '../../components/CacheBanner';
 
 const StrategicDashboard = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState(null);
+
+    // Unified data fetching with automatic cache/company handling
+    const { data: cachedResponse, loading, error, fromCache } = useApiData('cached-dashboard');
+
+    // Extract KPIs from the response structure
+    const kpis = cachedResponse?.data?.kpis;
+    const savedAt = cachedResponse?.savedAt;
 
     // Goal Constant
     const MONTHLY_GOAL = 12000000;
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                const cached = await fetchCachedDashboard();
-                if (cached && cached.data) {
-                    setData(cached.data.kpis);
-                } else {
-                    const kpis = await fetchDetailedKPIs();
-                    setData(kpis);
-                }
-            } catch (error) {
-                console.error("Error loading strategic data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
-    }, []);
-
-    const faturamento = data?.faturamento || 0;
-    const ticketMedio = data?.ticketMedio || 0;
-    const margem = data?.margem || 0;
-    const qtdVendas = data?.qtdVendas || 0;
+    const faturamento = kpis?.faturamento || 0;
+    const ticketMedio = kpis?.ticketMedio || 0;
+    const margem = kpis?.margem || 0;
+    const qtdVendas = kpis?.qtdVendas || 0;
 
     // 1. Goal Achievement
     const percentMeta = Math.min((faturamento / MONTHLY_GOAL) * 100, 100);
@@ -87,6 +70,9 @@ const StrategicDashboard = () => {
                     Voltar ao Menu
                 </Button>
             </div>
+
+            {/* Status Banner (visible only on cache/offline) */}
+            <CacheBanner fromCache={fromCache} savedAt={savedAt} error={error} />
 
             {/* Strategic Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
