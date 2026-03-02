@@ -48,7 +48,7 @@ const ModulePanel = ({ category, onBack }) => {
                         fontSize: '12px',
                         fontWeight: '600',
                         color: category.color,
-                        marginBottom: '16px',
+                        marginBottom: "var(--space-4)",
                         transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={e => {
@@ -66,7 +66,7 @@ const ModulePanel = ({ category, onBack }) => {
                     VOLTAR
                 </Button>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: "var(--space-4)" }}>
                     <div style={{
                         background: category.bgColor,
                         color: category.color,
@@ -101,7 +101,7 @@ const ModulePanel = ({ category, onBack }) => {
                             display: 'inline-block',
                             background: 'white',
                             padding: '3px 10px',
-                            borderRadius: '16px',
+                            borderRadius: "var(--radius)",
                             fontSize: '11px',
                             fontWeight: '600',
                             color: category.color,
@@ -118,7 +118,7 @@ const ModulePanel = ({ category, onBack }) => {
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: '16px'
+                gap: "var(--space-4)"
             }}>
                 {category.modules.map(module => {
                     const isExternalLink = module.path.startsWith('http://') || module.path.startsWith('https://');
@@ -144,7 +144,7 @@ const ModulePanel = ({ category, onBack }) => {
                                 flexDirection: 'row',
                                 alignItems: 'flex-start',
                                 background: 'white',
-                                gap: '16px',
+                                gap: "var(--space-4)",
                                 position: 'relative',
                                 overflow: 'hidden',
                                 opacity: module.path === '#' ? 0.6 : 1

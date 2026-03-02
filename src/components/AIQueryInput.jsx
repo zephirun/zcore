@@ -139,7 +139,7 @@ const AIQueryInput = ({ onSearch }) => {
                 <div style={{
                     background: 'rgba(255, 255, 255, 0.95)',
                     padding: '20px 25px',
-                    borderRadius: '20px',
+                    borderRadius: "var(--radius)",
                     boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                     backdropFilter: 'blur(10px)',
                     animation: 'fadeIn 0.5s ease',

@@ -6,11 +6,28 @@ import PageContainer from '@/components/ui/PageContainer';
 import Card from '@/components/ui/Card';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import FormSection from '@/components/ui/FormSection';
 import { useNavigate } from 'react-router-dom';
 
 import { useData } from '../../context/DataContext';
 import { fetchDeliveries, saveDelivery, deleteDelivery } from '../../services/api';
 import logoGmad from '../../assets/logo.png';
+
+
+const deliverySchema = z.object({
+    date: z.string().min(1, 'Data é obrigatória'),
+    time: z.string().min(1, 'Horário é obrigatório'),
+    carrier: z.string().min(1, 'Transportadora é obrigatória'),
+    supplier: z.string().min(1, 'Fornecedor é obrigatório'),
+    invoiceNumber: z.string().min(1, 'Número da NF é obrigatória'),
+    quantity: z.string().min(1, 'Quantidade é obrigatória'),
+    volumeType: z.string().min(1, 'Volume é obrigatório'),
+    xml: z.string().optional(),
+    observations: z.string().optional()
+});
 
 const DeliverySchedule = () => {
     const navigate = useNavigate();
@@ -18,16 +35,26 @@ const DeliverySchedule = () => {
     const [deliveries, setDeliveries] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({
-        date: '',
-        time: '',
-        carrier: '',
-        supplier: '',
-        invoiceNumber: '',
-        quantity: '',
-        volumeType: 'Caixa(s)',
-        xml: '',
-        observations: ''
+    const {
+        register,
+        handleSubmit,
+        reset,
+        control,
+        formState: { errors, isSubmitting, isDirty }
+    } = useForm({
+        resolver: zodResolver(deliverySchema),
+        mode: 'onTouched',
+        defaultValues: {
+            date: '',
+            time: '',
+            carrier: '',
+            supplier: '',
+            invoiceNumber: '',
+            quantity: '',
+            volumeType: 'Caixa(s)',
+            xml: '',
+            observations: ''
+        }
     });
 
     // Filter states
@@ -125,10 +152,6 @@ const DeliverySchedule = () => {
         });
     }, [deliveries, filters, activeUnit]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
 
     const handleFilterChange = (name, value) => {
         setFilters(prev => {
@@ -159,24 +182,22 @@ const DeliverySchedule = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const onSubmit = async (data) => {
         const deliveryData = {
-            ...formData,
-            id: editingId, // Will be null for new ones
+            ...data,
+            id: editingId,
             unit: activeUnit
         };
 
         const result = await saveDelivery(deliveryData);
 
         if (result.success) {
-            // Refresh list
-            const data = await fetchDeliveries(activeUnit);
-            setDeliveries(data || []);
+            // Refresh
+            const refreshed = await fetchDeliveries(activeUnit);
+            setDeliveries(refreshed || []);
 
-            // Reset form
-            setFormData({
+            // Reset
+            reset({
                 date: '',
                 time: '',
                 carrier: '',
@@ -195,7 +216,17 @@ const DeliverySchedule = () => {
     };
 
     const handleEdit = (delivery) => {
-        setFormData(delivery);
+        reset({
+            date: delivery.date || '',
+            time: delivery.time || '',
+            carrier: delivery.carrier || '',
+            supplier: delivery.supplier || '',
+            invoiceNumber: delivery.invoiceNumber || '',
+            quantity: delivery.quantity || '',
+            volumeType: delivery.volumeType || 'Caixa(s)',
+            xml: delivery.xml || '',
+            observations: delivery.observations || ''
+        });
         setEditingId(delivery.id);
         setShowForm(true);
     };
@@ -212,7 +243,7 @@ const DeliverySchedule = () => {
     };
 
     const handleCancel = () => {
-        setFormData({
+        reset({
             date: '',
             time: '',
             carrier: '',
@@ -311,11 +342,11 @@ const DeliverySchedule = () => {
             title="Agendamento de Entrega"
             subtitle="Registre e gerencie as entregas programadas"
             actions={
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
                     <Button variant="ghost" onClick={() => navigate('/menu')}>
                         Voltar ao Menu
                     </Button>
-                    <Button variant="secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Button variant="secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="6 9 6 2 18 2 18 9"></polyline>
                             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -334,11 +365,11 @@ const DeliverySchedule = () => {
 
             {/* Filters Section */}
             {!showForm && (
-                <Card style={{ marginBottom: '24px' }} padding="var(--space-5)">
+                <Card style={{ marginBottom: 'var(--space-4)' }} padding="var(--space-5)">
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                        gap: '16px',
+                        gap: 'var(--space-4)',
                         alignItems: 'end'
                     }}>
                         <Input
@@ -406,10 +437,10 @@ const DeliverySchedule = () => {
                     {/* Active Filters Summary */}
                     {(filters.date || filters.month || filters.year || filters.supplier || filters.carrier) && (
                         <div style={{
-                            marginTop: '16px',
-                            paddingTop: '16px',
+                            marginTop: 'var(--space-4)',
+                            paddingTop: 'var(--space-4)',
                             borderTop: '1px solid var(--border-color)',
-                            fontSize: '12px',
+                            fontSize: 'var(--text-sm)',
                             color: 'var(--text-muted)',
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -423,7 +454,7 @@ const DeliverySchedule = () => {
                                 {filters.supplier && `Fornecedor: ${filters.supplier} • `}
                                 {filters.carrier && `Carrier: ${filters.carrier}`}
                             </span>
-                            <span style={{ color: 'var(--color-success)', fontWeight: '700' }}>
+                            <span style={{ color: 'var(--color-success)', fontWeight: 'var(--font-bold)' }}>
                                 {filteredDeliveries.length} registros encontrados
                             </span>
                         </div>
@@ -433,119 +464,123 @@ const DeliverySchedule = () => {
 
             {/* Form Section */}
             {showForm && (
-                <Card style={{ marginBottom: '24px' }} padding="var(--space-8)">
+                <Card style={{ marginBottom: 'var(--space-4)' }} padding="var(--space-8)">
                     <h2 style={{
-                        fontSize: '20px',
+                        fontSize: 'var(--text-2xl)',
                         fontWeight: '800',
                         color: 'var(--text-main)',
-                        marginBottom: '24px',
+                        marginBottom: 'var(--space-4)',
                         letterSpacing: '-0.03em'
                     }}>
                         {editingId ? 'Editar Agendamento' : 'Novo Agendamento'}
                     </h2>
 
-                    <form onSubmit={handleSubmit}>
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                            gap: '20px',
-                            marginBottom: '20px'
-                        }}>
-                            <Input
-                                label="Data *"
-                                type="date"
-                                name="date"
-                                value={formData.date}
-                                onChange={handleInputChange}
-                                required
-                            />
-
-                            <Input
-                                label="Horário *"
-                                type="time"
-                                name="time"
-                                value={formData.time}
-                                onChange={handleInputChange}
-                                required
-                            />
-
-                            <Select
-                                label="Transportadora *"
-                                name="carrier"
-                                value={formData.carrier}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="">Selecione...</option>
-                                {carriers.map(c => (
-                                    <option key={c} value={c}>{c}</option>
-                                ))}
-                            </Select>
-
-                            <Input
-                                label="Fornecedor *"
-                                type="text"
-                                name="supplier"
-                                value={formData.supplier}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Nome do fornecedor"
-                            />
-
-                            <Input
-                                label="Nota Fiscal *"
-                                type="text"
-                                name="invoiceNumber"
-                                value={formData.invoiceNumber}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Número da NF"
-                            />
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: '800px', margin: '0 auto' }}>
+                        <FormSection title="Programação" description="Data e momento previstos.">
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                gap: 'var(--space-4)'
+                            }}>
                                 <Input
-                                    label="Quantidade *"
-                                    type="number"
-                                    name="quantity"
-                                    value={formData.quantity}
-                                    onChange={handleInputChange}
-                                    required
-                                    min="1"
+                                    label="Data *"
+                                    type="date"
+                                    error={errors.date?.message}
+                                    {...register('date')}
                                 />
 
+                                <Input
+                                    label="Horário *"
+                                    type="time"
+                                    error={errors.time?.message}
+                                    {...register('time')}
+                                />
+                            </div>
+                        </FormSection>
+
+                        <FormSection title="Logística" description="Empresas envolvidas na entrega.">
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                gap: 'var(--space-4)'
+                            }}>
                                 <Select
-                                    label="Volume *"
-                                    name="volumeType"
-                                    value={formData.volumeType}
-                                    onChange={handleInputChange}
-                                    required
+                                    label="Transportadora *"
+                                    error={errors.carrier?.message}
+                                    {...register('carrier')}
                                 >
-                                    {volumeTypes.map(v => (
-                                        <option key={v} value={v}>{v}</option>
+                                    <option value="">Selecione...</option>
+                                    {carriers.map(c => (
+                                        <option key={c} value={c}>{c}</option>
                                     ))}
                                 </Select>
+
+                                <Input
+                                    label="Fornecedor *"
+                                    type="text"
+                                    placeholder="Nome do fornecedor"
+                                    error={errors.supplier?.message}
+                                    {...register('supplier')}
+                                />
                             </div>
-                        </div>
+                        </FormSection>
 
-                        <Input
-                            label="XML (Opcional)"
-                            type="text"
-                            name="xml"
-                            value={formData.xml}
-                            onChange={handleInputChange}
-                            placeholder="Código ou link do XML"
-                        />
+                        <FormSection title="Carga e Documentação" description="Detalhes sobre a carga e NF.">
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                gap: 'var(--space-4)'
+                            }}>
+                                <Input
+                                    label="Nota Fiscal *"
+                                    type="text"
+                                    placeholder="Número da NF"
+                                    error={errors.invoiceNumber?.message}
+                                    {...register('invoiceNumber')}
+                                />
 
-                        <Textarea
-                            label="Observação"
-                            name="observations"
-                            value={formData.observations}
-                            onChange={handleInputChange}
-                            placeholder="Notas adicionais sobre a entrega..."
-                            containerStyle={{ marginTop: '20px' }}
-                        />
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                                    <Input
+                                        label="Quantidade *"
+                                        type="number"
+                                        min="1"
+                                        error={errors.quantity?.message}
+                                        {...register('quantity')}
+                                    />
 
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '32px' }}>
+                                    <Select
+                                        label="Volume *"
+                                        error={errors.volumeType?.message}
+                                        {...register('volumeType')}
+                                    >
+                                        {volumeTypes.map(v => (
+                                            <option key={v} value={v}>{v}</option>
+                                        ))}
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: 'var(--space-5)' }}>
+                                <Input
+                                    label="XML (Opcional)"
+                                    type="text"
+                                    placeholder="Código ou link do XML"
+                                    error={errors.xml?.message}
+                                    {...register('xml')}
+                                />
+                            </div>
+
+                            <Textarea
+                                label="Observação"
+                                placeholder="Notas adicionais sobre a entrega..."
+                                containerStyle={{ marginTop: 'var(--space-5)' }}
+                                error={errors.observations?.message}
+                                {...register('observations')}
+                                rows="4"
+                            />
+                        </FormSection>
+
+                        <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end', marginTop: 'var(--space-8)' }}>
                             <Button
                                 variant="secondary"
                                 onClick={handleCancel}
@@ -556,8 +591,10 @@ const DeliverySchedule = () => {
                             <Button
                                 variant="primary"
                                 type="submit"
+                                isLoading={isSubmitting}
+                                disabled={isSubmitting || !isDirty}
                             >
-                                {editingId ? 'Atualizar' : 'Salvar'}
+                                {editingId ? 'Atualizar Agendamento' : 'Salvar Agendamento'}
                             </Button>
                         </div>
                     </form>
@@ -573,28 +610,28 @@ const DeliverySchedule = () => {
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
                                         <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-elevated)' }}>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Data</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Hora</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Transportadora</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Fornecedor</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>NF</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Qtd/Vol</th>
-                                            <th style={{ padding: '16px 20px', textAlign: 'right', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Ações</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Data</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Hora</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Transportadora</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Fornecedor</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>NF</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Qtd/Vol</th>
+                                            <th style={{ padding: '16px 20px', textAlign: 'right', fontWeight: '800', fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {filteredDeliveries.map((delivery) => (
                                             <tr key={delivery.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                                                <td style={{ padding: '14px 20px', fontWeight: '600' }}>
+                                                <td style={{ padding: '14px 20px', fontWeight: 'var(--font-semibold)' }}>
                                                     {delivery.date ? delivery.date.split('-').reverse().join('/') : '-'}
                                                 </td>
                                                 <td style={{ padding: '14px 20px' }}>{delivery.time}</td>
-                                                <td style={{ padding: '14px 20px', fontWeight: '500' }}>{delivery.carrier}</td>
+                                                <td style={{ padding: '14px 20px', fontWeight: 'var(--font-medium)' }}>{delivery.carrier}</td>
                                                 <td style={{ padding: '14px 20px' }}>{delivery.supplier}</td>
                                                 <td style={{ padding: '14px 20px' }}>{delivery.invoiceNumber}</td>
                                                 <td style={{ padding: '14px 20px' }}>{delivery.quantity} {delivery.volumeType}</td>
                                                 <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
                                                         <Button variant="ghost" dense onClick={() => handleEdit(delivery)} style={{ color: 'var(--color-info)' }}>
                                                             Editar
                                                         </Button>
@@ -611,7 +648,7 @@ const DeliverySchedule = () => {
                         </Card>
                     ) : deliveries.length > 0 ? (
                         <Card padding="64px 24px" style={{ textAlign: 'center' }}>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}>
                                 Nenhum agendamento encontrado para os filtros selecionados.
                             </p>
                             <Button variant="secondary" onClick={clearFilters}>
@@ -621,9 +658,9 @@ const DeliverySchedule = () => {
                     ) : (
                         <Card padding="80px 24px" style={{ textAlign: 'center' }}>
                             <div style={{
-                                width: '64px', height: '64px',
+                                width: 'var(--space-16)', height: 'var(--space-16)',
                                 background: 'var(--bg-elevated)',
-                                borderRadius: '24px',
+                                borderRadius: 'var(--space-6)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -636,8 +673,8 @@ const DeliverySchedule = () => {
                                     <line x1="12" y1="8" x2="12" y2="16"></line>
                                 </svg>
                             </div>
-                            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>Sem agenda</h3>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--font-bold)', marginBottom: 'var(--space-4)' }}>Sem agenda</h3>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}>
                                 Ainda não há entregas registradas nesta unidade.
                             </p>
                             <Button variant="primary" onClick={() => setShowForm(true)}>

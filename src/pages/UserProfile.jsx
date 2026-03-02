@@ -6,19 +6,55 @@ import PageContainer from '@/components/ui/PageContainer';
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
 import * as api from '../services/api';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const profileSchema = z.object({
+    displayName: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres.'),
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional()
+}).refine((data) => {
+    if (data.newPassword && data.newPassword.length > 0) {
+        return data.newPassword.length >= 3;
+    }
+    return true;
+}, {
+    message: "A senha deve ter pelo menos 3 caracteres.",
+    path: ["newPassword"]
+}).refine((data) => {
+    if (data.newPassword || data.confirmPassword) {
+        return data.newPassword === data.confirmPassword;
+    }
+    return true;
+}, {
+    message: "As senhas não coincidem.",
+    path: ["confirmPassword"]
+});
 
 const UserProfile = () => {
     const { username, name, avatarUrl, updateUser, userRole } = useData();
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        displayName: '',
-        newPassword: '',
-        confirmPassword: ''
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(profileSchema),
+        mode: 'onTouched',
+        defaultValues: {
+            displayName: name || '',
+            newPassword: '',
+            confirmPassword: ''
+        }
     });
+
+    // Watch for disable logic
+    const newPasswordValue = watch('newPassword');
 
     const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -29,14 +65,13 @@ const UserProfile = () => {
 
     useEffect(() => {
         if (name) {
-            setFormData(prev => ({ ...prev, displayName: name }));
+            reset({
+                displayName: name,
+                newPassword: '',
+                confirmPassword: ''
+            });
         }
-    }, [name]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    }, [name, reset]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -46,17 +81,11 @@ const UserProfile = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const onFormSubmit = async (data) => {
         setStatus({ type: '', message: '' });
 
-        if (!formData.displayName.trim()) {
-            setStatus({ type: 'error', message: 'O nome não pode estar vazio.' });
-            return;
-        }
-
         const updates = {
-            name: formData.displayName
+            name: data.displayName
         };
 
         // Upload Image if selected
@@ -73,24 +102,15 @@ const UserProfile = () => {
             }
         }
 
-        if (formData.newPassword) {
-            if (formData.newPassword !== formData.confirmPassword) {
-                setStatus({ type: 'error', message: 'As senhas não coincidem.' });
-                return;
-            }
-            if (formData.newPassword.length < 3) {
-                setStatus({ type: 'error', message: 'A senha deve ter pelo menos 3 caracteres.' });
-                return;
-            }
-            updates.password = formData.newPassword;
+        if (data.newPassword) {
+            updates.password = data.newPassword;
         }
 
         try {
             await updateUser(username, updates);
             setStatus({ type: 'success', message: 'Perfil atualizado com sucesso!' });
-            setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+            reset({ displayName: data.displayName, newPassword: '', confirmPassword: '' });
 
-            // Clear success message after 3 seconds
             setTimeout(() => {
                 setStatus({ type: '', message: '' });
             }, 3000);
@@ -116,13 +136,13 @@ const UserProfile = () => {
                     zIndex: 0
                 }}></div>
 
-                <div style={{ textAlign: 'center', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+                <div style={{ textAlign: 'center', marginBottom: 'var(--space-4)', position: 'relative', zIndex: 1 }}>
                     <div style={{
                         width: '120px',
                         height: '120px',
                         borderRadius: '50%',
                         background: 'var(--bg-card)',
-                        padding: '4px',
+                        padding: 'var(--space-1)',
                         margin: '0 auto 20px auto',
                         boxShadow: 'var(--shadow-sm)',
                         border: '1px solid var(--border-color)'
@@ -133,8 +153,8 @@ const UserProfile = () => {
                             borderRadius: '50%',
                             background: 'var(--bg-input)',
                             color: 'var(--text-muted)',
-                            fontSize: '40px',
-                            fontWeight: '700',
+                            fontSize: 'var(--text-4xl)',
+                            fontWeight: 'var(--font-bold)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -142,7 +162,7 @@ const UserProfile = () => {
                             position: 'relative',
                             border: '1px solid var(--border-color)'
                         }}>
-                            {imagePreview || avatarUrl ? (
+{imagePreview || avatarUrl ? (
                                 <img
                                     src={imagePreview || avatarUrl}
                                     alt="Profile"
@@ -160,7 +180,7 @@ const UserProfile = () => {
                                 background: 'rgba(0,0,0,0.4)',
                                 color: 'white',
                                 fontSize: '10px',
-                                fontWeight: '700',
+                                fontWeight: 'var(--font-bold)',
                                 padding: '6px',
                                 cursor: 'pointer',
                                 display: 'flex',
@@ -180,10 +200,10 @@ const UserProfile = () => {
                             />
                         </div>
                     </div>
-                    <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: '24px', fontWeight: '800', letterSpacing: '-0.02em' }}>
+                    <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: 'var(--text-3xl)', fontWeight: '800', letterSpacing: '-0.02em' }}>
                         {formData.displayName || name}
                     </h2>
-                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '13px', fontWeight: '500' }}>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 'var(--font-medium)' }}>
                         {userRole === 'admin' ? 'Administrador do Sistema' : 'Usuário'}
                     </p>
                 </div>
@@ -191,38 +211,37 @@ const UserProfile = () => {
                 {status.message && (
                     <div style={{
                         padding: '12px 16px',
-                        borderRadius: '12px',
-                        marginBottom: '24px',
+                        borderRadius: 'var(--space-3)',
+                        marginBottom: 'var(--space-6)',
                         fontSize: '13px',
                         textAlign: 'left',
-                        fontWeight: '600',
+                        fontWeight: 'var(--font-semibold)',
                         background: status.type === 'error' ? 'var(--color-error-dim)' : 'var(--color-success-dim)',
                         color: status.type === 'error' ? 'var(--color-error)' : 'var(--color-success)',
                         border: `1px solid ${status.type === 'error' ? 'var(--color-error)20' : 'var(--color-success)20'}`,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px'
+                        gap: 'var(--space-2)'
                     }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
                         {status.message}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 1 }}>
+                <form onSubmit={handleSubmit(onFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto'}}>
                     <Input
                         label="Usuário (Login)"
                         type="text"
-                        value={username || ''}
+                        defaultValue={username || ''}
                         disabled
                     />
 
                     <Input
                         label="Nome de Exibição"
                         type="text"
-                        name="displayName"
-                        value={formData.displayName}
-                        onChange={handleChange}
                         placeholder="Seu nome completo"
+                        error={errors.displayName?.message}
+                        {...register('displayName')}
                     />
 
                     <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 0', opacity: 0.5 }}></div>
@@ -230,24 +249,22 @@ const UserProfile = () => {
                     <Input
                         label="Nova Senha (Opcional)"
                         type="password"
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleChange}
                         placeholder="••••••••"
+                        error={errors.newPassword?.message}
+                        {...register('newPassword')}
                     />
 
                     <Input
                         label="Confirmar Nova Senha"
                         type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
                         placeholder="••••••••"
-                        disabled={!formData.newPassword}
+                        disabled={!newPasswordValue}
+                        error={errors.confirmPassword?.message}
+                        {...register('confirmPassword')}
                     />
 
-                    <div style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
-                        <Button
+                    <div style={{ marginTop: 'var(--space-3)', display: 'flex', gap: 'var(--space-4)' }}>
+<Button
                             variant="ghost"
                             type="button"
                             onClick={() => navigate('/menu')}

@@ -15,7 +15,7 @@ const TechnicalAssistance = () => {
                 subtitle={`Módulo em desenvolvimento para a unidade ${activeUnit === 'madville' ? 'Madville' : 'Curitiba'}`}
             >
                 <Card padding="20px">
-                    <p style={{ color: '#666' }}>
+                    <p style={{ color: 'var(--text-muted)' }}>
                         Suporte e Manutenção em desenvolvimento.
                     </p>
                 </Card>

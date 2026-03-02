@@ -6,11 +6,30 @@ import PageContainer from '@/components/ui/PageContainer';
 import Card from '@/components/ui/Card';
 
 import React, { useState, useEffect } from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import FormSection from '@/components/ui/FormSection';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { fetchReturns, saveReturn, deleteReturn } from '../../services/api';
 
 import logoGmad from '../../assets/logo.png';
+
+
+const returnSchema = z.object({
+    idNota: z.string().min(1, 'ID da Nota é obrigatório'),
+    date: z.string().min(1, 'Data é obrigatória'),
+    issueDate: z.string().optional(),
+    driverName: z.string().min(3, 'Nome do Motorista/Vendedor é obrigatório'),
+    customerName: z.string().min(3, 'Nome do Cliente é obrigatório'),
+    observations: z.string().optional(),
+    products: z.array(z.object({
+        description: z.string().optional(),
+        code: z.string().optional(),
+        quantity: z.string().optional()
+    })).default([])
+});
 
 const Returns = () => {
     const navigate = useNavigate();
@@ -25,21 +44,39 @@ const Returns = () => {
         customerName: '',
         driverName: ''
     });
-    const [formData, setFormData] = useState({
-        idNota: '',
-        date: new Date().toISOString().split('T')[0],
-        issueDate: '',
-        driverName: '',
-        customerName: '',
-        products: [
-            { description: '', code: '', quantity: '' },
-            { description: '', code: '', quantity: '' },
-            { description: '', code: '', quantity: '' },
-            { description: '', code: '', quantity: '' },
-            { description: '', code: '', quantity: '' },
-            { description: '', code: '', quantity: '' }
-        ],
-        observations: ''
+    const {
+        register,
+        handleSubmit,
+        reset,
+        control,
+        watch,
+        setValue,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(returnSchema),
+        mode: 'onTouched',
+        defaultValues: {
+            idNota: '',
+            date: new Date().toISOString().split('T')[0],
+            issueDate: '',
+            driverName: '',
+            customerName: '',
+            products: Array(6).fill({ description: '', code: '', quantity: '' }),
+            observations: ''
+        }
+    });
+
+    const formData = watch();
+
+    const handleProductChange = (index, field, value) => {
+        const newProducts = [...formData.products];
+        newProducts[index] = { ...newProducts[index], [field]: value };
+        setValue('products', newProducts);
+    };
+
+    const { fields } = useFieldArray({
+        control,
+        name: 'products'
     });
 
     // Load returns from Supabase
@@ -51,13 +88,6 @@ const Returns = () => {
         loadReturns();
     }, [activeUnit]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -77,20 +107,10 @@ const Returns = () => {
         });
     };
 
-    const handleProductChange = (index, field, value) => {
-        const newProducts = [...formData.products];
-        newProducts[index][field] = value;
-        setFormData(prev => ({
-            ...prev,
-            products: newProducts
-        }));
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const onSubmit = async (data) => {
         const returnData = {
-            ...formData,
+            ...data,
             id: editingId,
             unit: activeUnit
         };
@@ -99,11 +119,11 @@ const Returns = () => {
 
         if (result.success) {
             // Refresh
-            const data = await fetchReturns(activeUnit);
-            setReturns(data);
+            const refreshed = await fetchReturns(activeUnit);
+            setReturns(refreshed);
 
             // Reset form
-            setFormData({
+            reset({
                 idNota: '',
                 date: new Date().toISOString().split('T')[0],
                 issueDate: '',
@@ -122,7 +142,7 @@ const Returns = () => {
     };
 
     const handleEdit = (returnData) => {
-        setFormData({
+        reset({
             idNota: returnData.idNota,
             date: returnData.date,
             issueDate: returnData.issueDate || '',
@@ -487,23 +507,48 @@ const Returns = () => {
     });
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
-            <PageContainer
-                maxWidth="1400px"
-                title="Gestão de Devoluções"
-                subtitle="Registre e gerencie devoluções de produtos"
-                actions={
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <Button variant="ghost" onClick={() => navigate('/menu')}>
-                            ← Voltar ao Menu
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-main)', transition: 'all 0.15s' }}>
+            <div style={{ padding: '24px 40px' }}>
+                {/* Header Section */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div>
+                        <h1 style={{
+                            fontSize: '20px',
+                            fontWeight: 'var(--font-bold)',
+                            color: 'var(--text-main)',
+                            margin: '0 0 4px 0',
+                            letterSpacing: '-0.01em'
+                        }}>
+                            Gestão de Devoluções
+                        </h1>
+                        <p style={{
+                            color: 'var(--text-muted)',
+                            fontSize: '12px',
+                            margin: 0
+                        }}>
+                            Registre e gerencie devoluções de produtos • ERP Viasoft
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+<Button
+                            variant="ghost"
+                            onClick={() => navigate('/menu')}
+                            style={{
+                                height: '36px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                color: 'var(--text-muted)'
+                            }}
+                        >
+                            Voltar ao Menu
                         </Button>
                         <Button
-                            variant={showForm ? 'danger' : 'success'}
+                            variant={showForm ? 'ghost' : 'success'}
                             onClick={() => {
                                 if (showForm && editingId) {
-                                    // Cancel editing
                                     setEditingId(null);
-                                    setFormData({
+                                    reset({
                                         idNota: '',
                                         date: new Date().toISOString().split('T')[0],
                                         issueDate: '',
@@ -516,13 +561,17 @@ const Returns = () => {
                                 setShowForm(!showForm);
                             }}
                             style={{
+                                height: '36px',
+                                padding: '0 16px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px'
+                                gap: 'var(--space-4)',
+                                fontSize: '13px',
+                                fontWeight: '600'
                             }}
                         >
                             {!showForm && (
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
@@ -530,221 +579,215 @@ const Returns = () => {
                             {showForm ? 'Cancelar' : 'Nova Devolução'}
                         </Button>
                     </div>
-                }
-            >
+                </div>
 
-                {/* Form */}
+                {/* Form Section */}
                 {showForm && (
                     <div style={{
-                        background: 'white',
-                        borderRadius: '16px',
-                        padding: '30px',
-                        marginBottom: '25px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                        background: 'var(--bg-card)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: 'var(--density-card-padding)',
+                        marginBottom: "var(--space-4)",
+                        border: '1px solid var(--border-color)',
+                        boxShadow: 'var(--shadow-md)',
+                        position: 'relative'
                     }}>
-                        <h2 style={{
-                            fontSize: '20px',
-                            fontWeight: '700',
-                            color: '#333',
-                            marginBottom: '20px'
-                        }}>
-                            {editingId ? 'Editar Devolução' : 'Registrar Nova Devolução'}
-                        </h2>
-
-                        <form onSubmit={handleSubmit}>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                gap: '20px',
-                                marginBottom: '20px'
-                            }}>
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555',
-                                        marginBottom: '6px'
-                                    }}>
-                                        ID NOTA *
-                                    </label>
-                                    <Input
-                                        type="text"
-                                        name="idNota"
-                                        value={formData.idNota}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555',
-                                        marginBottom: '6px'
-                                    }}>
-                                        Data *
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        name="date"
-                                        value={formData.date}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555',
-                                        marginBottom: '6px'
-                                    }}>
-                                        Data de Emissão
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        name="issueDate"
-                                        value={formData.issueDate}
-                                        onChange={handleInputChange}
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                gap: '20px',
-                                marginBottom: '20px'
-                            }}>
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555',
-                                        marginBottom: '6px'
-                                    }}>
-                                        Nome (Motorista/Vendedor) *
-                                    </label>
-                                    <Input
-                                        type="text"
-                                        name="driverName"
-                                        value={formData.driverName}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        color: '#555',
-                                        marginBottom: '6px'
-                                    }}>
-                                        Nome do Cliente *
-                                    </label>
-                                    <Input
-                                        type="text"
-                                        name="customerName"
-                                        value={formData.customerName}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '20px' }}>
-                                <h3 style={{
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    color: '#333',
-                                    marginBottom: '12px'
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div>
+                                <h2 style={{
+                                    fontSize: '18px',
+                                    fontWeight: 'var(--font-bold)',
+                                    color: 'var(--text-main)',
+                                    margin: 0
                                 }}>
-                                    Produtos
-                                </h3>
+                                    {editingId ? 'Editar Devolução' : 'Registrar Nova Devolução'}
+                                </h2>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                                    Preencha os dados da nota e os itens para devolução
+                                </p>
+                            </div>
+                        </div>
 
+                        <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                gap: "var(--space-4)",
+                                marginBottom: "var(--space-4)"
+                            }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>ID NOTA *</label>
+                                    <Input
+                                        {...register('idNota')}
+                                        style={{
+                                            width: '100%',
+                                            height: '36px',
+                                            padding: '0 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                    {errors.idNota && <span style={{ color: 'var(--color-error-strong)', fontSize: '11px' }}>{errors.idNota.message}</span>}
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Data *</label>
+                                    <Input
+                                        type="date"
+                                        {...register('date')}
+                                        style={{
+                                            width: '100%',
+                                            height: '36px',
+                                            padding: '0 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                    {errors.date && <span style={{ color: 'var(--color-error-strong)', fontSize: '11px' }}>{errors.date.message}</span>}
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Data de Emissão</label>
+                                    <Input
+                                        type="date"
+                                        {...register('issueDate')}
+                                        style={{
+                                            width: '100%',
+                                            height: '36px',
+                                            padding: '0 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1fr',
+                                gap: "var(--space-4)",
+                                marginBottom: "var(--space-4)"
+                            }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Motorista / Vendedor *</label>
+                                    <Input
+                                        {...register('driverName')}
+                                        placeholder="Nome completo"
+                                        style={{
+                                            width: '100%',
+                                            height: '36px',
+                                            padding: '0 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                    {errors.driverName && <span style={{ color: 'var(--color-error-strong)', fontSize: '11px' }}>{errors.driverName.message}</span>}
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Nome do Cliente *</label>
+                                    <Input
+                                        {...register('customerName')}
+                                        placeholder="Nome do cliente/fantasia"
+                                        style={{
+                                            width: '100%',
+                                            height: '36px',
+                                            padding: '0 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                    {errors.customerName && <span style={{ color: 'var(--color-error-strong)', fontSize: '11px' }}>{errors.customerName.message}</span>}
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: "var(--space-4)" }}>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Produtos da Devolução</label>
                                 <div style={{
-                                    border: '1px solid #ddd',
-                                    borderRadius: '4px',
-                                    overflow: 'hidden'
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: 'var(--radius-xs)',
+                                    overflow: 'hidden',
+                                    background: 'var(--bg-main)'
                                 }}>
                                     <Table>
                                         <Thead>
-                                            <Tr>
-                                                <Th style={{ width: '50px', textTransform: 'uppercase' }}>#</Th>
-                                                <Th style={{ textTransform: 'uppercase' }}>Descrição</Th>
-                                                <Th style={{ width: '150px', textTransform: 'uppercase' }}>Código</Th>
-                                                <Th style={{ width: '120px', textTransform: 'uppercase' }}>Quantidade</Th>
+                                            <Tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
+                                                <Th style={{ width: '40px', padding: '10px', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)' }}>#</Th>
+                                                <Th style={{ padding: '10px', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)' }}>DESCRIÇÃO DO PRODUTO</Th>
+                                                <Th style={{ width: '120px', padding: '10px', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)' }}>CÓDIGO</Th>
+                                                <Th style={{ width: '100px', padding: '10px', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)' }}>QUANTIDADE</Th>
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {formData.products.map((product, index) => (
-                                                <Tr key={index}>
-                                                    <Td>{index + 1}</Td>
-                                                    <Td>
+                                            {fields.map((field, index) => (
+                                                <Tr key={field.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                                    <Td style={{ padding: '8px 10px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>{index + 1}</Td>
+                                                    <Td style={{ padding: '6px 10px' }}>
                                                         <Input
                                                             type="text"
-                                                            value={product.description}
+                                                            value={formData.products[index]?.description || ''}
                                                             onChange={(e) => handleProductChange(index, 'description', e.target.value)}
-                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
+                                                            placeholder="Ex: MDF Branco TX 15mm"
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '28px',
+                                                                padding: '0 8px',
+                                                                background: 'transparent',
+                                                                border: '1px solid var(--border-subtle)',
+                                                                borderRadius: '2px',
+                                                                fontSize: '12px',
+                                                                color: 'var(--text-main)'
+                                                            }}
                                                         />
                                                     </Td>
-                                                    <Td>
+                                                    <Td style={{ padding: '6px 10px' }}>
                                                         <Input
                                                             type="text"
-                                                            value={product.code}
+                                                            value={formData.products[index]?.code || ''}
                                                             onChange={(e) => handleProductChange(index, 'code', e.target.value)}
-                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '28px',
+                                                                padding: '0 8px',
+                                                                background: 'transparent',
+                                                                border: '1px solid var(--border-subtle)',
+                                                                borderRadius: '2px',
+                                                                fontSize: '12px',
+                                                                color: 'var(--text-main)'
+                                                            }}
                                                         />
                                                     </Td>
-                                                    <Td>
+                                                    <Td style={{ padding: '6px 10px' }}>
                                                         <Input
-                                                            type="number"
-                                                            value={product.quantity}
+                                                            type="text"
+                                                            value={formData.products[index]?.quantity || ''}
                                                             onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                                                            style={{ width: '100%', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '3px', fontSize: '13px' }}
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '28px',
+                                                                padding: '0 8px',
+                                                                background: 'transparent',
+                                                                border: '1px solid var(--border-subtle)',
+                                                                borderRadius: '2px',
+                                                                fontSize: '12px',
+                                                                color: 'var(--text-main)',
+                                                                textAlign: 'center'
+                                                            }}
                                                         />
                                                     </Td>
                                                 </Tr>
@@ -754,27 +797,20 @@ const Returns = () => {
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px'
-                                }}>
-                                    Observações
-                                </label>
+                            <div style={{ marginBottom: "var(--space-4)" }}>
+                                <label style={{ display: 'block', fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Observações Internas</label>
                                 <Textarea
-                                    name="observations"
-                                    value={formData.observations}
-                                    onChange={handleInputChange}
-                                    rows="4"
+                                    {...register('observations')}
+                                    placeholder="Detalhes adicionais sobre o estado dos produtos ou motivo da devolução..."
+                                    rows="3"
                                     style={{
                                         width: '100%',
-                                        padding: '10px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '14px',
+                                        padding: '12px',
+                                        background: 'var(--bg-input)',
+                                        border: '1px solid var(--border-color)',
+                                        borderRadius: 'var(--radius-xs)',
+                                        fontSize: '13px',
+                                        color: 'var(--text-main)',
                                         resize: 'vertical'
                                     }}
                                 />
@@ -782,39 +818,25 @@ const Returns = () => {
 
                             <div style={{
                                 display: 'flex',
-                                gap: '12px',
-                                justifyContent: 'flex-end'
+                                gap: 'var(--space-4)',
+                                justifyContent: 'flex-end',
+                                borderTop: '1px solid var(--border-subtle)',
+                                paddingTop: '20px'
                             }}>
-                                <Button
+<Button
                                     type="button"
+                                    variant="ghost"
                                     onClick={() => setShowForm(false)}
-                                    style={{
-                                        background: '#f5f5f5',
-                                        color: '#666',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '10px 20px',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
+                                    style={{ height: '36px', padding: '0 20px', fontSize: '13px', fontWeight: '600' }}
                                 >
-                                    Cancelar
+                                    Descartar
                                 </Button>
                                 <Button
                                     type="submit"
-                                    style={{
-                                        background: '#2e7d32',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '10px 20px',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
+                                    variant="success"
+                                    style={{ height: '36px', padding: '0 24px', fontSize: '13px', fontWeight: 'var(--font-bold)' }}
                                 >
-                                    {editingId ? 'Atualizar Devolução' : 'Registrar Devolução'}
+                                    {editingId ? 'Salvar Alterações' : 'Confirmar Devolução'}
                                 </Button>
                             </div>
                         </form>
@@ -823,32 +845,33 @@ const Returns = () => {
 
                 {/* Filters Section */}
                 {!showForm && (
-                    <Card padding="25px" style={{ marginBottom: '25px' }}>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '20px'
-                        }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#333'
+                    <div style={{
+                        background: 'var(--bg-card)',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border-color)',
+                        padding: '16px 24px',
+                        marginBottom: "var(--space-4)",
+                        boxShadow: 'var(--shadow-sm)'
+                    }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<h3 style={{
+                                fontSize: '14px',
+                                fontWeight: 'var(--font-bold)',
+                                color: 'var(--text-main)',
+                                margin: 0
                             }}>
-                                Filtros
+                                Filtros de Busca
                             </h3>
                             <Button
                                 onClick={clearFilters}
+                                variant="ghost"
                                 style={{
-                                    background: '#95a5a6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    padding: '8px 16px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    textTransform: 'uppercase'
+                                    height: '28px',
+                                    fontSize: '11px',
+                                    fontWeight: 'var(--font-bold)',
+                                    color: 'var(--color-accent)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.02em'
                                 }}
                             >
                                 Limpar Filtros
@@ -857,299 +880,216 @@ const Returns = () => {
 
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '15px'
+                            gridTemplateColumns: 'repeat(5, 1fr)',
+                            gap: "var(--space-4)"
                         }}>
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    ID NOTA
-                                </label>
-                                <Input
-                                    type="text"
-                                    name="idNota"
-                                    value={filters.idNota}
-                                    onChange={handleFilterChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Data
-                                </label>
-                                <Input
-                                    type="date"
-                                    name="date"
-                                    value={filters.date}
-                                    onChange={handleFilterChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Data de Emissão
-                                </label>
-                                <Input
-                                    type="date"
-                                    name="issueDate"
-                                    value={filters.issueDate}
-                                    onChange={handleFilterChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Cliente
-                                </label>
-                                <Input
-                                    type="text"
-                                    name="customerName"
-                                    value={filters.customerName}
-                                    onChange={handleFilterChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#555',
-                                    marginBottom: '6px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Responsável
-                                </label>
-                                <Input
-                                    type="text"
-                                    name="driverName"
-                                    value={filters.driverName}
-                                    onChange={handleFilterChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}
-                                />
-                            </div>
+                            {[
+                                { label: 'ID NOTA', name: 'idNota', type: 'text' },
+                                { label: 'Data', name: 'date', type: 'date' },
+                                { label: 'Data de Emissão', name: 'issueDate', type: 'date' },
+                                { label: 'Cliente', name: 'customerName', type: 'text' },
+                                { label: 'Responsável', name: 'driverName', type: 'text' }
+                            ].map(field => (
+                                <div key={field.name}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '11px',
+                                        fontWeight: 'var(--font-bold)',
+                                        color: 'var(--text-muted)',
+                                        marginBottom: 'var(--space-4)',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.02em'
+                                    }}>
+                                        {field.label}
+                                    </label>
+                                    <Input
+                                        type={field.type}
+                                        name={field.name}
+                                        value={filters[field.name]}
+                                        onChange={handleFilterChange}
+                                        style={{
+                                            width: '100%',
+                                            height: '32px',
+                                            padding: '0 10px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            fontSize: '13px',
+                                            color: 'var(--text-main)'
+                                        }}
+                                    />
+                                </div>
+                            ))}
                         </div>
 
                         {Object.values(filters).some(v => v) && (
                             <div style={{
-                                marginTop: '15px',
-                                padding: '10px',
-                                background: '#e3f2fd',
-                                borderRadius: '4px',
-                                fontSize: '13px',
-                                color: '#1976d2'
+                                marginTop: '16px',
+                                padding: '8px 12px',
+                                background: 'var(--color-info-light)',
+                                borderRadius: 'var(--radius-xs)',
+                                fontSize: '12px',
+                                color: 'var(--color-info-strong)',
+                                fontWeight: '600',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-4)'
                             }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
                                 <strong>{filteredReturns.length}</strong> resultado(s) encontrado(s)
                             </div>
                         )}
-                    </Card>
+                    </div>
                 )}
 
                 {/* Returns List */}
-                <Card padding="25px">
+                <div style={{
+                    background: 'var(--bg-card)',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-color)',
+                    padding: 'var(--density-card-padding)',
+                    boxShadow: 'var(--shadow-sm)'
+                }}>
                     <h2 style={{
-                        fontSize: '20px',
-                        fontWeight: '700',
-                        color: '#333',
-                        marginBottom: '20px'
+                        fontSize: '16px',
+                        fontWeight: 'var(--font-bold)',
+                        color: 'var(--text-main)',
+                        marginBottom: 'var(--space-4)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-4)'
                     }}>
-                        Devoluções Registradas ({filteredReturns.length})
+                        Devoluções Registradas
+                        <span style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: 'var(--text-muted)',
+                            background: 'var(--bg-main)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            border: '1px solid var(--border-color)'
+                        }}>
+                            {filteredReturns.length}
+                        </span>
                     </h2>
 
                     {filteredReturns.length === 0 ? (
                         <div style={{
                             textAlign: 'center',
-                            padding: '40px',
-                            color: '#999'
+                            padding: '60px 0',
+                            color: 'var(--text-muted)'
                         }}>
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ margin: '0 auto 16px' }}>
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ margin: '0 auto 16px', opacity: 0.3 }}>
                                 <polyline points="9 14 4 9 9 4"></polyline>
                                 <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
                             </svg>
-                            <p style={{ fontSize: '16px' }}>Nenhuma devolução registrada ainda</p>
+                            <p style={{ fontSize: '14px' }}>Nenhuma devolução encontrada para os critérios selecionados.</p>
                         </div>
                     ) : (
                         <div style={{
                             display: 'grid',
-                            gap: '15px'
+                            gap: "var(--space-4)"
                         }}>
                             {filteredReturns.map(returnData => (
                                 <div
                                     key={returnData.id}
                                     style={{
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: '6px',
+                                        border: '1px solid var(--border-subtle)',
+                                        borderRadius: 'var(--radius-sm)',
                                         padding: '20px',
-                                        transition: 'all 0.2s'
+                                        background: 'var(--bg-main)',
+                                        transition: 'all 0.2s',
+                                        position: 'relative'
                                     }}
                                 >
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'flex-start',
-                                        marginBottom: '15px'
-                                    }}>
-                                        <div>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+<div style={{ flex: 1 }}>
                                             <div style={{
-                                                fontSize: '18px',
-                                                fontWeight: '700',
-                                                color: '#f57c00',
-                                                marginBottom: '8px'
+                                                fontSize: '15px',
+                                                fontWeight: 'var(--font-bold)',
+                                                color: 'var(--color-accent)',
+                                                marginBottom: 'var(--space-4)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 'var(--space-4)'
                                             }}>
-                                                IDNOTA Nº {returnData.idNota}
+IDNOTA Nº {returnData.idNota}
+                                                <span style={{
+                                                    fontSize: '11px',
+                                                    fontWeight: '600',
+                                                    color: 'var(--text-muted)',
+                                                    background: 'var(--bg-card)',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--border-color)'
+                                                }}>
+                                                    {returnData.date.split('-').reverse().join('/')}
+                                                </span>
                                             </div>
-                                            <div style={{
-                                                fontSize: '14px',
-                                                color: '#666',
-                                                marginBottom: '4px'
-                                            }}>
-                                                <strong>Cliente:</strong> {returnData.customerName}
-                                            </div>
-                                            <div style={{
-                                                fontSize: '14px',
-                                                color: '#666',
-                                                marginBottom: '4px'
-                                            }}>
-                                                <strong>Responsável:</strong> {returnData.driverName}
-                                            </div>
-                                            <div style={{
-                                                fontSize: '13px',
-                                                color: '#999'
-                                            }}>
-                                                Data: {returnData.date.split('-').reverse().join('/')}
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: "var(--space-4)" }}>
+                                                <div>
+                                                    <label style={{ fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-4)' }}>Cliente</label>
+                                                    <div style={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: '600' }}>{returnData.customerName}</div>
+                                                </div>
+                                                <div>
+                                                    <label style={{ fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 'var(--space-4)' }}>Responsável</label>
+                                                    <div style={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: '600' }}>{returnData.driverName}</div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div style={{
                                             display: 'flex',
-                                            gap: '8px'
+                                            gap: 'var(--space-4)'
                                         }}>
-                                            <Button
+<Button
                                                 onClick={() => handleEdit(returnData)}
+                                                variant="ghost"
                                                 style={{
-                                                    background: '#4CAF50',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    padding: '8px 16px',
-                                                    fontSize: '13px',
+                                                    height: '32px',
+                                                    padding: '0 12px',
+                                                    fontSize: '12px',
                                                     fontWeight: '600',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px'
+                                                    color: 'var(--color-success-strong)',
+                                                    border: '1px solid var(--color-success-light)',
+                                                    background: 'var(--color-success-light)'
                                                 }}
                                             >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
                                                 Editar
                                             </Button>
                                             <Button
                                                 onClick={() => handlePrint(returnData)}
+                                                variant="ghost"
                                                 style={{
-                                                    background: '#2196F3',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    padding: '8px 16px',
-                                                    fontSize: '13px',
+                                                    height: '32px',
+                                                    padding: '0 12px',
+                                                    fontSize: '12px',
                                                     fontWeight: '600',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px'
+                                                    color: 'var(--color-info-strong)',
+                                                    border: '1px solid var(--color-info-light)',
+                                                    background: 'var(--color-info-light)'
                                                 }}
                                             >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                                    <rect x="6" y="14" width="12" height="8"></rect>
-                                                </svg>
                                                 Imprimir
                                             </Button>
                                             <Button
                                                 onClick={() => handleDelete(returnData.id)}
+                                                variant="ghost"
                                                 style={{
-                                                    background: '#f44336',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    padding: '8px 16px',
-                                                    fontSize: '13px',
+                                                    height: '32px',
+                                                    padding: '0 12px',
+                                                    fontSize: '12px',
                                                     fontWeight: '600',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px'
+                                                    color: 'var(--color-error-strong)',
+                                                    border: '1px solid var(--color-error-light)',
+                                                    background: 'var(--color-error-light)'
                                                 }}
                                             >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
                                                 Excluir
                                             </Button>
                                         </div>
@@ -1157,47 +1097,61 @@ const Returns = () => {
 
                                     {returnData.products.some(p => p.description) && (
                                         <div style={{
-                                            background: '#f9f9f9',
-                                            borderRadius: '4px',
-                                            padding: '12px',
-                                            marginTop: '12px'
+                                            background: 'var(--bg-card)',
+                                            borderRadius: 'var(--radius-xs)',
+                                            padding: '12px 16px',
+                                            marginTop: '16px',
+                                            border: '1px solid var(--border-subtle)'
                                         }}>
                                             <div style={{
-                                                fontSize: '13px',
-                                                fontWeight: '600',
-                                                color: '#555',
-                                                marginBottom: '8px'
+                                                fontSize: '11px',
+                                                fontWeight: 'var(--font-bold)',
+                                                color: 'var(--text-muted)',
+                                                textTransform: 'uppercase',
+                                                marginBottom: 'var(--space-4)',
+                                                letterSpacing: '0.02em'
                                             }}>
-                                                Produtos:
+                                                ITENS DA DEVOLUÇÃO
                                             </div>
-                                            {returnData.products.filter(p => p.description).map((product, idx) => (
-                                                <div key={idx} style={{
-                                                    fontSize: '13px',
-                                                    color: '#666',
-                                                    marginBottom: '4px'
-                                                }}>
-                                                    • {product.description} {product.code && `(${product.code})`} - Qtd: {product.quantity}
-                                                </div>
-                                            ))}
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 'var(--space-4)' }}>
+                                                {returnData.products.filter(p => p.description).map((product, idx) => (
+                                                    <div key={idx} style={{
+                                                        fontSize: '12px',
+                                                        color: 'var(--text-main)',
+                                                        background: 'var(--bg-main)',
+                                                        padding: '6px 10px',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid var(--border-subtle)',
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between'
+                                                    }}>
+<span>{product.description} {product.code && <small style={{ color: 'var(--text-muted)' }}>({product.code})</small>}</span>
+                                                        <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--color-accent)' }}>{product.quantity} un</span>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
 
                                     {returnData.observations && (
                                         <div style={{
                                             marginTop: '12px',
-                                            fontSize: '13px',
-                                            color: '#666',
-                                            fontStyle: 'italic'
+                                            fontSize: '12px',
+                                            color: 'var(--text-muted)',
+                                            background: 'var(--bg-input)',
+                                            padding: '8px 12px',
+                                            borderRadius: '4px',
+                                            borderLeft: '3px solid var(--border-color)'
                                         }}>
-                                            <strong>Obs:</strong> {returnData.observations}
+                                            <strong style={{ fontSize: '10px', textTransform: 'uppercase', marginRight: '8px' }}>Observações:</strong> {returnData.observations}
                                         </div>
                                     )}
                                 </div>
                             ))}
                         </div>
                     )}
-                </Card>
-            </PageContainer>
+                </div>
+            </div>
         </div>
     );
 };

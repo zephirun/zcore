@@ -1,5 +1,4 @@
 import Input from '@/components/ui/Input';
-
 import React, { useState, useRef, useEffect } from 'react';
 
 const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..." }) => {
@@ -30,21 +29,23 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
     };
 
     return (
-        <div ref={wrapperRef} style={{ position: 'relative', width: '100%', minWidth: '220px', fontFamily: '"Segoe UI", sans-serif' }}>
+        <div ref={wrapperRef} style={{ position: 'relative', width: '100%', minWidth: '220px' }}>
             {/* Toggle Button / Display */}
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
-                    padding: '8px 12px',
+                    padding: '0 14px',
+                    height: '40px',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--radius-sm)',
                     background: 'var(--bg-input)',
                     cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     fontSize: '13px',
-                    color: 'var(--text-main)'
+                    color: 'var(--text-main)',
+                    transition: 'all 0.2s ease',
                 }}
             >
                 <span style={{
@@ -52,28 +53,34 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: '180px',
-                    color: value === 'Todos' ? 'var(--text-muted)' : 'var(--text-main)'
+                    color: value === 'Selecionar Todos' || !value ? 'var(--text-muted)' : 'var(--text-main)',
+                    fontWeight: value && value !== 'Selecionar Todos' ? '600' : '400'
                 }}>
                     {value || placeholder}
                 </span>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>▼</span>
+                <span style={{
+                    fontSize: '9px',
+                    color: 'var(--text-muted)',
+                    marginLeft: '8px',
+                    transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                }}>▼</span>
             </div>
 
             {/* Dropdown Menu */}
             {isOpen && (
                 <div style={{
                     position: 'absolute',
-                    top: '100%',
+                    top: 'calc(100% + 4px)',
                     left: 0,
                     right: 0,
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--radius-sm)',
                     boxShadow: 'var(--shadow-md)',
                     zIndex: 1000,
                     maxHeight: '300px',
-                    overflowY: 'auto',
-                    marginTop: '2px'
+                    overflowY: 'auto'
                 }}>
                     {/* Search Input */}
                     <div style={{ padding: '8px', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: 'var(--bg-card)' }}>
@@ -85,9 +92,9 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{
                                 width: '100%',
-                                padding: '6px',
+                                padding: '8px',
                                 border: '1px solid var(--border-color)',
-                                borderRadius: '3px',
+                                borderRadius: 'var(--radius-sm)',
                                 fontSize: '12px',
                                 outline: 'none',
                                 background: 'var(--bg-input)',
@@ -104,21 +111,27 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Selecione..
                                     key={opt}
                                     onClick={() => handleSelect(opt)}
                                     style={{
-                                        padding: '8px 12px',
+                                        padding: '10px 14px',
                                         fontSize: '13px',
                                         cursor: 'pointer',
                                         borderBottom: '1px solid var(--border-color)',
-                                        background: value === opt ? 'var(--color-primary)' : 'var(--bg-card)',
-                                        color: value === opt ? 'var(--bg-main)' : 'var(--text-main)'
+                                        background: value === opt ? 'var(--color-info-light, #ecf5fe)' : 'transparent',
+                                        color: value === opt ? 'var(--color-info-strong, #005a9e)' : 'var(--text-main)',
+                                        fontWeight: value === opt ? '600' : '400',
+                                        transition: 'background 0.15s ease'
                                     }}
-                                    onMouseEnter={(e) => e.target.style.background = 'var(--bg-input)'}
-                                    onMouseLeave={(e) => e.target.style.background = value === opt ? 'var(--color-primary)' : 'var(--bg-card)'}
+                                    onMouseEnter={(e) => {
+                                        if (value !== opt) e.target.style.background = 'var(--bg-hover)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (value !== opt) e.target.style.background = 'transparent';
+                                    }}
                                 >
                                     {opt}
                                 </li>
                             ))
                         ) : (
-                            <li style={{ padding: '10px', fontSize: '12px', color: '#999', textAlign: 'center' }}>
+                            <li style={{ padding: '16px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
                                 Nenhum resultado encontrado
                             </li>
                         )}

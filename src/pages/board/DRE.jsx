@@ -15,7 +15,7 @@ const DRE = () => {
                 subtitle={`Módulo em desenvolvimento para a unidade ${activeUnit === 'madville' ? 'Madville' : 'Curitiba'}`}
             >
                 <Card padding="20px">
-                    <p style={{ color: '#666' }}>
+                    <p style={{ color: 'var(--text-muted)' }}>
                         Demonstração do Resultado em desenvolvimento.
                     </p>
                 </Card>

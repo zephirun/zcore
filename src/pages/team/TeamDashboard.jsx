@@ -409,20 +409,20 @@ const TeamDashboard = () => {
             days.push(
                 <div key={d} style={{
                     height: '80px', border: '1px solid var(--border-color)', position: 'relative', background: isToday ? 'var(--bg-input)' : 'var(--bg-card)', cursor: 'pointer',
-                    padding: '8px', transition: 'all 0.2s ease'
+                    padding: 'var(--space-2)', transition: 'all 0.2s ease'
                 }} onClick={() => {
                     setNewActivity({ ...newActivity, date: dateStr });
                     setShowActivityModal(true);
                 }}>
-                    <span style={{ fontSize: '12px', fontWeight: isToday ? '900' : '600', color: isToday ? '#2563EB' : 'var(--text-muted)' }}>{d}</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
-                        {activities.slice(0, 2).map(act => (
-                            <div key={act.id} style={{ fontSize: '9px', background: '#2563EB', color: 'white', padding: '2px 4px', borderRadius: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: isToday ? '900' : '600', color: isToday ? '#2563EB' : 'var(--text-muted)' }}>{d}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginTop: 'var(--space-1)' }}>
+{activities.slice(0, 2).map(act => (
+                            <div key={act.id} style={{ fontSize: '9px', background: '#2563EB', color: 'white', padding: '2px 4px', borderRadius: 'var(--space-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {act.title}
                             </div>
                         ))}
                         {activities.length > 2 && (
-                            <div style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '700' }}>+ {activities.length - 2} mais</div>
+                            <div style={{ fontSize: '9px', color: '#94A3B8', fontWeight: 'var(--font-bold)' }}>+ {activities.length - 2} mais</div>
                         )}
                     </div>
                 </div>
@@ -433,21 +433,21 @@ const TeamDashboard = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-main)', width: '100%', minHeight: '100vh', background: 'var(--bg-main)' }}>
-            <PageContainer maxWidth="1400px" title="Dashboard da Equipe" subtitle="Gestão interativa de comunicados, agenda e engajamento da equipe">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', marginTop: '20px' }}>
+<PageContainer maxWidth="1400px" title="Dashboard da Equipe" subtitle="Gestão interativa de comunicados, agenda e engajamento da equipe">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 'var(--space-4)', marginTop: 'var(--space-5)' }}>
 
                     {/* MURAL DE COMUNICADOS */}
                     <Card padding="30px" style={{ position: 'relative' }}>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <IconMessage color="#2563EB" />
-                                <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mural de Comunicados</h2>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<IconMessage color="#2563EB" />
+                                <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mural de Comunicados</h2>
                             </div>
                             {userRole === 'admin' && (
                                 <Button
                                     onClick={() => setShowNoticeModal(true)}
-                                    style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+                                    style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: 'var(--space-8)', height: 'var(--space-8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', transition: 'transform 0.2s ease' }}
                                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                                 >
@@ -457,26 +457,26 @@ const TeamDashboard = () => {
                         </div>
 
                         {loadingNotices ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8' }}>Carregando comunicados...</div>
+                            <div style={{ padding: 'var(--space-5)', textAlign: 'center', color: '#94A3B8' }}>Carregando comunicados...</div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '600px', overflowY: 'auto', paddingRight: '5px' }}>
-                                {notices.map(notice => {
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxHeight: '600px', overflowY: 'auto', paddingRight: '5px' }}>
+{notices.map(notice => {
                                     const reactionCount = reactions.filter(r => r.notice_id === notice.id).length;
                                     const userLiked = reactions.some(r => r.notice_id === notice.id && r.user_id === currentUsername);
 
                                     return (
                                         <div key={notice.id} style={{
-                                            padding: '16px',
-                                            borderRadius: '20px',
+                                            padding: 'var(--space-4)',
+                                            borderRadius: 'var(--space-5)',
                                             border: `1.5px solid ${notice.color}`,
                                             background: `${notice.color}10`,
                                             display: 'flex',
                                             flexDirection: 'column',
-                                            gap: '12px',
+                                            gap: 'var(--space-3)',
                                             transition: 'all 0.2s ease'
                                         }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{
+<span style={{
                                                     fontSize: '10px',
                                                     fontWeight: '800',
                                                     background: notice.color,
@@ -487,8 +487,8 @@ const TeamDashboard = () => {
                                                 }}>
                                                     {notice.category}
                                                 </span>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                    <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '500' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<span style={{ fontSize: 'var(--text-xs)', color: '#94A3B8', fontWeight: 'var(--font-medium)' }}>
                                                         {formatRelativeTime(notice.time)}
                                                     </span>
                                                     {userRole === 'admin' && notice.id !== 'default' && (
@@ -503,19 +503,19 @@ const TeamDashboard = () => {
                                             </div>
 
                                             <div>
-                                                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-main)', margin: '0 0 4px 0', lineHeight: '1.4' }}>{notice.title}</h3>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    {(() => {
+                                                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)', margin: '0 0 4px 0', lineHeight: '1.4' }}>{notice.title}</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+{(() => {
                                                         const authorUser = users.find(u => u.name === notice.author || u.username === notice.author);
                                                         return authorUser && authorUser.avatarUrl ? (
                                                             <img
                                                                 src={authorUser.avatarUrl}
                                                                 alt={notice.author}
-                                                                style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }}
+                                                                style={{ width: 'var(--space-4)', height: 'var(--space-4)', borderRadius: '50%', objectFit: 'cover' }}
                                                             />
                                                         ) : null;
                                                     })()}
-                                                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', margin: 0 }}>Enviado por {notice.author}</p>
+                                                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)', margin: 0 }}>Enviado por {notice.author}</p>
                                                 </div>
                                             </div>
 
@@ -523,7 +523,7 @@ const TeamDashboard = () => {
                                                 <div
                                                     onClick={() => setViewedImage(notice.imageUrl)}
                                                     style={{
-                                                        width: '100%', maxHeight: '400px', background: 'var(--bg-input)', borderRadius: '12px',
+                                                        width: '100%', maxHeight: '400px', background: 'var(--bg-input)', borderRadius: 'var(--space-3)',
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden'
                                                     }}
                                                 >
@@ -535,17 +535,17 @@ const TeamDashboard = () => {
                                                 </div>
                                             )}
 
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                                <Button
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 'var(--space-1)' }}>
+<Button
                                                     onClick={() => handleToggleReaction(notice.id)}
                                                     style={{
-                                                        display: 'flex', alignItems: 'center', gap: '6px', background: userLiked ? '#FEE2E2' : 'var(--bg-card)',
-                                                        border: userLiked ? '1px solid #FECACA' : '1px solid var(--border-color)', borderRadius: '20px', padding: '6px 12px',
+                                                        display: 'flex', alignItems: 'center', gap: 'var(--space-4)', background: userLiked ? '#FEE2E2' : 'var(--bg-card)',
+                                                        border: userLiked ? '1px solid #FECACA' : '1px solid var(--border-color)', borderRadius: 'var(--space-5)', padding: '6px 12px',
                                                         cursor: 'pointer', transition: 'all 0.2s ease'
                                                     }}
                                                 >
                                                     <IconHeart filled={userLiked} color={userLiked ? '#EF4444' : '#94A3B8'} size={16} />
-                                                    <span style={{ fontSize: '12px', fontWeight: '700', color: userLiked ? '#EF4444' : '#64748B' }}>
+                                                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: userLiked ? '#EF4444' : '#64748B' }}>
                                                         {reactionCount > 0 ? reactionCount : 'Curtir'}
                                                     </span>
                                                 </Button>
@@ -559,10 +559,11 @@ const TeamDashboard = () => {
 
                     {/* PRÓXIMAS ATIVIDADES / AGENDA */}
                     <Card padding="30px">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setShowCalendarView(true)}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', cursor: 'pointer' }} onClick={() =>
+setShowCalendarView(true)}>
                                 <IconCalendar color="#2563EB" />
-                                <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agenda da Equipe</h2>
+                                <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agenda da Equipe</h2>
                             </div>
                             <Button
                                 onClick={() => setShowActivityModal(true)}
@@ -573,16 +574,16 @@ const TeamDashboard = () => {
                         </div>
 
                         {loadingAgenda ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8' }}>Carregando agenda...</div>
+                            <div style={{ padding: 'var(--space-5)', textAlign: 'center', color: '#94A3B8' }}>Carregando agenda...</div>
                         ) : (
                             <div style={{ position: 'relative', paddingLeft: '30px' }}>
                                 {agendaData.length === 0 ? (
-                                    <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>Nenhuma atividade agendada.</div>
+                                    <div style={{ padding: 'var(--space-5)', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>Nenhuma atividade agendada.</div>
                                 ) : (
                                     <>
                                         <div style={{ position: 'absolute', left: '7px', top: '10px', bottom: '10px', width: '2.5px', background: '#F1F5F9', borderRadius: '10px' }}></div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                            {agendaData.slice(0, 4).map(item => (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{agendaData.slice(0, 4).map(item => (
                                                 <div key={item.id} style={{ position: 'relative' }}>
                                                     <div style={{
                                                         position: 'absolute', left: '-29px', top: '6px', width: '14px', height: '14px', borderRadius: '50%',
@@ -591,12 +592,12 @@ const TeamDashboard = () => {
                                                         zIndex: 2, boxShadow: item.status === 'active' ? '0 0 0 4px #2563EB22' : 'none'
                                                     }}></div>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                        <div>
-                                                            <span style={{ fontSize: '11px', fontWeight: '800', color: '#2563EB' }}>
+<div>
+                                                            <span style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: '#2563EB' }}>
                                                                 {formatDateBR(item.date)} • {item.time ? item.time.substring(0, 5) : '00:00'}
                                                             </span>
-                                                            <h3 style={{ fontSize: '15px', fontWeight: '700', color: item.status === 'done' ? 'var(--text-muted)' : 'var(--text-main)', margin: '4px 0 2px 0' }}>{item.title}</h3>
-                                                            <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500', margin: 0 }}>{item.location}</p>
+                                                            <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: item.status === 'done' ? 'var(--text-muted)' : 'var(--text-main)', margin: '4px 0 2px 0' }}>{item.title}</h3>
+                                                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 'var(--font-medium)', margin: 0 }}>{item.location}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -609,8 +610,8 @@ const TeamDashboard = () => {
                         <Button
                             onClick={() => setShowFullAgenda(true)}
                             style={{
-                                width: '100%', marginTop: '30px', padding: '14px', background: '#F8FAFC', border: '1.5px solid #F1F5F9', borderRadius: '16px',
-                                color: '#64748B', fontSize: '13px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s ease'
+                                width: '100%', marginTop: '30px', padding: '14px', background: '#F8FAFC', border: '1.5px solid #F1F5F9', borderRadius: 'var(--space-4)',
+                                color: '#64748B', fontSize: '13px', fontWeight: 'var(--font-bold)', cursor: 'pointer', transition: 'all 0.2s ease'
                             }}
                             onMouseEnter={e => e.currentTarget.style.borderColor = '#2563EB'}
                             onMouseLeave={e => e.currentTarget.style.borderColor = '#F1F5F9'}
@@ -621,28 +622,28 @@ const TeamDashboard = () => {
 
                     {/* CHAT RÁPIDO */}
                     <Card padding="30px" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '30px' }}>
-                            <IconMessage color="#2563EB" />
-                            <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Membros da Equipe</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
+<IconMessage color="#2563EB" />
+                            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Membros da Equipe</h2>
                         </div>
 
-                        <div style={{ marginBottom: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                <p style={{ fontSize: '11px', fontWeight: '800', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selecione para conversar</p>
-                                <span style={{ fontSize: '10px', background: '#DCFCE7', color: '#15803D', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
+                        <div style={{ marginBottom: 'var(--space-4)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+<p style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selecione para conversar</p>
+                                <span style={{ fontSize: '10px', background: '#DCFCE7', color: '#15803D', padding: '2px 8px', borderRadius: '10px', fontWeight: 'var(--font-bold)' }}>
                                     {users.filter(u => isUserOnline(u)).length} Online
                                 </span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ position: 'relative' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)' }}>
+<div style={{ position: 'relative' }}>
                                         <div style={{
                                             width: '56px', height: '56px', borderRadius: '18px', background: '#2563EB', color: 'white',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--text-lg)', fontWeight: '800',
                                             overflow: 'hidden'
                                         }}>
-                                            {(() => {
+{(() => {
                                                 const currentUser = users.find(u => u.username === currentUsername);
                                                 return currentUser && currentUser.avatarUrl ? (
                                                     <img src={currentUser.avatarUrl} alt="Eu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -651,7 +652,7 @@ const TeamDashboard = () => {
                                         </div>
                                         <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '14px', height: '14px', borderRadius: '50%', border: '2.5px solid white', background: '#22C55E' }}></div>
                                     </div>
-                                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>Eu</span>
+                                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>Eu</span>
                                 </div>
 
                                 {sortedUsers.map(member => {
@@ -660,24 +661,25 @@ const TeamDashboard = () => {
                                     return (
                                         <div
                                             key={member.username}
-                                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', opacity: online ? 1 : 0.6 }}
-                                            onClick={() => setRecipient(member)}
+                                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', cursor: 'pointer', opacity: online ? 1 : 0.6 }}
+                                            onClick={() =>
+setRecipient(member)}
                                         >
                                             <div style={{ position: 'relative' }}>
                                                 <div style={{
                                                     width: '56px', height: '56px', borderRadius: '18px',
                                                     background: online ? '#EDF2FF' : '#F1F5F9', color: online ? '#2563EB' : '#94A3B8',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--text-lg)', fontWeight: '800',
                                                     border: isSelected ? '2.5px solid #2563EB' : (online ? '1px solid #2563EB22' : 'none'),
                                                     transition: 'all 0.2s ease', overflow: 'hidden'
                                                 }}>
-                                                    {member.avatarUrl ? (
+{member.avatarUrl ? (
                                                         <img src={member.avatarUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     ) : getInitials(member.name)}
                                                 </div>
                                                 <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '14px', height: '14px', borderRadius: '50%', border: '2.5px solid white', background: online ? '#22C55E' : '#CBD5E1' }}></div>
                                             </div>
-                                            <span style={{ fontSize: '11px', fontWeight: isSelected ? '700' : '600', color: isSelected ? '#2563EB' : (online ? 'var(--text-main)' : 'var(--text-muted)'), maxWidth: '60px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            <span style={{ fontSize: 'var(--text-xs)', fontWeight: isSelected ? '700' : '600', color: isSelected ? '#2563EB' : (online ? 'var(--text-main)' : 'var(--text-muted)'), maxWidth: '60px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                 {(member.name || member.username).split(' ')[0]}
                                             </span>
                                         </div>
@@ -686,13 +688,13 @@ const TeamDashboard = () => {
                             </div>
                         </div>
 
-                        <div style={{ marginTop: '40px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                <p style={{ fontSize: '11px', fontWeight: '800', color: '#94A3B8', textTransform: 'uppercase' }}>
+                        <div style={{ marginTop: 'var(--space-10)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+<p style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: '#94A3B8', textTransform: 'uppercase' }}>
                                     {recipient ? <span>Conversando com <b style={{ color: '#2563EB' }}>{recipient.name.split(' ')[0]}</b></span> : 'Selecione um membro'}
                                 </p>
                                 {recipient && (
-                                    <Button onClick={() => setRecipient(null)} style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '10px', fontWeight: '700', cursor: 'pointer' }}>Limpar</Button>
+                                    <Button onClick={() => setRecipient(null)} style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '10px', fontWeight: 'var(--font-bold)', cursor: 'pointer' }}>Limpar</Button>
                                 )}
                             </div>
                             <div style={{ position: 'relative' }}>
@@ -703,15 +705,15 @@ const TeamDashboard = () => {
                                     onChange={(e) => setMessage(e.target.value)}
                                     disabled={!recipient}
                                     style={{
-                                        width: '100%', padding: '16px 50px 16px 20px', borderRadius: '16px', border: '1.5px solid var(--border-color)', background: 'var(--bg-input)',
-                                        fontSize: '14px', outline: 'none', color: 'var(--text-main)'
+                                        width: '100%', padding: '16px 50px 16px 20px', borderRadius: 'var(--space-4)', border: '1.5px solid var(--border-color)', background: 'var(--bg-input)',
+                                        fontSize: 'var(--text-base)', outline: 'none', color: 'var(--text-main)'
                                     }}
                                 />
                                 <Button
                                     onClick={handleSendMessage}
                                     style={{
-                                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                                        background: recipient ? '#2563EB' : '#CBD5E1', color: 'white', border: 'none', borderRadius: '12px',
+                                        position: 'absolute', right: 'var(--space-3)', top: '50%', transform: 'translateY(-50%)',
+                                        background: recipient ? '#2563EB' : '#CBD5E1', color: 'white', border: 'none', borderRadius: 'var(--space-3)',
                                         width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         cursor: recipient ? 'pointer' : 'not-allowed'
                                     }}
@@ -724,15 +726,15 @@ const TeamDashboard = () => {
 
                     {/* ENQUETES (POLLS) */}
                     <Card padding="30px">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <IconBarChart color="#2563EB" />
-                                <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enquetes</h2>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<IconBarChart color="#2563EB" />
+                                <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enquetes</h2>
                             </div>
                             {userRole === 'admin' && (
                                 <Button
                                     onClick={() => setShowPollModal(true)}
-                                    style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}
+                                    style={{ background: '#2563EB', border: 'none', borderRadius: '50%', width: 'var(--space-8)', height: 'var(--space-8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}
                                 >
                                     <IconPlus />
                                 </Button>
@@ -740,22 +742,22 @@ const TeamDashboard = () => {
                         </div>
 
                         {loadingAdvanced ? (
-                            <div style={{ textAlign: 'center', color: '#94A3B8', padding: '20px' }}>Carregando...</div>
+                            <div style={{ textAlign: 'center', color: '#94A3B8', padding: 'var(--space-5)' }}>Carregando...</div>
                         ) : polls.length === 0 ? (
-                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px', background: 'var(--bg-input)', borderRadius: '16px' }}>
-                                <p style={{ fontSize: '13px', fontWeight: '600' }}>Nenhuma enquete ativa no momento.</p>
+                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 'var(--space-5)', background: 'var(--bg-input)', borderRadius: 'var(--space-4)' }}>
+                                <p style={{ fontSize: '13px', fontWeight: 'var(--font-semibold)' }}>Nenhuma enquete ativa no momento.</p>
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                {polls.slice(0, 2).map(poll => {
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{polls.slice(0, 2).map(poll => {
                                     const hasUserVotedInPoll = votes.some(v => v.poll_id === poll.id && v.user_id === currentUsername);
                                     const totalVotes = votes.filter(v => v.poll_id === poll.id).length;
 
                                     return (
-                                        <div key={poll.id} style={{ background: 'var(--bg-input)', padding: '20px', borderRadius: '20px' }}>
-                                            <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '16px' }}>{poll.question}</h3>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                {poll.options.map(option => {
+                                        <div key={poll.id} style={{ background: 'var(--bg-input)', padding: 'var(--space-5)', borderRadius: 'var(--space-5)' }}>
+                                            <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: 'var(--text-main)', marginBottom: 'var(--space-4)' }}>{poll.question}</h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{poll.options.map(option => {
                                                     const optionVotes = votes.filter(v => v.poll_id === poll.id && v.option_id === option.id).length;
                                                     const percent = totalVotes > 0 ? Math.round((optionVotes / totalVotes) * 100) : 0;
                                                     const isSelected = votes.some(v => v.poll_id === poll.id && v.user_id === currentUsername && v.option_id === option.id);
@@ -765,13 +767,13 @@ const TeamDashboard = () => {
                                                             key={option.id}
                                                             onClick={() => handleVote(poll.id, option.id)}
                                                             style={{
-                                                                position: 'relative', padding: '12px 16px', borderRadius: '12px',
+                                                                position: 'relative', padding: '12px 16px', borderRadius: 'var(--space-3)',
                                                                 border: isSelected ? '1.5px solid #2563EB' : '1px solid var(--border-color)',
                                                                 background: 'var(--bg-card)', cursor: 'pointer', overflow: 'hidden'
                                                             }}
                                                         >
-                                                            <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '600', color: isSelected ? '#2563EB' : 'var(--text-muted)' }}>
-                                                                <span>{option.text}</span>
+                                                            <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'var(--font-semibold)', color: isSelected ? '#2563EB' : 'var(--text-muted)' }}>
+<span>{option.text}</span>
                                                                 {hasUserVotedInPoll && <span>{percent}%</span>}
                                                             </div>
                                                             {hasUserVotedInPoll && (
@@ -785,7 +787,7 @@ const TeamDashboard = () => {
                                                 })}
                                             </div>
                                             {hasUserVotedInPoll && (
-                                                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '600', marginTop: '12px', textAlign: 'right' }}>
+                                                <p style={{ fontSize: 'var(--text-xs)', color: '#94A3B8', fontWeight: 'var(--font-semibold)', marginTop: 'var(--space-3)', textAlign: 'right' }}>
                                                     {totalVotes} votos no total
                                                 </p>
                                             )}

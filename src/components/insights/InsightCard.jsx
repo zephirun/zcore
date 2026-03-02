@@ -8,34 +8,37 @@ const InsightCard = ({ insight }) => {
     return (
         <div style={{
             background: 'var(--bg-card)',
-            border: `2px solid ${color}20`,
+            border: '1px solid var(--border-color)',
             borderLeft: `4px solid ${color}`,
-            borderRadius: '12px',
-            padding: '16px',
+            borderRadius: 'var(--radius-sm)',
+            padding: '16px 20px',
             marginBottom: '12px',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.15s ease',
+            boxShadow: 'var(--shadow-sm)'
         }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <span style={{ fontSize: '24px', flexShrink: 0 }}>{icon}</span>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: "var(--space-4)" }}>
+                <span style={{ fontSize: '20px', flexShrink: 0, opacity: 0.9 }}>{icon}</span>
                 <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
                         <h4 style={{
                             fontSize: '14px',
                             fontWeight: '700',
                             color: 'var(--text-main)',
-                            margin: 0
+                            margin: 0,
+                            letterSpacing: '-0.01em'
                         }}>
                             {insight.title}
                         </h4>
                         <span style={{
                             fontSize: '10px',
-                            fontWeight: '600',
+                            fontWeight: '700',
                             color,
                             background: `${color}15`,
-                            padding: '4px 8px',
-                            borderRadius: '6px',
+                            padding: '3px 10px',
+                            borderRadius: '4px',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
+                            letterSpacing: '0.06em',
+                            border: `1px solid ${color}30`
                         }}>
                             {insight.entity === 'customer' ? 'Cliente' : 'Vendedor'}
                         </span>
@@ -43,9 +46,10 @@ const InsightCard = ({ insight }) => {
 
                     <p style={{
                         fontSize: '13px',
-                        color: 'var(--text-secondary)',
+                        color: 'var(--text-muted)',
                         margin: '0 0 12px 0',
-                        lineHeight: '1.5'
+                        lineHeight: '1.5',
+                        fontWeight: '400'
                     }}>
                         {insight.description}
                     </p>
@@ -53,32 +57,40 @@ const InsightCard = ({ insight }) => {
                     {insight.metrics && (
                         <div style={{
                             display: 'flex',
-                            gap: '16px',
+                            gap: "var(--space-4)",
                             fontSize: '11px',
-                            color: 'var(--text-tertiary)',
-                            borderTop: '1px solid var(--border-color)',
-                            paddingTop: '12px'
+                            color: 'var(--text-muted)',
+                            borderTop: '1px solid var(--border-subtle)',
+                            paddingTop: '12px',
+                            marginTop: '8px'
                         }}>
                             {insight.metrics.previous !== undefined && (
-                                <div>
-                                    <span style={{ fontWeight: '600' }}>Anterior: </span>
-                                    <span>{typeof insight.metrics.previous === 'number' && insight.metrics.previous > 100
-                                        ? `R$ ${insight.metrics.previous.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                                        : insight.metrics.previous.toFixed(1)}</span>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <span style={{ color: 'var(--text-muted)', opacity: 0.7 }}>Anterior:</span>
+                                    <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+                                        {typeof insight.metrics.previous === 'number' && insight.metrics.previous > 100
+                                            ? `R$ ${insight.metrics.previous.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                                            : insight.metrics.previous.toFixed(1)}
+                                    </span>
                                 </div>
                             )}
                             {insight.metrics.current !== undefined && (
-                                <div>
-                                    <span style={{ fontWeight: '600' }}>Atual: </span>
-                                    <span>{typeof insight.metrics.current === 'number' && insight.metrics.current > 100
-                                        ? `R$ ${insight.metrics.current.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                                        : insight.metrics.current.toFixed(1)}</span>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <span style={{ color: 'var(--text-muted)', opacity: 0.7 }}>Atual:</span>
+                                    <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+                                        {typeof insight.metrics.current === 'number' && insight.metrics.current > 100
+                                            ? `R$ ${insight.metrics.current.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                                            : insight.metrics.current.toFixed(1)}
+                                    </span>
                                 </div>
                             )}
                             {insight.metrics.change !== undefined && (
-                                <div>
-                                    <span style={{ fontWeight: '600' }}>Variação: </span>
-                                    <span style={{ color: insight.metrics.trend === 'up' ? '#10B981' : insight.metrics.trend === 'down' ? '#EF4444' : 'inherit' }}>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <span style={{ color: 'var(--text-muted)', opacity: 0.7 }}>Variação:</span>
+                                    <span style={{
+                                        fontWeight: '700',
+                                        color: insight.metrics.trend === 'up' ? 'var(--color-success-strong)' : insight.metrics.trend === 'down' ? 'var(--color-error-strong)' : 'inherit'
+                                    }}>
                                         {insight.metrics.change > 0 ? '+' : ''}{insight.metrics.change.toFixed(1)}
                                         {insight.type === 'revenue_change' || insight.type === 'margin_change' ? '%' : ''}
                                     </span>

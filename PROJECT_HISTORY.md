@@ -33,6 +33,7 @@ Este documento registra a evolução, decisões arquiteturais e marcos important
 
 ## 2026-02-10
 - **Commit Inicial**: Configuração básica do Vercel e implementação do Portal de Transportadoras.
+- **Backup Estável**: Criado tag `v-stable-prod-20260227` e arquivo de backup compactado para a versão de produção.
 - **Multi-Empresa e Resiliência**: Implementação do sistema de troca de empresa e modo de cache automático usando `useApiData` e `CacheBanner`.
 - **Ambientes em Paralelo**: Configuração de domínios separados na Vercel (`zcore` vs `zcore-dev`) e adoção de fluxo baseado em branches (`main` e `dev`).
 - **Build Fix (Vite 5)**: Atualização do Vite para a versão 5 para resolver conflitos de dependências no deploy.

@@ -28,6 +28,11 @@ export const executeOracleQuery = async (sql, binds = []) => {
         }
     } catch (error) {
         console.error('Oracle Service Error:', error.message);
+        // Alert that we might need fallback if reachable
+        const cached = localStorage.getItem('zcore_offline_cache');
+        if (cached) {
+            console.warn('Persistence: Local cache available for offline use.');
+        }
         throw error;
     }
 };
@@ -122,6 +127,20 @@ export const fetchClientSummary = async (idpess) => {
 };
 
 /**
+ * Fetches the 360-degree client intelligence (Radar, Benchmarks, Churn).
+ * @param {string|number} idpess - Client ID
+ */
+export const fetchClientIntelligence = async (idpess) => {
+    try {
+        const response = await fetch(`${ORACLE_API_URL}/client-intelligence/${idpess}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Client Intelligence Error:', error.message);
+        throw error;
+    }
+};
+
+/**
  * Searches for clients by name or ID.
  * @param {string} query - Name or ID to search for
  */
@@ -137,6 +156,31 @@ export const searchClients = async (query) => {
         throw error;
     }
 };
+
+/**
+ * Searches for products by name, ID, barcode or brand.
+ * @param {string|object} params - Query term or object with {q, brand, id}
+ */
+export const searchProducts = async (params) => {
+    try {
+        const url = new URL(`${ORACLE_API_URL}/search-products`);
+
+        if (typeof params === 'string') {
+            url.searchParams.append('q', params);
+        } else if (params) {
+            if (params.q) url.searchParams.append('q', params.q);
+            if (params.brand) url.searchParams.append('brand', params.brand);
+            if (params.id) url.searchParams.append('id', params.id);
+        }
+
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Search Products Error:', error.message);
+        return [];
+    }
+};
+
 
 /**
  * Fetches the cached dashboard data via n8n sync schedule.

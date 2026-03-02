@@ -17,7 +17,7 @@ const CostCenter = () => {
                         background: activeUnit === 'madville' ? 'var(--color-info-dim)' : 'var(--color-success-dim)',
                         color: activeUnit === 'madville' ? 'var(--color-info)' : 'var(--color-success)',
                         borderRadius: 'var(--radius-sm)',
-                        marginBottom: 'var(--space-5)',
+                        marginBottom: 'var(--space-4)',
                         fontWeight: 'var(--font-bold)',
                         display: 'inline-block',
                         fontSize: 'var(--text-sm)'

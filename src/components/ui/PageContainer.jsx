@@ -7,6 +7,7 @@ const PageContainer = ({
     actions,
     maxWidth = '1200px',
     className = '',
+    isLoading = false,
     ...props
 }) => {
     return (
@@ -61,7 +62,19 @@ const PageContainer = ({
 
             {/* Page Content */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                {children}
+                {isLoading ? (
+                    <div className="ui-page-skeleton" style={{ padding: 'var(--space-4)', background: 'var(--bg-card)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
+                        <div className="ui-skeleton" style={{ height: 'var(--space-8)', width: '30%', marginBottom: 'var(--space-6)', borderRadius: 'var(--radius-sm)' }} />
+                        <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                            <div className="ui-skeleton" style={{ height: '120px', flex: 1, borderRadius: 'var(--radius-sm)' }} />
+                            <div className="ui-skeleton" style={{ height: '120px', flex: 1, borderRadius: 'var(--radius-sm)' }} />
+                            <div className="ui-skeleton" style={{ height: '120px', flex: 1, borderRadius: 'var(--radius-sm)' }} />
+                        </div>
+                        <div className="ui-skeleton" style={{ height: '400px', width: '100%', borderRadius: 'var(--radius-sm)' }} />
+                    </div>
+                ) : (
+                    children
+                )}
             </div>
         </div>
     );

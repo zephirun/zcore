@@ -108,11 +108,11 @@ const FinancialIntelligence = () => {
                             width: '300px',
                         }}
                     />
-                    <svg style={{ position: 'absolute', left: '15px', top: '12px', color: 'var(--text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                    <svg style={{ position: 'absolute', left: '15px', top: 'var(--space-3)', color: 'var(--text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
                 </div>
             }>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 3fr', gap: 'var(--space-6)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 3fr', gap: 'var(--space-4)' }}>
 
                     {/* Left Sidebar: Client List */}
                     <Card padding="0" style={{
@@ -135,7 +135,7 @@ const FinancialIntelligence = () => {
                             >
                                 <div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-sm)', color: 'var(--text-main)' }}>{client.name}</div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-1)' }}>
-                                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>ID: {client.id}</span>
+<span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>ID: {client.id}</span>
                                     <span style={{
                                         fontSize: '10px',
                                         fontWeight: 'var(--font-black)',
@@ -151,14 +151,14 @@ const FinancialIntelligence = () => {
                     {/* Right Panel: Financial Board */}
                     <div>
                         {selectedClient ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '25px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-4)' }}>
 
                                     {/* Left Side Area */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                                        {/* Cash Flow */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{/* Cash Flow */}
                                         <Card>
-                                            <h3 style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 20px 0' }}>
+                                            <h3 style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', margin: '0 0 20px 0' }}>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
                                                 Fluxo Projetado: {selectedClient.name}
                                             </h3>
@@ -178,7 +178,7 @@ const FinancialIntelligence = () => {
                                                             contentStyle={{
                                                                 backgroundColor: 'var(--bg-card)',
                                                                 border: '1px solid var(--border-color)',
-                                                                borderRadius: '16px',
+                                                                borderRadius: 'var(--space-4)',
                                                                 color: 'var(--text-main)'
                                                             }}
                                                         />
@@ -190,7 +190,7 @@ const FinancialIntelligence = () => {
                                         </Card>
 
                                         {/* Actions */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3)' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
                                             <ActionButton icon="📄" label="Ficha Cadastral" color="var(--color-primary)" />
                                             <ActionButton icon="🛡️" label="Aumentar Limite" color="var(--color-info)" />
                                             <ActionButton icon="⚖️" label="Histórico Juríd." color="var(--color-warning)" />
@@ -199,10 +199,10 @@ const FinancialIntelligence = () => {
                                     </div>
 
                                     {/* Right Side Area */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                                        {/* Radar */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{/* Radar */}
                                         <Card>
-                                            <h3 style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Radar de Saúde Financeira</h3>
+                                            <h3 style={{ fontSize: 'var(--text-xs)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 'var(--space-4)', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Radar de Saúde Financeira</h3>
                                             <div style={{ height: '320px', width: '100%' }}>
                                                 <ResponsiveContainer width="100%" height="100%">
                                                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={selectedClient.radar}>
@@ -225,15 +225,15 @@ const FinancialIntelligence = () => {
 
                                         {/* Risks */}
                                         <Card>
-                                            <h3 style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px', margin: '0 0 20px 0' }}>Métricas de Crédito</h3>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                                {selectedClient.risks.map((risk, index) => (
+                                            <h3 style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 'var(--space-4)', margin: '0 0 20px 0' }}>Métricas de Crédito</h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{selectedClient.risks.map((risk, index) => (
                                                     <div key={index}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                            <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)' }}>{risk.name}</span>
-                                                            <span style={{ fontSize: '12px', fontWeight: '900', color: risk.color }}>{risk.value}%</span>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+<span style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--text-muted)' }}>{risk.name}</span>
+                                                            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: risk.color }}>{risk.value}%</span>
                                                         </div>
-                                                        <div style={{ height: '8px', backgroundColor: 'var(--bg-input)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                        <div style={{ height: 'var(--space-2)', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--space-1)', overflow: 'hidden' }}>
                                                             <div style={{ width: `${risk.value}%`, height: '100%', backgroundColor: risk.color }} />
                                                         </div>
                                                     </div>
@@ -248,7 +248,7 @@ const FinancialIntelligence = () => {
                                 height: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 border: '1px dashed var(--border-color)', color: 'var(--text-muted)'
                             }}>
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: '15px', opacity: 0.5 }}><path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="10" /></svg>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: 'var(--space-4)', opacity: 0.5 }}><path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="10" /></svg>
                                 <h3 style={{ margin: '0 0 5px 0', color: 'var(--text-main)' }}>Selecione um cliente para análise financeira</h3>
                                 <p>Visão individual de risco, crédito e solvência.</p>
                             </Card>
@@ -274,13 +274,13 @@ const ActionButton = ({ icon, label, color }) => (
     <div style={{
         padding: '20px 15px',
         backgroundColor: 'var(--bg-card)',
-        borderRadius: '16px',
+        borderRadius: 'var(--space-4)',
         border: '1px solid var(--border-color)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '12px',
+        gap: 'var(--space-4)',
         cursor: 'pointer',
         transition: 'all 0.2s',
         textAlign: 'center',
@@ -288,7 +288,8 @@ const ActionButton = ({ icon, label, color }) => (
         overflow: 'hidden'
     }}
         className="action-card-btn"
-        onMouseEnter={(e) => {
+        onMouseEnter={(e) =>
+{
             e.currentTarget.style.borderColor = color;
             e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
         }}
@@ -297,14 +298,14 @@ const ActionButton = ({ icon, label, color }) => (
             e.currentTarget.style.backgroundColor = 'var(--bg-card)';
         }}
     >
-        <div style={{ fontSize: '24px' }}>{icon}</div>
-        <div style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+        <div style={{ fontSize: 'var(--text-3xl)' }}>{icon}</div>
+        <div style={{ fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
         <div style={{
             position: 'absolute',
             bottom: 0,
             left: 0,
             width: '100%',
-            height: '4px',
+            height: 'var(--space-1)',
             backgroundColor: color,
             opacity: 0.8
         }} />

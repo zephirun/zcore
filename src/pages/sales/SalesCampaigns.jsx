@@ -29,23 +29,23 @@ const SalesCampaigns = () => {
         background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', // Dark premium background
         fontFamily: 'var(--font-main)',
         color: 'white',
-        paddingBottom: '40px'
+        paddingBottom: 'var(--space-10)'
     };
 
     const glassCardStyle = {
         background: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(10px)',
-        borderRadius: '20px',
+        borderRadius: 'var(--space-5)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '24px',
-        marginBottom: '20px'
+        padding: 'var(--space-6)',
+        marginBottom: 'var(--space-5)'
     };
 
     const podiumStyle = {
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        gap: '20px',
+        gap: 'var(--space-5)',
         margin: '40px 0'
     };
 
@@ -58,7 +58,7 @@ const SalesCampaigns = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        paddingBottom: '20px',
+        paddingBottom: 'var(--space-5)',
         boxShadow: `0 0 20px ${glow}`,
         position: 'relative'
     });
@@ -68,40 +68,40 @@ const SalesCampaigns = () => {
         height: size,
         borderRadius: '50%',
         background: '#e0e0e0',
-        color: '#333',
+        color: 'var(--text-main)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: 'bold',
         border: `3px solid ${border}`,
         marginBottom: '10px',
-        fontSize: '18px'
+        fontSize: 'var(--text-xl)'
     });
 
     const progressBarContainer = {
-        height: '8px',
+        height: 'var(--space-2)',
         background: 'rgba(255,255,255,0.1)',
-        borderRadius: '4px',
+        borderRadius: 'var(--space-1)',
         overflow: 'hidden',
-        marginTop: '8px'
+        marginTop: 'var(--space-2)'
     };
 
     const progressBarFill = (percent) => ({
         height: '100%',
         width: `${Math.min(percent, 100)}%`,
         background: 'linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%)',
-        borderRadius: '4px'
+        borderRadius: 'var(--space-1)'
     });
 
     return (
         <div style={containerStyle}>
 
 
-            <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ padding: 'var(--space-5)', maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Campaign Hero Section */}
                 <div style={{ ...glassCardStyle, textAlign: 'center', background: 'linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(0,0,0,0) 100%)', border: '1px solid rgba(255,215,0,0.3)' }}>
-                    <div style={{ display: 'inline-block', padding: '5px 15px', background: 'rgba(255,215,0,0.2)', borderRadius: '20px', color: '#ffd700', fontSize: '12px', fontWeight: 'bold', marginBottom: '15px' }}>
+                    <div style={{ display: 'inline-block', padding: '5px 15px', background: 'rgba(255,215,0,0.2)', borderRadius: 'var(--space-5)', color: '#ffd700', fontSize: 'var(--text-sm)', fontWeight: 'bold', marginBottom: 'var(--space-4)' }}>
                         EM ANDAMENTO • {activeUnit === 'madville' ? 'MADVILLE' : 'CURITIBA'}
                     </div>
                     <h1 style={{ fontSize: '3rem', margin: '0 0 10px 0', background: 'linear-gradient(to right, #fff, #ffd700)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: '800' }}>
@@ -112,8 +112,8 @@ const SalesCampaigns = () => {
                     </p>
 
                     {/* Countdown */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                        {Object.entries(timeLeft).map(([unit, value]) => (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-4)' }}>
+{Object.entries(timeLeft).map(([unit, value]) => (
                             <div key={unit} style={{ textAlign: 'center' }}>
                                 <div style={{ fontSize: '2rem', fontWeight: 'bold', fontFamily: 'monospace' }}>{String(value).padStart(2, '0')}</div>
                                 <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>{unit}</div>
@@ -129,17 +129,17 @@ const SalesCampaigns = () => {
                         <div style={avatarStyle('60px', '#c0c0c0')}>CS</div>
                         <div style={podiumStepStyle('120px', '#c0c0c0', 'rgba(192,192,192,0.3)')}>
                             <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>2</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>Carlos</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'var(--font-semibold)' }}>Carlos</div>
                         </div>
                     </div>
 
                     {/* 1st Place */}
                     <div style={{ textAlign: 'center', zIndex: 10 }}>
-                        <div style={{ marginBottom: '10px', fontSize: '2rem' }}>👑</div>
+                        <div style={{ marginBottom: 'var(--space-4)', fontSize: '2rem' }}>👑</div>
                         <div style={avatarStyle('80px', '#ffd700')}>AS</div>
                         <div style={podiumStepStyle('160px', '#ffd700', 'rgba(255,215,0,0.4)')}>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#333' }}>1</div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#333' }}>Ana Silva</div>
+                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)' }}>1</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-main)' }}>Ana Silva</div>
                         </div>
                     </div>
 
@@ -148,31 +148,32 @@ const SalesCampaigns = () => {
                         <div style={avatarStyle('60px', '#cd7f32')}>RD</div>
                         <div style={podiumStepStyle('100px', '#cd7f32', 'rgba(205,127,50,0.3)')}>
                             <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>3</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>Roberto</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'var(--font-semibold)' }}>Roberto</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Leaderboard List */}
                 <div style={glassCardStyle}>
-                    <h3 style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px', marginBottom: '20px' }}>Ranking Geral</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        {leaderboard.map((user) => {
+                    <h3 style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px', marginBottom: 'var(--space-4)' }}>Ranking Geral</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{leaderboard.map((user) => {
                             const percent = (user.sales / user.target) * 100;
                             return (
-                                <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
-                                    <div style={{ width: '30px', fontWeight: 'bold', color: user.rank <= 3 ? '#ffd700' : 'white' }}>#{user.rank}</div>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>{user.avatar}</div>
+                                <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--space-4)' }}>
+<div style={{ width: '30px', fontWeight: 'bold', color: user.rank <= 3 ? '#ffd700' : 'white' }}>#{user.rank}</div>
+                                    <div style={{ width: 'var(--space-10)', height: 'var(--space-10)', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--text-sm)', border: '1px solid rgba(255,255,255,0.2)' }}>
+{user.avatar}</div>
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                            <span style={{ fontWeight: '600' }}>{user.name}</span>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<span style={{ fontWeight: 'var(--font-semibold)' }}>{user.name}</span>
                                             <span style={{ color: '#00d2ff' }}>R$ {user.sales.toLocaleString('pt-BR')}</span>
                                         </div>
                                         <div style={progressBarContainer}>
                                             <div style={progressBarFill(percent)}></div>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>
-                                            <span>Meta: R$ {user.target.toLocaleString('pt-BR')}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-1)', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>
+<span>Meta: R$ {user.target.toLocaleString('pt-BR')}</span>
                                             <span>{percent.toFixed(1)}%</span>
                                         </div>
                                     </div>
@@ -183,20 +184,20 @@ const SalesCampaigns = () => {
                 </div>
 
                 {/* Prizes */}
-                <h3 style={{ marginTop: '40px', marginBottom: '20px' }}>Premiação</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+                <h3 style={{ marginTop: 'var(--space-10)', marginBottom: 'var(--space-4)' }}>Premiação</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-4)' }}>
                     <div style={glassCardStyle}>
-                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>✈️</div>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>✈️</div>
                         <h4>1º Lugar</h4>
                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Viagem com acompanhante para Resort All-Inclusive.</p>
                     </div>
                     <div style={glassCardStyle}>
-                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📱</div>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>📱</div>
                         <h4>2º Lugar</h4>
                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>iPhone 16 Pro Max ou equivalente.</p>
                     </div>
                     <div style={glassCardStyle}>
-                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⌚</div>
+                        <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>⌚</div>
                         <h4>3º Lugar</h4>
                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Apple Watch Series 10.</p>
                     </div>

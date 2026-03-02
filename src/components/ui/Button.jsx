@@ -48,14 +48,14 @@ const Button = ({
 
     const variantStyles = {
         primary: {
-            background: 'var(--text-main)',
-            color: 'var(--bg-main)',
+            background: 'var(--color-accent)', // Fiori Active/Action Brand Color
+            color: '#ffffff',
+            boxShadow: 'var(--shadow-sm)'
         },
         secondary: {
-            background: 'var(--bg-elevated)',
-            color: 'var(--text-main)',
-            border: '1px solid var(--border-color)',
-            boxShadow: 'var(--shadow-sm)'
+            background: 'transparent',
+            color: 'var(--color-accent)', // Fiori secondary often uses action color for text and border
+            border: '1px solid var(--color-accent)',
         },
         danger: {
             background: 'var(--color-error)',
@@ -83,8 +83,8 @@ const Button = ({
             {...props}
         >
             {isLoading ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg className="animate-spin" style={{ width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <svg className="animate-spin" style={{ width: 'var(--space-4)', height: 'var(--space-4)', animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" style={{ opacity: 0.25 }}></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" style={{ opacity: 0.75 }}></path>
                     </svg>

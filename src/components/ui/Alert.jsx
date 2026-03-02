@@ -14,7 +14,7 @@ const Alert = ({
         fontSize: 'var(--text-sm)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '4px',
+        gap: 'var(--space-1)',
     };
 
     const variantStyles = {

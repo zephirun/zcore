@@ -2,16 +2,25 @@ require('dotenv').config();
 const oracledb = require('oracledb');
 const path = require('path');
 
-// Inicializa o Client em modo "Thick" para suportar Criptografia Nativa (ORA-12660)
-try {
-    oracledb.initOracleClient({ libDir: path.join(__dirname, 'client', 'instantclient_21_21') });
-    console.log('💎 Oracle Thick Mode initialized with local Instant Client v21');
-} catch (err) {
-    console.warn('⚠️ Warning: Could not initialize Thick Mode. Falling back to Thin Mode.', err.message);
+// ─── Mode Selection (set by start.js auto-detector) ──────────────────────────
+const dbMode = process.env.DB_MODE || 'lan'; // 'lan' | 'proxy'
+
+if (dbMode === 'lan') {
+    try {
+        oracledb.initOracleClient({ libDir: path.join(__dirname, 'client', 'instantclient_21_21') });
+        console.log('💎 Oracle Thick Mode (LAN) — Instant Client v21');
+    } catch (err) {
+        console.warn('⚠️ Thick Mode init failed, falling back to Thin Mode:', err.message);
+    }
+} else {
+    console.log('🔹 Oracle Thin Mode (WSL2 Proxy)');
 }
+
+
 
 // Configurações Globais
 oracledb.autoCommit = true;
+oracledb.fetchAsString = [oracledb.CLOB];
 
 // Função para obter config atualizada do env
 function getDbConfig() {

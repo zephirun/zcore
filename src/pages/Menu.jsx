@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '../lib/react-query';
+import { fetchSalesData, fetchClientRecords } from '../services/api';
+import { fetchDetailedKPIs } from '../services/oracleService';
 import { useData } from '../context/DataContext';
 import { allModules, categories } from '../config/menuConfig';
 import { ChevronRight, Grid } from 'lucide-react';
@@ -32,6 +36,23 @@ const Menu = () => {
     const firstName = name ? name.split(' ')[0] : 'Usuário';
 
     // Greeting logic based on São Paulo time
+    const handlePrefetch = (modulePath) => {
+        // Core Sales & Analysis Views
+        if (modulePath.includes('/sales/analysis') || modulePath.includes('/sales/synthetic-summary')) {
+            queryClient.prefetchQuery({ queryKey: ['sales', 'monthly-billing'], queryFn: () => fetchSalesData(activeUnit) });
+        }
+
+        // Strategic Board
+        if (modulePath.includes('/board/strategic')) {
+            queryClient.prefetchQuery({ queryKey: ['sales', 'detailed-kpis'], queryFn: () => fetchDetailedKPIs() });
+        }
+
+        // Client Records (CRM basis)
+        if (modulePath.includes('/sales/client-records')) {
+            queryClient.prefetchQuery({ queryKey: QUERY_KEYS.clients.all(activeUnit), queryFn: () => fetchClientRecords(activeUnit) });
+        }
+    };
+
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour >= 5 && hour < 12) return "Bom dia";
@@ -56,10 +77,6 @@ const Menu = () => {
                         from { opacity: 0; transform: translateY(-10px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                    .module-card:hover {
-                        background: var(--bg-hover) !important;
-                        border-color: var(--border-input) !important;
-                    }
                     .hide-scrollbar::-webkit-scrollbar {
                         display: none;
                     }
@@ -73,16 +90,15 @@ const Menu = () => {
                 width: '100%',
                 maxWidth: '1600px',
                 margin: '0 auto',
-                padding: '24px 20px 40px',
+                padding: 'var(--space-6)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px'
+                gap: 'var(--space-4)'
             }}>
-
                 {/* --- PERSONALIZED WELCOME HEADER --- */}
-                <div style={{ marginBottom: '32px', animation: 'fadeInDown 0.5s ease-out' }}>
+                <div style={{ marginBottom: 'var(--space-4)', animation: 'fadeInDown 0.5s ease-out' }}>
                     <h1 style={{
-                        fontSize: '24px',
+                        fontSize: 'var(--text-3xl)',
                         fontWeight: '800',
                         color: 'var(--text-main)',
                         margin: '0',
@@ -92,10 +108,10 @@ const Menu = () => {
                         {getGreeting()}, {firstName}
                     </h1>
                     <p style={{
-                        fontSize: '14px',
+                        fontSize: 'var(--text-base)',
                         color: 'var(--text-muted)',
                         margin: '4px 0 0 0',
-                        fontWeight: '500',
+                        fontWeight: 'var(--font-medium)',
                         letterSpacing: '-0.01em'
                     }}>
                         O que você deseja acessar hoje?
@@ -103,9 +119,9 @@ const Menu = () => {
                 </div>
 
                 <div>
-                    <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                         <Grid size={18} color="var(--color-primary)" strokeWidth={2.5} />
-                        <h2 style={{ fontSize: '11px', fontWeight: '900', color: 'var(--text-muted)', letterSpacing: '0.1em', margin: 0, textTransform: 'uppercase' }}>
+                        <h2 style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', letterSpacing: '0.1em', margin: 0, textTransform: 'uppercase' }}>
                             Módulos Disponíveis
                         </h2>
                     </div>
@@ -115,8 +131,8 @@ const Menu = () => {
                         className="hide-scrollbar category-grid"
                         style={{
                             display: 'flex',
-                            gap: '6px',
-                            paddingBottom: '20px',
+                            gap: 'var(--space-4)',
+                            paddingBottom: 'var(--space-5)',
                             overflowX: 'auto',
                             flexWrap: 'wrap'
                         }}>
@@ -131,14 +147,14 @@ const Menu = () => {
                                         alignItems: 'center',
                                         gap: '6px',
                                         padding: '6px 14px',
-                                        borderRadius: '16px',
+                                        borderRadius: 'var(--radius-sm)',
                                         background: isActive ? `${cat.color}14` : 'var(--bg-elevated)',
                                         border: '1px solid',
                                         borderColor: isActive ? `${cat.color}40` : 'var(--border-color)',
                                         color: isActive ? cat.color : 'var(--text-muted)',
                                         cursor: 'pointer',
                                         transition: 'all 0.15s ease',
-                                        fontSize: '12px',
+                                        fontSize: 'var(--text-sm)',
                                         fontWeight: isActive ? '600' : '500',
                                         whiteSpace: 'nowrap',
                                         letterSpacing: '-0.01em',
@@ -157,8 +173,8 @@ const Menu = () => {
                             className="menu-grid"
                             style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                                gap: '12px',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                                gap: 'var(--space-4)',
                             }}>
                             {currentModules.map((module, index) => {
                                 const catColor = categories.find(c => c.id === module.category)?.color || null;
@@ -167,6 +183,7 @@ const Menu = () => {
                                         <ModuleCard
                                             module={module}
                                             categoryColor={catColor}
+                                            onHover={(m) => handlePrefetch(m.path)}
                                             onClick={(m) => {
                                                 if (m.path.startsWith('http')) window.open(m.path, '_blank');
                                                 else navigate(m.path);
@@ -177,7 +194,7 @@ const Menu = () => {
                             })}
                         </div>
                     ) : (
-                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                        <div style={{ padding: 'var(--space-10)', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                             Nenhum módulo nesta categoria.
                         </div>
                     )}
@@ -188,7 +205,7 @@ const Menu = () => {
 };
 
 // Reused ModuleCard Component
-const ModuleCard = ({ module, categoryColor, onClick }) => {
+const ModuleCard = ({ module, categoryColor, onClick, onHover }) => {
     const isComingSoon = module.status === 'coming-soon';
     const [isHovered, setIsHovered] = useState(false);
     const iconColor = categoryColor || 'var(--text-muted)';
@@ -197,63 +214,77 @@ const ModuleCard = ({ module, categoryColor, onClick }) => {
         <div
             className="module-card"
             onClick={() => !isComingSoon && onClick(module)}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => { setIsHovered(true); if (onHover) onHover(module); }}
             onMouseLeave={() => setIsHovered(false)}
             style={{
-                borderRadius: '16px',
-                padding: '16px 20px',
+                borderRadius: 'var(--radius-sm)',
+                padding: 'var(--space-6)',
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: isComingSoon ? 'default' : 'pointer',
-                transition: 'all 0.2s ease',
-                background: 'var(--bg-card)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                background: isHovered && !isComingSoon ? `${categoryColor}20` : 'var(--bg-card)',
+                boxShadow: isHovered && !isComingSoon ? 'var(--shadow-md)' : 'var(--shadow-sm)',
                 border: '1px solid',
-                borderColor: isHovered && !isComingSoon ? 'var(--border-input)' : 'var(--border-color)',
+                borderColor: isHovered && !isComingSoon ? `${categoryColor}60` : 'var(--border-color)',
                 display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '16px',
+                textAlign: 'center',
+                aspectRatio: '1.1 / 1', // Slightly wider than tall for a more dashboard look
+                gap: 'var(--space-4)',
                 opacity: isComingSoon ? 0.5 : 1,
+                transform: isHovered && !isComingSoon ? 'translateY(-4px)' : 'translateY(0)',
             }}
         >
             <div style={{
-                width: '40px', height: '40px',
-                borderRadius: '12px',
-                background: isHovered && !isComingSoon ? `${categoryColor}20` : 'var(--bg-input)',
-                border: '1px solid',
-                borderColor: categoryColor ? `${categoryColor}25` : 'var(--border-color)',
+                width: '56px', height: '56px',
+                borderRadius: 'var(--radius-lg)',
+                background: 'transparent',
+                border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isHovered ? categoryColor : 'var(--text-muted)',
-                transition: 'all 0.2s ease',
+                color: isHovered && !isComingSoon ? categoryColor : 'var(--text-muted)',
+                transition: 'all 0.3s ease',
                 flexShrink: 0,
+                marginBottom: 'var(--space-1)',
+                boxShadow: 'none'
             }}>
-                {React.cloneElement(module.icon, { width: 18, height: 18, strokeWidth: 1.8 })}
+                {React.cloneElement(module.icon, {
+                    width: 28,
+                    height: 28,
+                    strokeWidth: 2,
+                    stroke: isHovered && !isComingSoon ? categoryColor : 'var(--text-muted)'
+                })}
             </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ width: '100%' }}>
                 <h3 style={{
-                    fontSize: '13px',
-                    fontWeight: '700',
+                    fontSize: '14px',
+                    fontWeight: 'var(--font-bold)',
                     color: 'var(--text-main)',
-                    margin: '0 0 2px 0',
-                    lineHeight: '1.2',
+                    margin: '0 0 6px 0',
+                    lineHeight: '1.25',
                     letterSpacing: '-0.01em',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
                 }}>
                     {module.title}
                 </h3>
                 {module.subtitle && (
                     <p style={{
-                        fontSize: '11px',
+                        fontSize: '12px',
                         color: 'var(--text-muted)',
                         margin: 0,
                         lineHeight: '1.3',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
                     }}>
                         {module.subtitle}
                     </p>
@@ -265,14 +296,14 @@ const ModuleCard = ({ module, categoryColor, onClick }) => {
             {isComingSoon && (
                 <span style={{
                     fontSize: '9px',
-                    fontWeight: '700',
+                    fontWeight: 'var(--font-bold)',
                     color: 'var(--text-muted)',
                     background: 'var(--bg-elevated)',
                     padding: '2px 6px',
-                    borderRadius: '4px',
+                    borderRadius: 'var(--space-1)',
                     textTransform: 'uppercase',
                     position: 'absolute',
-                    top: '8px', right: '8px'
+                    top: 'var(--space-2)', right: 'var(--space-2)'
                 }}>
                     Em Breve
                 </span>

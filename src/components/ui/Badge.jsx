@@ -9,9 +9,9 @@ const Badge = ({
     const baseStyle = {
         display: 'inline-flex',
         alignItems: 'center',
-        padding: '2px 8px',
+        padding: '2px var(--space-2)',
         borderRadius: 'var(--radius-full)',
-        fontSize: '11px',
+        fontSize: 'var(--text-xs)',
         fontWeight: 'var(--font-semibold)',
         textTransform: 'uppercase',
         letterSpacing: '0.04em',

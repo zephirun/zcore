@@ -113,7 +113,7 @@ const PurchasingIntelligence = () => {
 
     return (
         <div style={{
-            padding: '24px',
+            padding: 'var(--space-6)',
             maxWidth: '1600px',
             margin: '0 auto',
             background: 'var(--bg-main)',
@@ -122,22 +122,12 @@ const PurchasingIntelligence = () => {
             animation: 'fadeIn 0.5s ease'
         }}>
             {/* Header Area */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '30px',
-                background: 'var(--bg-card)',
-                padding: '24px',
-                borderRadius: '16px',
-                boxShadow: 'var(--shadow-lg)',
-                border: '1px solid var(--border-color)'
-            }}>
-                <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '900', color: 'var(--text-main)', letterSpacing: '-0.5px', margin: 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div>
+                    <h1 style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)', letterSpacing: '-0.5px', margin: 0 }}>
                         MONITOR DE COMPRAS <span style={{ color: '#1565C0' }}>POR FORNECEDOR</span>
                     </h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Lead Time, Performance e Saúde de Malha Individual</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-base)', marginTop: 'var(--space-1)' }}>Lead Time, Performance e Saúde de Malha Individual</p>
                 </div>
 
                 <div style={{ position: 'relative' }}>
@@ -148,7 +138,7 @@ const PurchasingIntelligence = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{
                             padding: '12px 15px 12px 40px',
-                            borderRadius: '12px',
+                            borderRadius: 'var(--space-3)',
                             border: '1px solid var(--border-color)',
                             backgroundColor: 'var(--bg-input)',
                             color: 'var(--text-main)',
@@ -157,16 +147,16 @@ const PurchasingIntelligence = () => {
                             outline: 'none'
                         }}
                     />
-                    <svg style={{ position: 'absolute', left: '15px', top: '12px', color: 'var(--text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                    <svg style={{ position: 'absolute', left: '15px', top: 'var(--space-3)', color: 'var(--text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 3fr', gap: '25px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 3fr', gap: 'var(--space-4)' }}>
 
                 {/* Left Sidebar: Supplier List */}
                 <div style={{
                     backgroundColor: 'var(--bg-card)',
-                    borderRadius: '16px',
+                    borderRadius: 'var(--space-4)',
                     height: 'calc(100vh - 180px)',
                     overflowY: 'auto',
                     boxShadow: 'var(--shadow-lg)',
@@ -186,10 +176,10 @@ const PurchasingIntelligence = () => {
                                 transition: 'all 0.2s'
                             }}
                         >
-                            <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-main)' }}>{supplier.name}</div>
+                            <div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)', color: 'var(--text-main)' }}>{supplier.name}</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
-                                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Supply Health</span>
-                                <div style={{ width: '60px', height: '4px', backgroundColor: 'var(--bg-input)', borderRadius: '2px', alignSelf: 'center' }}>
+<span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Supply Health</span>
+                                <div style={{ width: '60px', height: 'var(--space-1)', backgroundColor: 'var(--bg-input)', borderRadius: '2px', alignSelf: 'center' }}>
                                     <div style={{ width: `${supplier.quality}%`, height: '100%', backgroundColor: '#1565C0', borderRadius: '2px' }} />
                                 </div>
                             </div>
@@ -200,20 +190,20 @@ const PurchasingIntelligence = () => {
                 {/* Right Panel: Procurement Dashboard */}
                 <div>
                     {selectedSupplier ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '25px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-4)' }}>
 
                                 {/* Left Side Area */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                                    {/* Inventory Trend */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{/* Inventory Trend */}
                                     <div style={{
                                         backgroundColor: 'var(--bg-card)',
                                         padding: '25px',
-                                        borderRadius: '16px',
+                                        borderRadius: 'var(--space-4)',
                                         boxShadow: 'var(--shadow-lg)',
                                         border: '1px solid var(--border-color)'
                                     }}>
-                                        <h3 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-main)', margin: '0 0 20px 0' }}>
+                                        <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '800', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', color: 'var(--text-main)', margin: '0 0 20px 0' }}>
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1565C0" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                                             Estoque vs Consumo: {selectedSupplier.name}
                                         </h3>
@@ -227,7 +217,7 @@ const PurchasingIntelligence = () => {
                                                         contentStyle={{
                                                             backgroundColor: 'var(--bg-card)',
                                                             border: '1px solid var(--border-color)',
-                                                            borderRadius: '16px',
+                                                            borderRadius: 'var(--space-4)',
                                                             color: 'var(--text-main)'
                                                         }}
                                                     />
@@ -240,7 +230,7 @@ const PurchasingIntelligence = () => {
                                     </div>
 
                                     {/* Actions */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
                                         <PurchasingActionButton icon="🛒" label="Comprar" color="#1565C0" />
                                         <PurchasingActionButton icon="📋" label="RFQ" color="#00897b" />
                                         <PurchasingActionButton icon="🚚" label="Tracking" color="#fbc02d" />
@@ -249,16 +239,16 @@ const PurchasingIntelligence = () => {
                                 </div>
 
                                 {/* Right Side Area */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                                    {/* Radar */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{/* Radar */}
                                     <div style={{
                                         backgroundColor: 'var(--bg-card)',
                                         padding: '25px',
-                                        borderRadius: '16px',
+                                        borderRadius: 'var(--space-4)',
                                         boxShadow: 'var(--shadow-lg)',
                                         border: '1px solid var(--border-color)'
                                     }}>
-                                        <h3 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '20px', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Radar de Eficiência (Suprimentos)</h3>
+                                        <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '800', marginBottom: 'var(--space-4)', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Radar de Eficiência (Suprimentos)</h3>
                                         <div style={{ height: '320px', width: '100%' }}>
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={selectedSupplier.radar}>
@@ -270,7 +260,7 @@ const PurchasingIntelligence = () => {
                                                         contentStyle={{
                                                             backgroundColor: 'var(--bg-card)',
                                                             border: '1px solid var(--border-color)',
-                                                            borderRadius: '16px',
+                                                            borderRadius: 'var(--space-4)',
                                                             color: 'var(--text-main)'
                                                         }}
                                                     />
@@ -283,19 +273,19 @@ const PurchasingIntelligence = () => {
                                     <div style={{
                                         backgroundColor: 'var(--bg-card)',
                                         padding: '25px',
-                                        borderRadius: '16px',
+                                        borderRadius: 'var(--space-4)',
                                         boxShadow: 'var(--shadow-lg)',
                                         border: '1px solid var(--border-color)'
                                     }}>
-                                        <h3 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '20px', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Riscos e Performance</h3>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                            {selectedSupplier.risks.map((risk, index) => (
+                                        <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '800', marginBottom: 'var(--space-4)', color: 'var(--text-main)', margin: '0 0 20px 0' }}>Riscos e Performance</h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+{selectedSupplier.risks.map((risk, index) => (
                                                 <div key={index}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                        <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)' }}>{risk.name}</span>
-                                                        <span style={{ fontSize: '12px', fontWeight: '900', color: risk.color }}>{risk.value}%</span>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+<span style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--text-muted)' }}>{risk.name}</span>
+                                                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: risk.color }}>{risk.value}%</span>
                                                     </div>
-                                                    <div style={{ height: '8px', backgroundColor: 'var(--bg-input)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ height: 'var(--space-2)', backgroundColor: 'var(--bg-input)', borderRadius: 'var(--space-1)', overflow: 'hidden' }}>
                                                         <div style={{ width: `${risk.value}%`, height: '100%', backgroundColor: risk.color }} />
                                                     </div>
                                                 </div>
@@ -308,9 +298,9 @@ const PurchasingIntelligence = () => {
                     ) : (
                         <div style={{
                             height: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            backgroundColor: 'var(--bg-card)', border: '1px dashed var(--border-color)', borderRadius: '16px', color: 'var(--text-muted)'
+                            backgroundColor: 'var(--bg-card)', border: '1px dashed var(--border-color)', borderRadius: 'var(--space-4)', color: 'var(--text-muted)'
                         }}>
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: '15px', opacity: 0.5 }}><circle cx="12" cy="12" r="10" /><path d="m16 12-4-4-4 4" /><path d="m12 8v8" /></svg>
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: 'var(--space-4)', opacity: 0.5 }}><circle cx="12" cy="12" r="10" /><path d="m16 12-4-4-4 4" /><path d="m12 8v8" /></svg>
                             <h3 style={{ margin: '0 0 5px 0', color: 'var(--text-main)' }}>Selecione um fornecedor para análise de suprimentos</h3>
                             <p>Análise de lead time, savings e eficiência logística.</p>
                         </div>
@@ -335,23 +325,24 @@ const PurchasingActionButton = ({ icon, label, color }) => (
     <div style={{
         padding: '15px 10px',
         backgroundColor: 'var(--bg-card)',
-        borderRadius: '12px',
+        borderRadius: 'var(--space-3)',
         boxShadow: 'var(--shadow-sm)',
         border: '1px solid var(--border-color)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
+        gap: 'var(--space-4)',
         cursor: 'pointer',
         transition: '0.2s',
         textAlign: 'center'
     }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = color; }}
+        onMouseEnter={(e) =>
+{ e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = color; }}
         onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
     >
-        <div style={{ fontSize: '20px' }}>{icon}</div>
-        <div style={{ fontSize: '10px', fontWeight: '900', color, textTransform: 'uppercase' }}>{label}</div>
+        <div style={{ fontSize: 'var(--text-2xl)' }}>{icon}</div>
+        <div style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color, textTransform: 'uppercase' }}>{label}</div>
     </div>
 );
 

@@ -6,9 +6,31 @@ import PageContainer from '@/components/ui/PageContainer';
 
 
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { allModules, categories } from '../config/menuConfig';
+
+const userSchema = z.object({
+    name: z.string().min(1, 'Nome é obrigatório'),
+    username: z.string().min(3, 'Mínimo de 3 caracteres').regex(/^[a-z0-9.]+$/, 'Apenas letras minúsculas, números e pontos'),
+    password: z.string().optional(),
+    role: z.string(),
+    allowedUnit: z.array(z.string()).optional(),
+    allowedVendor: z.string().optional(),
+    group: z.string().optional(),
+    allowedModules: z.array(z.string()).optional()
+}).refine((data) => {
+    if (data.role === 'user' && (!data.allowedUnit || data.allowedUnit.length === 0)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Selecione ao menos uma unidade",
+    path: ["allowedUnit"]
+});
 
 const AdminPanel = () => {
     // Correct Destructuring based on DataContext API
@@ -17,25 +39,29 @@ const AdminPanel = () => {
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // Form State
-    const [newUser, setNewUser] = useState({
-        username: '',
-        password: '',
-        role: 'user',
-        name: '',
-        allowedUnit: [], // Changed to array for multi-select
-        allowedVendor: '', // Renamed from vendorCode for consistency, stores the Linked Vendor Name
-        group: '',
-        allowedModules: []
-    });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-
     // Edit State
     const [editingUserId, setEditingUserId] = useState(null); // Stores ID for UI Key
     const [editingUsername, setEditingUsername] = useState(null); // Stores Username for API Link
-    const [editForm, setEditForm] = useState({});
 
+    // Form Hook
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm({
+        resolver: zodResolver(userSchema),
+        defaultValues: {
+            username: '',
+            password: '',
+            role: 'user',
+            name: '',
+            allowedUnit: [],
+            allowedVendor: '',
+            group: '',
+            allowedModules: []
+        }
+    });
+
+    const currentRole = watch('role');
+    const currentUnits = watch('allowedUnit') || [];
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     // Filtering
     const [filter, setFilter] = useState('');
 
@@ -46,40 +72,58 @@ const AdminPanel = () => {
         setTimeout(() => setIsRefreshing(false), 800);
     };
 
-    const handleAddUser = async (e) => {
-        e.preventDefault();
+    const onSubmit = async (data) => {
         setError('');
         setSuccess('');
 
-        if (!newUser.username || !newUser.password || !newUser.name) {
-            setError('Preencha os campos obrigatórios.');
-            return;
-        }
+        // Prepare units
+        const finalUnits = data.allowedUnit || [];
+        const unitsPayload = JSON.stringify(finalUnits);
 
-        if (newUser.role === 'user' && newUser.allowedUnit.length === 0) {
-            setError('Selecione pelo menos uma unidade para o usuário.');
-            return;
-        }
+        if (editingUserId) {
+            // EDIT
+            const result = await updateUser(editingUsername, {
+                name: data.name,
+                role: data.role,
+                allowedUnit: unitsPayload,
+                allowedModules: data.allowedModules,
+                allowedVendor: data.allowedVendor,
+                group: data.group,
+                ...(data.password ? { password: data.password } : {}) // Only send password if editing and filled
+            });
 
-        // Call registerUser with correct signature
-        // registerUser(name, username, password, role, unit, modules, vendor, group)
-        const result = await registerUser(
-            newUser.name,
-            newUser.username,
-            newUser.password,
-            newUser.role,
-            JSON.stringify(newUser.allowedUnit), // Serialize array to JSON string for storage
-            newUser.allowedModules,
-            newUser.allowedVendor,
-            newUser.group
-        );
-
-        if (result.success) {
-            setSuccess('Usuário criado com sucesso!');
-            setNewUser({ username: '', password: '', role: 'user', name: '', allowedUnit: [], allowedVendor: '', group: '', allowedModules: [] });
-            setTimeout(() => setSuccess(''), 3000);
+            if (result.success) {
+                setSuccess('Usuário atualizado!');
+                cancelEdit();
+                setTimeout(() => setSuccess(''), 3000);
+            } else {
+                setError(result.error || 'Erro ao atualizar usuário.');
+            }
         } else {
-            setError(result.error || 'Erro ao criar usuário.');
+            // CREATE
+            if (!data.password) {
+                setError('Senha é obrigatória para novos usuários.');
+                return;
+            }
+
+            const result = await registerUser(
+                data.name,
+                data.username,
+                data.password,
+                data.role,
+                unitsPayload,
+                data.allowedModules,
+                data.allowedVendor,
+                data.group
+            );
+
+            if (result.success) {
+                setSuccess('Usuário criado com sucesso!');
+                reset();
+                setTimeout(() => setSuccess(''), 3000);
+            } else {
+                setError(result.error || 'Erro ao criar usuário.');
+            }
         }
     };
 
@@ -87,54 +131,46 @@ const AdminPanel = () => {
         setEditingUserId(user.id);
         setEditingUsername(user.username);
 
+        // Parse allowed units robustly
         let parsedUnits = [];
         try {
-            parsedUnits = user.allowedUnit ? JSON.parse(user.allowedUnit) : [];
+            parsedUnits = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
+            if (!Array.isArray(parsedUnits)) {
+                if (typeof parsedUnits === 'string') {
+                    parsedUnits = parsedUnits.split(',').map(s => s.trim().replace(/['"]+/g, ''));
+                } else {
+                    parsedUnits = [parsedUnits];
+                }
+            }
         } catch {
-            // Fallback for old string format
-            parsedUnits = user.allowedUnit ? (user.allowedUnit.includes(',') ? user.allowedUnit.split(',') : [user.allowedUnit]) : [];
+            parsedUnits = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
         }
-        if (!Array.isArray(parsedUnits)) parsedUnits = [user.allowedUnit].filter(Boolean);
 
-        setEditForm({
-            ...user,
-            allowedUnit: parsedUnits, // Ensure it's an array
-            allowedModules: user.allowedModules || [],
+        reset({
+            username: user.username || '',
+            password: '', // Senha fica em branco, só preenche se for alterar
+            role: user.role || 'user',
+            name: user.name || '',
+            allowedUnit: parsedUnits,
+            allowedVendor: user.allowedVendor || '',
             group: user.group || '',
-            allowedVendor: user.allowedVendor || ''
+            allowedModules: user.allowedModules || []
         });
-    };
-
-    const saveEdit = async () => {
-        // Call updateUser with original username and updates object
-        const result = await updateUser(editingUsername, {
-            ...editForm,
-            allowedUnit: JSON.stringify(editForm.allowedUnit) // Serialize before sending
-        });
-
-        if (result.success) {
-            setEditingUserId(null); // Close edit mode
-            setEditingUsername(null);
-        } else {
-            alert('Erro ao atualizar: ' + (result.error || 'Erro desconhecido'));
-        }
     };
 
     const cancelEdit = () => {
         setEditingUserId(null);
         setEditingUsername(null);
+        reset({ username: '', password: '', role: 'user', name: '', allowedUnit: [], allowedVendor: '', group: '', allowedModules: [] });
     }
 
-    const toggleModuleAccess = (moduleId, isEditing = false) => {
-        const targetState = isEditing ? editForm : newUser;
-        const setTarget = isEditing ? setEditForm : setNewUser;
+    const toggleModuleAccess = (moduleId) => {
+        const currentMods = watch('allowedModules') || [];
+        const newModules = currentMods.includes(moduleId)
+            ? currentMods.filter(id => id !== moduleId)
+            : [...currentMods, moduleId];
 
-        const currentModules = targetState.allowedModules || [];
-        const newModules = currentModules.includes(moduleId)
-            ? currentModules.filter(id => id !== moduleId)
-            : [...currentModules, moduleId];
-
-        setTarget({ ...targetState, allowedModules: newModules });
+        setValue('allowedModules', newModules, { shouldValidate: true, shouldDirty: true });
     };
 
     const filteredUsers = users.filter(u =>
@@ -287,7 +323,7 @@ const AdminPanel = () => {
         >
             <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 'var(--space-6)', alignItems: 'start' }}>
                 {/* LEFT: FORM */}
-                <Card style={{ position: 'sticky', top: 'var(--space-4)', border: editingUserId ? '1px solid var(--color-primary)' : '1px solid var(--border-color)' }}>
+                <Card padding="var(--space-6)" style={{ position: 'sticky', top: 'var(--space-4)', border: editingUserId ? '1px solid var(--color-primary)' : '1px solid transparent', boxShadow: editingUserId ? '0 0 0 4px rgba(21,101,192,0.1)' : 'var(--shadow-md)', transition: 'all 0.3s ease' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
                         <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: editingUserId ? 'var(--color-primary)' : 'var(--text-main)', margin: 0 }}>
                             {editingUserId ? 'Editar Usuário' : 'Novo Registro'}
@@ -299,18 +335,19 @@ const AdminPanel = () => {
                         )}
                     </div>
 
-                    <form onSubmit={editingUserId ? (e) => { e.preventDefault(); saveEdit(); } : handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                         <Input
                             label="Nome Completo"
-                            value={editingUserId ? editForm.name : newUser.name}
-                            onChange={e => editingUserId ? setEditForm({ ...editForm, name: e.target.value }) : setNewUser({ ...newUser, name: e.target.value })}
+                            {...register('name')}
+                            error={errors.name?.message}
                             placeholder="Nome do colaborador"
                         />
 
                         <Input
                             label="Login (Usuário)"
-                            value={editingUserId ? editForm.username : newUser.username}
-                            onChange={e => editingUserId ? setEditForm({ ...editForm, username: e.target.value }) : setNewUser({ ...newUser, username: e.target.value })}
+                            {...register('username')}
+                            error={errors.username?.message}
+                            disabled={!!editingUserId}
                             placeholder="usuario.sobrenome"
                         />
 
@@ -318,16 +355,15 @@ const AdminPanel = () => {
                             <Input
                                 label="Senha Provisória"
                                 type="password"
-                                value={newUser.password}
-                                onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                                {...register('password')}
+                                error={errors.password?.message}
                                 placeholder="••••••••"
                             />
                         )}
 
                         <Select
                             label="Função"
-                            value={editingUserId ? editForm.role : newUser.role}
-                            onChange={e => editingUserId ? setEditForm({ ...editForm, role: e.target.value }) : setNewUser({ ...newUser, role: e.target.value })}
+                            {...register('role')}
                         >
                             <option value="user">Usuário Padrão</option>
                             <option value="admin">Administrador Geral</option>
@@ -335,12 +371,11 @@ const AdminPanel = () => {
 
                         <Input
                             label="Departamento"
-                            value={editingUserId ? editForm.group : newUser.group}
-                            onChange={e => editingUserId ? setEditForm({ ...editForm, group: e.target.value }) : setNewUser({ ...newUser, group: e.target.value })}
+                            {...register('group')}
                             placeholder="Ex: Comercial, RH"
                         />
 
-                        {((editingUserId ? editForm.role : newUser.role) !== 'admin') && (
+                        {(currentRole !== 'admin') && (
                             <>
                                 <div>
                                     <label style={labelStyle}>Unidades com Acesso</label>
@@ -356,7 +391,6 @@ const AdminPanel = () => {
                                         overflowY: 'auto'
                                     }} className="hide-scrollbar">
                                         {AVAILABLE_UNITS.map(u => {
-                                            const currentUnits = editingUserId ? (editForm.allowedUnit || []) : (newUser.allowedUnit || []);
                                             const isChecked = currentUnits.includes(u.id);
 
                                             return (
@@ -366,8 +400,7 @@ const AdminPanel = () => {
                                                         const newUnits = isChecked
                                                             ? currentUnits.filter(id => id !== u.id)
                                                             : [...currentUnits, u.id];
-                                                        if (editingUserId) setEditForm({ ...editForm, allowedUnit: newUnits });
-                                                        else setNewUser({ ...newUser, allowedUnit: newUnits });
+                                                        setValue('allowedUnit', newUnits, { shouldValidate: true, shouldDirty: true });
                                                     }}
                                                     style={{
                                                         display: 'flex',
@@ -393,12 +426,12 @@ const AdminPanel = () => {
                                             );
                                         })}
                                     </div>
+                                    {errors.allowedUnit && <span style={{ color: 'var(--color-error)', fontSize: '11px', marginTop: '4px', display: 'block' }}>Selecione ao menos uma unidade.</span>}
                                 </div>
 
                                 <Select
                                     label="Vendedor Associado"
-                                    value={editingUserId ? editForm.allowedVendor : newUser.allowedVendor}
-                                    onChange={e => editingUserId ? setEditForm({ ...editForm, allowedVendor: e.target.value }) : setNewUser({ ...newUser, allowedVendor: e.target.value })}
+                                    {...register('allowedVendor')}
                                 >
                                     <option value="">Acesso Irrestrito (Gerencial)</option>
                                     {uniqueVendors.map(vendor => (
@@ -407,9 +440,8 @@ const AdminPanel = () => {
                                 </Select>
 
                                 <ModulePermissionSelector
-                                    selectedModules={editingUserId ? (editForm.allowedModules || []) : newUser.allowedModules}
+                                    selectedModules={watch('allowedModules') || []}
                                     onToggle={toggleModuleAccess}
-                                    isEditing={!!editingUserId}
                                 />
                             </>
                         )}
@@ -418,7 +450,8 @@ const AdminPanel = () => {
                             variant="primary"
                             type="submit"
                             fullWidth
-                            loading={isRefreshing}
+                            loading={isSubmitting}
+                            disabled={isSubmitting || (!isDirty && !!editingUserId)}
                         >
                             {editingUserId ? 'Salvar Alterações' : 'Criar Conta'}
                         </Button>
@@ -429,116 +462,114 @@ const AdminPanel = () => {
                 </Card>
 
                 {/* RIGHT: LIST */}
-                <Card padding="0" style={{ overflow: 'hidden' }}>
+                <Card padding="0" style={{ overflow: 'hidden', border: 'none', boxShadow: 'var(--shadow-md)' }}>
                     <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
                             <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
-                                    <th style={thStyle}>Colaborador</th>
-                                    <th style={thStyle}>Grupo</th>
-                                    <th style={thStyle}>Unidades</th>
-                                    <th style={thStyle}>Acesso</th>
-                                    <th style={{ ...thStyle, textAlign: 'right' }}>Ações</th>
+                                <tr style={{ borderBottom: '2px solid var(--border-color)', background: 'var(--bg-main)' }}>
+                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Colaborador</th>
+                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Grupo</th>
+                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Unidades</th>
+                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Acesso</th>
+                                    <th style={{ textAlign: 'right', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredUsers.map(user => (
-                                    <React.Fragment key={user.id}>
-                                        <tr
-                                            onClick={() => startEdit(user)}
-                                            style={{
-                                                borderBottom: '1px solid var(--border-color)',
-                                                cursor: 'pointer',
-                                                background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
-                                                transition: 'background 0.2s ease'
-                                            }}
-                                            className="admin-row"
-                                        >
-                                            <td style={tdStyle}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                                                    <div style={{
-                                                        width: '32px', height: '32px', borderRadius: '50%',
-                                                        background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                                        color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '11px',
-                                                        border: '1px solid var(--border-color)'
+                                {filteredUsers.map(user => {
+                                    let unitsList = [];
+                                    try {
+                                        unitsList = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
+                                        if (!Array.isArray(unitsList)) {
+                                            unitsList = typeof unitsList === 'string' ? unitsList.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [unitsList];
+                                        }
+                                    } catch {
+                                        unitsList = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
+                                    }
+                                    const isGlobal = user.role === 'admin';
+                                    const unitNames = unitsList.map(id => {
+                                        const unit = AVAILABLE_UNITS.find(u => u.id === id);
+                                        return unit ? unit.name : null;
+                                    }).filter(Boolean).join(', ');
+                                    const slicedUnits = unitNames.length > 30 ? unitNames.slice(0, 30) + '...' : unitNames;
+                                    const modCount = user.allowedModules?.length || 0;
+
+                                    return (
+                                        <React.Fragment key={user.id}>
+                                            <tr
+                                                onClick={() => startEdit(user)}
+                                                style={{
+                                                    borderBottom: '1px solid var(--border-color)',
+                                                    cursor: 'pointer',
+                                                    background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
+                                                    transition: 'background 0.2s ease'
+                                                }}
+                                                className="admin-row"
+                                            >
+                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                                        <div style={{
+                                                            width: '36px', height: '36px', borderRadius: '50%',
+                                                            background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
+                                                            color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-xs)',
+                                                            border: '1px solid var(--border-color)'
+                                                        }}>
+                                                            {user.name.charAt(0)}
+                                                        </div>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontWeight: 'var(--font-semibold)', fontSize: 'var(--text-sm)', color: 'var(--text-main)' }}>{user.name}</span>
+                                                            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>@{user.username}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                    <span style={{
+                                                        padding: '4px 10px',
+                                                        background: 'var(--bg-input)',
+                                                        borderRadius: 'var(--space-3)',
+                                                        border: '1px solid var(--border-color)',
+                                                        fontSize: '11px',
                                                     }}>
-                                                        {user.name.charAt(0)}
-                                                    </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <span style={{ fontWeight: '600', fontSize: '13px', color: 'var(--text-main)' }}>{user.name}</span>
-                                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>@{user.username}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <span style={{
-                                                    fontSize: '11px',
-                                                    padding: '2px 8px',
-                                                    borderRadius: '12px',
-                                                    background: 'var(--bg-input)',
-                                                    border: '1px solid var(--border-color)',
-                                                    color: 'var(--text-muted)',
-                                                    fontWeight: '600'
-                                                }}>
-                                                    {user.group || 'Geral'}
-                                                </span>
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '300px' }}>
-                                                    {user.role === 'admin' ? (
-                                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>Acesso Global</span>
-                                                    ) : (
-                                                        (() => {
-                                                            if (!user.allowedUnit) return '-';
-                                                            let ids = [];
-                                                            try { ids = JSON.parse(user.allowedUnit); } catch { ids = user.allowedUnit.split(','); }
-                                                            if (!Array.isArray(ids)) ids = [user.allowedUnit];
-                                                            const renderedUnits = ids.map(id => {
-                                                                const unit = AVAILABLE_UNITS.find(u => u.id === id.trim().replace(/['"]+/g, ''));
-                                                                return unit ? unit.name : null;
-                                                            }).filter(Boolean);
-                                                            return renderedUnits.length > 0 ? renderedUnits.join(', ') : '-';
-                                                        })()
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <div style={{
-                                                        width: '6px', height: '6px', borderRadius: '50%',
-                                                        background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--color-success)'
-                                                    }} />
-                                                    <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)' }}>
-                                                        {user.role === 'admin' ? 'ADMIN' : `${user.allowedModules?.length || 0} MOD.`}
+                                                        {user.group || 'Geral'}
                                                     </span>
-                                                </div>
-                                            </td>
-                                            <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
-                                                        style={{ color: 'var(--color-error)' }}
-                                                    >
-                                                        Remover
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {user.allowedVendor && (
-                                            <tr style={{ background: 'var(--bg-main)33' }}>
-                                                <td colSpan="5" style={{ padding: '0 16px 8px 58px', fontSize: '11px', color: 'var(--color-primary)', fontWeight: '600' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                                        Dados restritos ao vendedor: {user.allowedVendor}
+                                                </td>
+                                                <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)' }}>
+                                                    {isGlobal ? 'Acesso Global' : <span title={unitNames}>{slicedUnits}</span>}
+                                                </td>
+                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: user.role === 'admin' ? '#d32f2f' : '#2e7d32' }}></div>
+                                                        <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--text-main)', fontSize: '11px' }}>
+                                                            {user.role === 'admin' ? 'ADMIN' : `${modCount} MOD.`}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
+                                                            style={{ color: 'var(--color-error)' }}
+                                                        >
+                                                            Remover
+                                                        </Button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        )}
-                                    </React.Fragment>
-                                ))}
+                                            {user.allowedVendor && (
+                                                <tr style={{ background: 'var(--bg-main)33' }}>
+                                                    <td colSpan="5" style={{ padding: '0 16px 8px 58px', fontSize: '11px', color: 'var(--color-primary)', fontWeight: '600' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                                            Dados restritos ao vendedor: {user.allowedVendor}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

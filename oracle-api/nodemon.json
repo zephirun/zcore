@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "."
+    ],
+    "ext": "js,json",
+    "ignore": [
+        "oracle_api*.log",
+        "api.log",
+        "*.log"
+    ],
+    "exec": "node start.js"
+}

@@ -41,32 +41,34 @@ const InsightsPanel = ({ insights, onClose }) => {
         return allInsights;
     }, [insights, activeFilter, entityFilter]);
 
-    const FilterButton = ({ filter, label, count, color }) => (
+    const FilterButton = ({ filter, label, count, colorVar, colorLightVar }) => (
         <Button
             onClick={() => setActiveFilter(filter)}
             style={{
                 padding: '8px 16px',
-                background: activeFilter === filter ? color : 'var(--bg-input)',
+                background: activeFilter === filter ? `var(${colorVar})` : 'var(--bg-input)',
                 color: activeFilter === filter ? 'white' : 'var(--text-main)',
-                border: `2px solid ${activeFilter === filter ? color : 'var(--border-color)'}`,
-                borderRadius: '8px',
+                border: '1px solid',
+                borderColor: activeFilter === filter ? `var(${colorVar})` : 'var(--border-color)',
+                borderRadius: 'var(--radius-sm)',
                 cursor: 'pointer',
                 fontSize: '12px',
-                fontWeight: '700',
-                transition: 'all 0.2s ease',
+                fontWeight: '600',
+                transition: 'all 0.15s ease',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '8px',
+                height: '36px'
             }}
         >
             {label}
             <span style={{
-                background: activeFilter === filter ? 'rgba(255,255,255,0.3)' : color + '20',
-                color: activeFilter === filter ? 'white' : color,
+                background: activeFilter === filter ? 'rgba(255,255,255,0.2)' : `var(${colorLightVar})`,
+                color: activeFilter === filter ? 'white' : `var(${colorVar})`,
                 padding: '2px 8px',
-                borderRadius: '12px',
+                borderRadius: 'var(--radius-full)',
                 fontSize: '11px',
-                fontWeight: '800'
+                fontWeight: '700'
             }}>
                 {count}
             </span>
@@ -89,37 +91,40 @@ const InsightsPanel = ({ insights, onClose }) => {
         }}>
             <div style={{
                 background: 'var(--bg-main)',
-                borderRadius: '24px',
+                borderRadius: 'var(--radius-lg)',
                 maxWidth: '900px',
                 width: '100%',
                 maxHeight: '90vh',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                boxShadow: 'var(--shadow-xl)',
+                border: '1px solid var(--border-color)',
+                overflow: 'hidden'
             }}>
                 {/* Header */}
                 <div style={{
-                    padding: '24px',
-                    borderBottom: '2px solid var(--border-color)',
+                    padding: '20px 24px',
+                    borderBottom: '1px solid var(--border-color)',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    background: 'var(--bg-card)'
                 }}>
                     <div>
                         <h2 style={{
-                            fontSize: '24px',
-                            fontWeight: '800',
+                            fontSize: '18px',
+                            fontWeight: '700',
                             color: 'var(--text-main)',
-                            margin: '0 0 4px 0',
+                            margin: '0 0 2px 0',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px'
+                            gap: '10px'
                         }}>
                             💡 Insights Automáticos
                         </h2>
                         <p style={{
-                            fontSize: '13px',
-                            color: 'var(--text-secondary)',
+                            fontSize: '12px',
+                            color: 'var(--text-muted)',
                             margin: 0
                         }}>
                             Análise inteligente dos dados de vendas
@@ -128,19 +133,21 @@ const InsightsPanel = ({ insights, onClose }) => {
                     <Button
                         onClick={onClose}
                         style={{
-                            background: 'var(--bg-input)',
-                            border: '2px solid var(--border-color)',
-                            borderRadius: '12px',
-                            width: '40px',
-                            height: '40px',
+                            background: 'transparent',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-sm)',
+                            width: '32px',
+                            height: '32px',
                             cursor: 'pointer',
-                            fontSize: '20px',
-                            color: 'var(--text-main)',
+                            fontSize: '18px',
+                            color: 'var(--text-muted)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.15s ease'
                         }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-error)'; e.currentTarget.style.color = 'var(--color-error)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                     >
                         ×
                     </Button>
@@ -155,25 +162,27 @@ const InsightsPanel = ({ insights, onClose }) => {
                     gap: '12px'
                 }}>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <FilterButton filter="all" label="Todos" count={counts.all} color="#6B7280" />
-                        <FilterButton filter="critical" label="🔴 Crítico" count={counts.critical} color="#EF4444" />
-                        <FilterButton filter="warning" label="🟡 Atenção" count={counts.warning} color="#F59E0B" />
-                        <FilterButton filter="positive" label="🟢 Positivo" count={counts.positive} color="#10B981" />
-                        <FilterButton filter="informational" label="ℹ️ Info" count={counts.informational} color="#3B82F6" />
+                        <FilterButton filter="all" label="Todos" count={counts.all} colorVar="--text-muted" colorLightVar="--bg-hover" />
+                        <FilterButton filter="critical" label="Crítico" count={counts.critical} colorVar="--color-error-strong" colorLightVar="--color-error-light" />
+                        <FilterButton filter="warning" label="Atenção" count={counts.warning} colorVar="--color-warning-strong" colorLightVar="--color-warning-light" />
+                        <FilterButton filter="positive" label="Positivo" count={counts.positive} colorVar="--color-success-strong" colorLightVar="--color-success-light" />
+                        <FilterButton filter="informational" label="Info" count={counts.informational} colorVar="--color-info-strong" colorLightVar="--color-info-light" />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
                         <Button
                             onClick={() => setEntityFilter('all')}
                             style={{
-                                padding: '6px 12px',
-                                background: entityFilter === 'all' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                color: entityFilter === 'all' ? 'white' : 'var(--text-main)',
-                                border: `2px solid ${entityFilter === 'all' ? 'var(--color-primary)' : 'var(--border-color)'}`,
-                                borderRadius: '6px',
+                                padding: '6px 14px',
+                                background: entityFilter === 'all' ? 'var(--color-accent)' : 'var(--bg-input)',
+                                color: entityFilter === 'all' ? 'white' : 'var(--text-muted)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: 'var(--radius-sm)',
                                 cursor: 'pointer',
                                 fontSize: '11px',
-                                fontWeight: '700'
+                                fontWeight: '600',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
                             }}
                         >
                             Todos
@@ -181,14 +190,16 @@ const InsightsPanel = ({ insights, onClose }) => {
                         <Button
                             onClick={() => setEntityFilter('customer')}
                             style={{
-                                padding: '6px 12px',
-                                background: entityFilter === 'customer' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                color: entityFilter === 'customer' ? 'white' : 'var(--text-main)',
-                                border: `2px solid ${entityFilter === 'customer' ? 'var(--color-primary)' : 'var(--border-color)'}`,
-                                borderRadius: '6px',
+                                padding: '6px 14px',
+                                background: entityFilter === 'customer' ? 'var(--color-accent)' : 'var(--bg-input)',
+                                color: entityFilter === 'customer' ? 'white' : 'var(--text-muted)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: 'var(--radius-sm)',
                                 cursor: 'pointer',
                                 fontSize: '11px',
-                                fontWeight: '700'
+                                fontWeight: '600',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
                             }}
                         >
                             Clientes
@@ -196,14 +207,16 @@ const InsightsPanel = ({ insights, onClose }) => {
                         <Button
                             onClick={() => setEntityFilter('salesperson')}
                             style={{
-                                padding: '6px 12px',
-                                background: entityFilter === 'salesperson' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                color: entityFilter === 'salesperson' ? 'white' : 'var(--text-main)',
-                                border: `2px solid ${entityFilter === 'salesperson' ? 'var(--color-primary)' : 'var(--border-color)'}`,
-                                borderRadius: '6px',
+                                padding: '6px 14px',
+                                background: entityFilter === 'salesperson' ? 'var(--color-accent)' : 'var(--bg-input)',
+                                color: entityFilter === 'salesperson' ? 'white' : 'var(--text-muted)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: 'var(--radius-sm)',
                                 cursor: 'pointer',
                                 fontSize: '11px',
-                                fontWeight: '700'
+                                fontWeight: '600',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
                             }}
                         >
                             Vendedores
@@ -223,7 +236,7 @@ const InsightsPanel = ({ insights, onClose }) => {
                             padding: '60px 20px',
                             color: 'var(--text-secondary)'
                         }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                            <div style={{ fontSize: '48px', marginBottom: "var(--space-4)" }}>🎉</div>
                             <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0' }}>
                                 Nenhum insight encontrado
                             </h3>

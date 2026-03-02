@@ -14,9 +14,9 @@ const Skeleton = ({
 
     if (variant === 'table') {
         return (
-            <div className={`ui-skeleton-table ${className}`} style={{ width: width || '100%', display: 'flex', flexDirection: 'column', gap: '8px', ...style }}>
+            <div className={`ui-skeleton-table ${className}`} style={{ width: width || '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', ...style }}>
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="ui-skeleton" style={{ height: '40px', borderRadius, width: '100%' }} />
+                    <div key={i} className="ui-skeleton" style={{ height: 'var(--space-10)', borderRadius, width: '100%' }} />
                 ))}
             </div>
         );
@@ -32,21 +32,21 @@ const Skeleton = ({
                 width: width || '100%',
                 ...style
             }}>
-                <div className="ui-skeleton" style={{ height: '24px', width: '40%', marginBottom: '16px', borderRadius: '4px' }} />
-                <div className="ui-skeleton" style={{ height: '14px', width: '100%', marginBottom: '8px', borderRadius: '4px' }} />
-                <div className="ui-skeleton" style={{ height: '14px', width: '80%', marginBottom: '8px', borderRadius: '4px' }} />
-                <div className="ui-skeleton" style={{ height: '14px', width: '60%', borderRadius: '4px' }} />
+                <div className="ui-skeleton" style={{ height: 'var(--space-6)', width: '40%', marginBottom: 'var(--space-4)', borderRadius: 'var(--space-1)' }} />
+                <div className="ui-skeleton" style={{ height: '14px', width: '100%', marginBottom: 'var(--space-2)', borderRadius: 'var(--space-1)' }} />
+                <div className="ui-skeleton" style={{ height: '14px', width: '80%', marginBottom: 'var(--space-2)', borderRadius: 'var(--space-1)' }} />
+                <div className="ui-skeleton" style={{ height: '14px', width: '60%', borderRadius: 'var(--space-1)' }} />
             </div>
         );
     }
 
     if (variant === 'form') {
         return (
-            <div className={`ui-skeleton-form ${className}`} style={{ width: width || '100%', display: 'flex', flexDirection: 'column', gap: '16px', ...style }}>
+            <div className={`ui-skeleton-form ${className}`} style={{ width: width || '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', ...style }}>
                 {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div className="ui-skeleton" style={{ height: '14px', width: '30%', borderRadius: '4px' }} />
-                        <div className="ui-skeleton" style={{ height: '40px', width: '100%', borderRadius: '4px' }} />
+                    <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                        <div className="ui-skeleton" style={{ height: '14px', width: '30%', borderRadius: 'var(--space-1)' }} />
+                        <div className="ui-skeleton" style={{ height: 'var(--space-10)', width: '100%', borderRadius: 'var(--space-1)' }} />
                     </div>
                 ))}
             </div>
@@ -59,7 +59,7 @@ const Skeleton = ({
             className={`ui-skeleton ${className}`}
             style={{
                 width: width || '100%',
-                height: height || '20px',
+                height: height || 'var(--space-5)',
                 borderRadius,
                 ...style
             }}

@@ -90,13 +90,13 @@ const Sidebar = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: isVisualCollapsed ? 'center' : 'space-between',
-                                    color: (isActive || isExpanded) ? (category.color || 'var(--text-main)') : 'var(--text-muted)',
-                                    backgroundColor: (isActive || isExpanded) ? `${category.color || 'var(--text-main)'}14` : 'transparent',
+                                    color: (isActive || isExpanded) ? 'var(--text-main)' : 'var(--text-muted)',
+                                    backgroundColor: (isActive || isExpanded) ? 'var(--bg-hover)' : 'transparent',
                                     cursor: 'pointer',
                                     margin: '2px 8px',
-                                    borderRadius: '8px',
+                                    borderRadius: 'var(--radius)',
                                     borderLeft: !isVisualCollapsed && isActive
-                                        ? `3px solid ${category.color || 'var(--text-main)'}`
+                                        ? `3px solid ${category.color || 'var(--color-primary)'}`
                                         : '3px solid transparent',
                                 }}
                             >
@@ -115,7 +115,7 @@ const Sidebar = () => {
                                     {!isVisualCollapsed && (
                                         <span style={{
                                             marginLeft: '10px',
-                                            fontSize: '13px',
+                                            fontSize: 'var(--text-sm)',
                                             fontWeight: (isActive || isExpanded) ? '600' : '400',
                                             whiteSpace: 'nowrap',
                                             letterSpacing: '-0.01em'
@@ -166,29 +166,29 @@ const Sidebar = () => {
                                                     gap: '8px',
                                                     padding: 'var(--density-padding-xs) 10px var(--density-padding-xs) calc(var(--density-padding-md) + 2px)',
                                                     textDecoration: 'none',
-                                                    color: isModuleActive ? catColor : `${catColor}99`,
+                                                    color: isModuleActive ? 'var(--text-main)' : 'var(--text-muted)',
                                                     fontSize: '12px',
                                                     fontWeight: isModuleActive ? '600' : '400',
-                                                    background: isModuleActive ? `${catColor}14` : 'transparent',
-                                                    borderRadius: '6px',
+                                                    background: isModuleActive ? 'var(--bg-hover)' : 'transparent',
+                                                    borderRadius: 'var(--radius-sm)',
                                                     margin: '1px 6px',
                                                     transition: 'all 0.15s ease',
                                                     letterSpacing: '-0.01em'
                                                 }}
                                                 onMouseEnter={e => {
-                                                    if (!isModuleActive) e.currentTarget.style.backgroundColor = `${catColor}0f`;
-                                                    e.currentTarget.style.color = catColor;
+                                                    if (!isModuleActive) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                                                    e.currentTarget.style.color = 'var(--text-main)';
                                                 }}
                                                 onMouseLeave={e => {
-                                                    e.currentTarget.style.backgroundColor = isModuleActive ? `${catColor}14` : 'transparent';
-                                                    e.currentTarget.style.color = isModuleActive ? catColor : `${catColor}99`;
+                                                    e.currentTarget.style.backgroundColor = isModuleActive ? 'var(--bg-hover)' : 'transparent';
+                                                    e.currentTarget.style.color = isModuleActive ? 'var(--text-main)' : 'var(--text-muted)';
                                                 }}
                                             >
                                                 <div style={{
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    color: 'inherit',
+                                                    color: catColor,
                                                     flexShrink: 0,
                                                     opacity: isModuleActive ? 1 : 0.6
                                                 }}>

@@ -51,7 +51,7 @@ const UserAudit = () => {
 
     if (loading && !stats) return (
         <div style={{ padding: 'var(--space-10)', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <div style={{ fontWeight: 'var(--font-bold)', marginBottom: 'var(--space-2)' }}>Carregando inteligência de auditoria...</div>
+            <div style={{ fontWeight: 'var(--font-bold)', marginBottom: 'var(--space-4)' }}>Carregando inteligência de auditoria...</div>
             <div style={{ fontSize: 'var(--text-xs)', opacity: 0.6 }}>Analisando padrões de comportamento</div>
         </div>
     );
@@ -63,14 +63,14 @@ const UserAudit = () => {
                 title="Inteligência de Auditoria"
                 subtitle="Análise comportamental e métricas de engajamento da equipe"
                 actions={
-                    <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', background: 'var(--bg-input)', padding: '4px 12px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Filtro:</span>
+                    <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', background: 'var(--bg-input)', padding: '4px 12px', borderRadius: 'var(--space-3)', border: '1px solid var(--border-color)' }}>
+<span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Filtro:</span>
                             <Select
                                 variant="ghost"
                                 value={selectedUser || ''}
                                 onChange={(e) => setSelectedUser(e.target.value || null)}
-                                style={{ border: 'none', padding: '4px 8px', fontSize: '13px', fontWeight: '600', minWidth: '180px' }}
+                                style={{ border: 'none', padding: '4px 8px', fontSize: '13px', fontWeight: 'var(--font-semibold)', minWidth: '180px' }}
                             >
                                 <option value="">Equipe Completa</option>
                                 {users.map(u => <option key={u.id} value={u.username}>{u.name || u.username}</option>)}
@@ -87,23 +87,23 @@ const UserAudit = () => {
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 0.8fr) 340px',
-                    gap: 'var(--space-6)',
+                    gap: 'var(--space-4)',
                     alignItems: 'start'
                 }}>
 
                     {/* COLUMN 1: CHARTS */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                        <ChartCard title="Fluxo de Acessos Mensal">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<ChartCard title="Fluxo de Acessos Mensal">
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={stats?.monthlyChartData}>
                                     <CartesianGrid vertical={false} stroke="var(--border-color)" strokeDasharray="3 3" opacity={0.5} />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--text-muted)', fontWeight: '600' }} dy={10} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--text-muted)', fontWeight: 'var(--font-semibold)' }} dy={10} />
                                     <YAxis hide />
                                     <Tooltip
                                         cursor={{ fill: 'var(--bg-hover)', radius: 4 }}
-                                        contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', padding: '12px' }}
-                                        itemStyle={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-primary)' }}
-                                        labelStyle={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: '800' }}
+                                        contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--space-3)', boxShadow: 'var(--shadow-lg)', padding: 'var(--space-3)' }}
+                                        itemStyle={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: 'var(--color-primary)' }}
+                                        labelStyle={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: 'var(--space-1)', textTransform: 'uppercase', fontWeight: '800' }}
                                     />
                                     <Bar dataKey="count" fill="var(--color-primary)" radius={[6, 6, 0, 0]} barSize={24} />
                                 </BarChart>
@@ -114,11 +114,11 @@ const UserAudit = () => {
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={stats?.hourlyData}>
                                     <CartesianGrid vertical={false} stroke="var(--border-color)" strokeDasharray="3 3" opacity={0.5} />
-                                    <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--text-muted)', fontWeight: '600' }} dy={10} />
+                                    <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--text-muted)', fontWeight: 'var(--font-semibold)' }} dy={10} />
                                     <YAxis hide />
                                     <Tooltip
                                         cursor={{ fill: 'var(--bg-hover)', radius: 4 }}
-                                        contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)' }}
+                                        contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--space-3)', boxShadow: 'var(--shadow-lg)' }}
                                     />
                                     <Bar dataKey="count" fill="var(--color-primary-dim)" radius={[2, 2, 0, 0]} />
                                 </BarChart>
@@ -129,7 +129,7 @@ const UserAudit = () => {
                     {/* COLUMN 2: ROUTINES */}
                     <RankingCard title="Módulos + Usados">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                            {stats?.topRoutines.map((item, idx) => (
+{stats?.topRoutines.map((item, idx) => (
                                 <RankingItem
                                     key={idx}
                                     label={getModuleName(item.path)}
@@ -144,7 +144,7 @@ const UserAudit = () => {
                     {/* COLUMN 3: USERS */}
                     <RankingCard title="Engajamento Individual">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                            {stats?.topUsers.map((item, idx) => (
+{stats?.topUsers.map((item, idx) => (
                                 <RankingItem
                                     key={idx}
                                     label={users.find(u => u.username === item.name)?.name || item.name}
@@ -170,26 +170,26 @@ const UserAudit = () => {
 
 const ChartCard = ({ title, children }) => (
     <Card padding="var(--space-6)">
-        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-extrabold)', marginBottom: 'var(--space-6)', color: 'var(--text-main)', letterSpacing: '-0.02em', textTransform: 'uppercase', opacity: 0.8 }}>{title}</h3>
+        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-extrabold)', marginBottom: 'var(--space-4)', color: 'var(--text-main)', letterSpacing: '-0.02em', textTransform: 'uppercase', opacity: 0.8 }}>{title}</h3>
         {children}
     </Card>
 );
 
 const RankingCard = ({ title, children }) => (
     <Card padding="var(--space-6)" style={{ minHeight: '620px' }}>
-        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-extrabold)', marginBottom: 'var(--space-6)', color: 'var(--text-main)', letterSpacing: '-0.02em', textTransform: 'uppercase', opacity: 0.8 }}>{title}</h3>
+        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-extrabold)', marginBottom: 'var(--space-4)', color: 'var(--text-main)', letterSpacing: '-0.02em', textTransform: 'uppercase', opacity: 0.8 }}>{title}</h3>
         {children}
     </Card>
 );
 
 const RankingItem = ({ label, value, subLabel, percentage, isUser = false }) => (
     <div style={{ position: 'relative', paddingBottom: 'var(--space-2)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>{label}</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{value} <span style={{ opacity: 0.5 }}>{subLabel}</span></span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
+<div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<span style={{ fontSize: '13px', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>{label}</span>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-medium)' }}>{value} <span style={{ opacity: 0.5 }}>{subLabel}</span></span>
             </div>
-            <span style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color: 'var(--color-primary)', background: 'var(--color-primary-dim)', padding: '2px 6px', borderRadius: '4px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color: 'var(--color-primary)', background: 'var(--color-primary-dim)', padding: '2px 6px', borderRadius: 'var(--space-1)' }}>
                 {Math.round(percentage)}%
             </span>
         </div>
@@ -206,11 +206,11 @@ const SummaryPanel = ({ stats }) => {
     };
 
     return (
-        <Card padding="var(--space-6)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', position: 'sticky', top: 'var(--space-6)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)', margin: 0, letterSpacing: '-0.03em' }}>RESUMO OPERACIONAL</h3>
+        <Card padding="var(--space-6)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', position: 'sticky', top: 'var(--space-6)' }}>
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)', margin: 0, letterSpacing: '-0.03em' }}>RESUMO OPERACIONAL</h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                <SummaryPeriod
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<SummaryPeriod
                     title="Atividade Hoje"
                     metrics={[
                         { label: 'Total Logs', value: stats?.overview.today.current, delta: calculateDelta(stats?.overview.today.current, stats?.overview.today.previous) },
@@ -231,35 +231,35 @@ const SummaryPanel = ({ stats }) => {
                 />
             </div>
 
-            <div style={{ padding: 'var(--space-4)', background: 'var(--bg-input)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '11px', fontWeight: 'var(--font-extrabold)', color: 'var(--text-muted)', marginBottom: 'var(--space-3)', textTransform: 'uppercase' }}>Plataformas</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                    <PlatformMetric label="Navegador (Web)" value={stats?.accessTypeStats.Web} />
+            <div style={{ padding: 'var(--space-4)', background: 'var(--bg-input)', borderRadius: 'var(--space-3)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-extrabold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Plataformas</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<PlatformMetric label="Navegador (Web)" value={stats?.accessTypeStats.Web} />
                     <PlatformMetric label="Mobile App" value={stats?.accessTypeStats.Mobile} />
                     <PlatformMetric label="Integração PBI" value={stats?.accessTypeStats['Web-PBI']} />
                 </div>
             </div>
 
-            <div style={{ marginTop: 'auto', padding: 'var(--space-5)', background: 'linear-gradient(135deg, var(--color-primary) 0%, #0d47a1 100%)', borderRadius: '16px', color: 'white' }}>
-                <div style={{ fontSize: '11px', fontWeight: '800', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase' }}>MVP do Período</div>
-                <div style={{ fontSize: '15px', fontWeight: '900', marginBottom: '2px' }}>{stats?.topUsers[0]?.name}</div>
-                <div style={{ fontSize: '11px', fontWeight: '600', opacity: 0.9 }}>{stats?.topUsers[0]?.count.toLocaleString()} interações registradas</div>
+            <div style={{ marginTop: 'auto', padding: 'var(--space-5)', background: 'linear-gradient(135deg, var(--color-primary) 0%, #0d47a1 100%)', borderRadius: 'var(--space-4)', color: 'white' }}>
+                <div style={{ fontSize: 'var(--text-xs)', fontWeight: '800', opacity: 0.8, marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>MVP do Período</div>
+                <div style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', marginBottom: 'var(--space-4)' }}>{stats?.topUsers[0]?.name}</div>
+                <div style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-semibold)', opacity: 0.9 }}>{stats?.topUsers[0]?.count.toLocaleString()} interações registradas</div>
             </div>
         </Card>
     );
 };
 
 const SummaryPeriod = ({ title, metrics }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <h4 style={{ fontSize: '11px', fontWeight: 'var(--font-extrabold)', color: 'var(--text-muted)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h4>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<h4 style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-extrabold)', color: 'var(--text-muted)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h4>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
             {metrics.map((m, i) => (
                 <div key={i}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', marginBottom: '2px' }}>{m.label}</div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                        <span style={{ fontSize: '18px', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)' }}>{m.value?.toLocaleString() || '0'}</span>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', marginBottom: 'var(--space-4)' }}>{m.label}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)' }}>
+<span style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--font-extrabold)', color: 'var(--text-main)' }}>{m.value?.toLocaleString() || '0'}</span>
                         {m.delta !== 0 && (
-                            <span style={{ fontSize: '10px', fontWeight: '900', color: m.delta > 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color: m.delta > 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
                                 {m.delta > 0 ? '↑' : '↓'}{Math.abs(m.delta)}%
                             </span>
                         )}
@@ -272,8 +272,8 @@ const SummaryPeriod = ({ title, metrics }) => (
 
 const PlatformMetric = ({ label, value }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-main)', opacity: 0.8 }}>{label}</span>
-        <span style={{ fontSize: '12px', fontWeight: 'var(--font-extrabold)', color: 'var(--color-primary)' }}>{value?.toLocaleString() || '0'}</span>
+<span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-semibold)', color: 'var(--text-main)', opacity: 0.8 }}>{label}</span>
+        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-extrabold)', color: 'var(--color-primary)' }}>{value?.toLocaleString() || '0'}</span>
     </div>
 );
 

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as api from '../services/api';
-import { fetchSyntheticSalesSummary, executeOracleQuery, fetchClientSummary, searchClients } from '../services/oracleService';
+import { fetchSyntheticSalesSummary, executeOracleQuery, fetchClientSummary, searchClients, fetchCachedDashboard } from '../services/oracleService';
 
 export const DataContext = createContext();
 
@@ -8,6 +8,8 @@ export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
     const [salesData, setSalesData] = useState([]);
+    const [isSalesDataLoading, setIsSalesDataLoading] = useState(false);
+    const [salesDataError, setSalesDataError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeUnit, setActiveUnit] = useState('madville');
     const [userRole, setUserRole] = useState('viewer'); // 'admin' | 'viewer'
@@ -20,6 +22,15 @@ export const DataProvider = ({ children }) => {
     const [allowedModules, setAllowedModules] = useState([]); // Store Allowed Modules
     const [users, setUsers] = useState([]);; // List of users
     const [clientRecords, setClientRecords] = useState([]); // Client Metadata (Payment, Terms, etc)
+
+    // --- OFFLINE & RESILIENCE STATE ---
+    const [dataMode, setDataMode] = useState(() => localStorage.getItem('zcore_data_mode') || 'live'); // 'live' | 'cache'
+    const [isDbOnline, setIsDbOnline] = useState(true);
+    const [lastSync, setLastSync] = useState(() => localStorage.getItem('zcore_last_sync') || null);
+    const [offlineCache, setOfflineCache] = useState(() => {
+        const cached = localStorage.getItem('zcore_offline_cache');
+        return cached ? JSON.parse(cached) : null;
+    });
 
     const [selectedQuarter, setSelectedQuarter] = useState(0); // Q1 by default
     const [quarterData, setQuarterData] = useState([]);
@@ -294,6 +305,8 @@ export const DataProvider = ({ children }) => {
     }, [isAuthenticated, username]);
 
     const loadServerData = async (unit) => {
+        setIsSalesDataLoading(true);
+        setSalesDataError(null);
         try {
             const targetUnit = unit || activeUnit;
             const data = await api.fetchSalesData(targetUnit);
@@ -310,6 +323,9 @@ export const DataProvider = ({ children }) => {
             setClientRecords(records);
         } catch (e) {
             console.error("Failed to load server data", e);
+            setSalesDataError(e.message || "Failed to load sales data");
+        } finally {
+            setIsSalesDataLoading(false);
         }
     };
 
@@ -563,6 +579,8 @@ export const DataProvider = ({ children }) => {
             saveReportData,
             clearData,
             refreshData,
+            isSalesDataLoading,
+            salesDataError,
             refreshUserList, // EXPOSED HERE
             updateQuarter,
             switchUnit,
@@ -574,6 +592,32 @@ export const DataProvider = ({ children }) => {
             setDensity,
             sidebarCollapsed,
             setSidebarCollapsed,
+            dataMode,
+            setDataMode: (mode) => {
+                setDataMode(mode);
+                localStorage.setItem('zcore_data_mode', mode);
+            },
+            isDbOnline,
+            lastSync,
+            offlineCache,
+            syncOfflineCache: async () => {
+                try {
+                    // 1. Trigger backend sync (to ensure JSON is fresh)
+                    await fetch('http://localhost:3001/api/sync-cache', { method: 'POST' });
+                    // 2. Fetch the fresh cache
+                    const freshCache = await fetchCachedDashboard();
+                    if (freshCache && freshCache.data) {
+                        setOfflineCache(freshCache.data);
+                        setLastSync(freshCache.lastSync);
+                        localStorage.setItem('zcore_offline_cache', JSON.stringify(freshCache.data));
+                        localStorage.setItem('zcore_last_sync', freshCache.lastSync);
+                        return { success: true, lastSync: freshCache.lastSync };
+                    }
+                } catch (e) {
+                    console.error("Manual Sync Failed", e);
+                    return { success: false, error: e.message };
+                }
+            },
             fetchSyntheticSummary: fetchSyntheticSalesSummary,
             fetchClientSummary,
             searchClients,

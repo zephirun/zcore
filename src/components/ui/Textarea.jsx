@@ -5,15 +5,21 @@ const Textarea = forwardRef(({
     label,
     error,
     hint,
+    success,
     required,
     fullWidth = true,
     className = '',
     containerStyle = {},
     rows = 4,
     hasError = false,
+    isSuccess = false,
     ...props
 }, ref) => {
     const isInvalid = !!error || hasError;
+    const isValid = !!success || isSuccess;
+
+    // Determine border color: error trumps success
+    const borderColor = isInvalid ? 'var(--color-error)' : (isValid ? 'var(--color-success)' : 'var(--border-input)');
 
     const textareaElement = (
         <textarea
@@ -23,7 +29,7 @@ const Textarea = forwardRef(({
             style={{
                 width: fullWidth ? '100%' : 'auto',
                 padding: '11px 14px',
-                border: `1px solid ${isInvalid ? 'var(--color-error)' : 'var(--border-input)'}`,
+                border: `1px solid ${borderColor}`,
                 borderRadius: 'var(--radius-sm)',
                 fontSize: 'var(--text-sm)',
                 background: 'var(--bg-input)',
@@ -40,9 +46,9 @@ const Textarea = forwardRef(({
         />
     );
 
-    if (label || error || hint) {
+    if (label || error || hint || success) {
         return (
-            <FormField label={label} error={error} hint={hint} required={required} style={containerStyle}>
+            <FormField label={label} error={error} hint={hint} success={success} required={required} style={containerStyle}>
                 {textareaElement}
             </FormField>
         );

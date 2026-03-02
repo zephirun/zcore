@@ -1,50 +1,81 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    /* === MOBBIN-STYLE DESIGN SYSTEM === */
+    /* === SAP FIORI 3 ENTERPRISE DESIGN SYSTEM === */
+    /* Preserving ZCORE branding (dark/monochrome base) but strictly Fiori structure */
 
-    /* Semantic colors (same in both modes) */
-    --color-success: #22c55e;
-    --color-error: #ef4444;
-    --color-warning: #f59e0b;
-    --color-info: #3b82f6;
-    --color-purple: #8b5cf6;
+    /* Semantic colors */
+    --color-success: #107e3e;
+    /* Fiori Positive */
+    --color-success-light: #f1f9f2;
+    --color-success-strong: #107e3e;
 
-    /* Light Mode — Vercel/Linear-inspired minimal */
+    --color-error: #bb0000;
+    /* Fiori Negative */
+    --color-error-light: #fff2f2;
+    --color-error-strong: #bb0000;
+
+    --color-warning: #e9730c;
+    /* Fiori Critical */
+    --color-warning-light: #fef4e6;
+    --color-warning-strong: #e9730c;
+
+    --color-info: #0a6ed1;
+    /* Fiori Information */
+    --color-info-light: #e5f0f9;
+    --color-info-strong: #005a9e;
+
+    --color-purple: #8146ac;
+    --color-purple-light: #f6f0fa;
+    --color-purple-strong: #8146ac;
+
+    /* Light Mode — Fiori Quartz Light structural colors */
     --color-primary: #111111;
+    /* ZCORE Brand */
     --color-primary-dim: rgba(0, 0, 0, 0.06);
-    --color-accent: #111111;
+    --color-accent: #0a6ed1;
+    /* Fiori Active/Action color */
 
-    --bg-main: #fafafa;
+    --bg-main: #f0f2f5;
+    /* Fiori Layer 0 */
     --bg-card: #ffffff;
+    /* Fiori Layer 1 */
     --bg-elevated: #ffffff;
+    /* Fiori Layer 2 */
     --bg-input: #ffffff;
-    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-hover: #ebebeb;
+    /* Fiori List Item Hover */
+    --bg-selected: #e5f0fa;
+    /* Fiori Selected */
 
-    --text-main: #111111;
-    --text-muted: #888888;
+    --text-main: #32363a;
+    /* Fiori Base Text */
+    --text-muted: #6a6d70;
+    /* Fiori Muted Text */
     --text-light: #ffffff;
 
-    --border-color: #ebebeb;
-    --border-input: #e2e2e2;
-    --border-subtle: #f2f2f2;
+    --border-color: #d9d9d9;
+    /* Fiori Standard Border */
+    --border-input: #89919a;
+    /* Fiori Input Border */
+    --border-subtle: #e4e4e4;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 10px 20px 0 rgba(0, 0, 0, 0.15);
 
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-main: '72', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-    /* Typography Scale */
-    --text-xs: 12px;
-    --text-sm: 14px;
-    --text-base: 16px;
-    --text-lg: 18px;
-    --text-xl: 20px;
-    --text-2xl: 24px;
-    --text-3xl: 30px;
-    --text-4xl: 36px;
+    /* Typography Scale (Fiori Enterprise Base: 14px) */
+    --text-xs: 11px;
+    --text-sm: 12px;
+    --text-base: 14px;
+    --text-lg: 16px;
+    --text-xl: 18px;
+    --text-2xl: 20px;
+    --text-3xl: 24px;
+    --text-4xl: 28px;
 
     --font-normal: 400;
     --font-medium: 500;
@@ -52,7 +83,7 @@
     --font-bold: 700;
     --font-extrabold: 800;
 
-    /* Spacing Scale (Base 4) */
+    /* Spacing Scale (Base 4 - Fiori Standard) */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -64,118 +95,169 @@
     --space-12: 48px;
     --space-16: 64px;
 
-    /* Layout Variables */
-    --header-height: 52px;
+    /* Fiori Layout Variables */
+    --header-height: 44px;
+    /* Fiori Shell Bar Height */
     --sidebar-width: 240px;
-    --sidebar-collapsed-width: 64px;
+    /* Fiori Tool Page / Side Navigation */
+    --sidebar-collapsed-width: 48px;
 
-    --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 20px;
+    /* Enterprise Radius (Strictly professional, no consumer bubbles) */
+    --radius-sm: 2px;
+    --radius: 4px;
+    /* Default Fiori Control Radius */
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    /* Dialog/Card Radius max */
     --radius-full: 9999px;
 
-    /* == Premium Polish == */
-    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    /* Fiori Motion System (Snappy, direct, not bouncy) */
+    --transition-fast: 120ms ease;
+    --transition-base: 150ms ease;
+    --motion-fast: 120ms;
+    --motion-base: 150ms;
+    --motion-slow: 180ms;
+    --ease-standard: ease;
+    --ease-emphasized: ease;
+    --ease-decelerate: ease-out;
+    --ease-accelerate: ease-in;
 
-    /* == Enterprise Motion System == */
-    --motion-fast: 150ms;
-    --motion-base: 200ms;
-    --motion-slow: 300ms;
-
-    --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
-    --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
-    --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
-    /* Entrance */
-    --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
-    /* Exit */
-
-    --ring-color: rgba(59, 130, 246, 0.5);
-    /* Info color with opacity */
+    --ring-color: rgba(10, 110, 209, 0.5);
+    /* Fiori Focus Ring */
     --ring-offset-color: var(--bg-main);
 
     /* Compact Mode (ERP Data Density) */
-    --compact-space-1: 2px;
-    --compact-space-2: 4px;
-    --compact-space-3: 8px;
-    --compact-space-4: 12px;
-    --compact-space-5: 16px;
+    --compact-space-1: 1px;
+    --compact-space-2: 2px;
+    --compact-space-3: 4px;
+    --compact-space-4: 8px;
+    --compact-space-5: 12px;
 
     /* Legacy compat */
-    --glass-bg: #fafafa;
-    --glass-border: 1px solid #ebebeb;
-    --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --glass-bg: var(--bg-card);
+    --glass-border: 1px solid var(--border-color);
+    --glass-shadow: none;
     --glass-blur: blur(0px);
-    --bg-obsidian: #ffffff;
-    --color-primary-glow: rgba(0, 0, 0, 0.08);
+    --bg-obsidian: var(--bg-card);
+    --color-primary-glow: transparent;
 }
 
-/* === DENSITY TOKENS === */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+/* === DENSITY TOKENS (Fiori Cozy vs Compact) === */
 :root,
 [data-density="default"] {
     --density-scale: 1;
     --density-padding-xs: 4px;
     --density-padding-sm: 8px;
     --density-padding-md: 16px;
-    --density-row-height: 48px;
-    --density-input-height: 40px;
-    --density-table-cell-padding: 12px 16px;
-    --density-card-padding: 24px;
+    --density-row-height: 44px;
+    /* Cozy table row */
+    --density-input-height: 36px;
+    /* Cozy input height */
+    --density-table-cell-padding: 8px 16px;
+    --density-card-padding: 16px;
 }
 
 [data-density="comfortable"] {
     --density-scale: 1.15;
-    --density-padding-xs: 6px;
-    --density-padding-sm: 12px;
-    --density-padding-md: 20px;
-    --density-row-height: 64px;
-    --density-input-height: 48px;
-    --density-table-cell-padding: 16px 20px;
-    --density-card-padding: 28px;
+    --density-padding-xs: 8px;
+    --density-padding-sm: 16px;
+    --density-padding-md: 24px;
+    --density-row-height: 48px;
+    --density-input-height: 44px;
+    --density-table-cell-padding: 12px 16px;
+    --density-card-padding: 24px;
 }
 
 [data-density="compact"] {
     --density-scale: 0.85;
     --density-padding-xs: 2px;
-    --density-padding-sm: 6px;
-    --density-padding-md: 12px;
+    --density-padding-sm: 4px;
+    --density-padding-md: 8px;
     --density-row-height: 32px;
-    --density-input-height: 32px;
-    --density-table-cell-padding: 6px 12px;
-    --density-card-padding: 16px;
+    /* Compact table row */
+    --density-input-height: 26px;
+    /* Compact input height */
+    --density-table-cell-padding: 4px 8px;
+    --density-card-padding: 12px;
 }
 
 [data-theme='dark'] {
-    /* Dark palette — Vercel-style (Premium, non-fatiguing) */
-    --bg-main: #0a0a0a;
-    --bg-card: #111111;
-    --bg-elevated: #1a1a1a;
-    --bg-input: #111111;
-    --bg-hover: rgba(255, 255, 255, 0.06);
+    /* === SAP FIORI 4 EVENING HORIZON (Refined Dark) === */
+    --bg-main: #12171c;
+    /* Deepest layer */
+    --bg-card: #1b222a;
+    /* Elevated layer */
+    --bg-elevated: #212932;
+    /* Overlay/Dialog layer */
+    --bg-input: #12171c;
+    /* Inset layer */
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-selected: rgba(52, 150, 248, 0.15);
 
-    --text-main: #ededed;
-    --text-muted: #a1a1aa;
+    --text-main: #ebf0f5;
+    /* High contrast white-blue */
+    --text-muted: #9ba6ad;
+    /* Muted grey-blue */
     --text-light: #ffffff;
 
-    --border-color: #2e2e2e;
-    --border-input: #333333;
-    --border-subtle: #1e1e1e;
+    --border-color: #29333d;
+    /* Defined borders */
+    --border-input: #455463;
+    /* High contrast input borders */
+    --border-subtle: #1b222a;
 
-    --shadow-sm: 0 0 0 1px rgba(255, 255, 255, 0.05);
-    --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 16px 0 rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 12px 24px 0 rgba(0, 0, 0, 0.6);
+
+    --color-primary: #ebf0f5;
+    --color-accent: #3496f8;
+    /* Lighter blue for dark mode visibility */
+
+    /* Semantic vibrancy for Dark Mode */
+    --color-success: #24a148;
+    --color-success-light: rgba(36, 161, 72, 0.15);
+    --color-success-strong: #43d26d;
+
+    --color-error: #ff5050;
+    --color-error-light: rgba(255, 80, 80, 0.15);
+    --color-error-strong: #ff8080;
+
+    --color-warning: #ffa033;
+    --color-warning-light: rgba(255, 160, 51, 0.15);
+    --color-warning-strong: #ffc27a;
+
+    --color-info: #3496f8;
+    --color-info-light: rgba(52, 150, 248, 0.15);
+    --color-info-strong: #74b9ff;
+
+    --color-purple: #a461d8;
+    --color-purple-light: rgba(164, 97, 216, 0.15);
+    --color-purple-strong: #c58df2;
 
     /* Legacy compat */
-    --glass-bg: #111111;
-    --glass-border: 1px solid #2e2e2e;
-    --glass-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --glass-bg: var(--bg-card);
+    --glass-border: 1px solid var(--border-color);
+    --glass-shadow: none;
     --glass-blur: blur(0px);
-    --bg-obsidian: #0a0a0a;
-    --color-primary-glow: rgba(255, 255, 255, 0.06);
-    --color-primary: #ededed;
-    --color-accent: #ededed;
+    --bg-obsidian: var(--bg-card);
+    --color-primary-glow: transparent;
 }
 
 /* === RESET === */
@@ -201,11 +283,9 @@ body {
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     transition: background-color var(--transition-base), color var(--transition-base);
-    font-size: var(--text-sm);
-    /* Standardize base font size */
-    line-height: 1.5;
-    letter-spacing: -0.01em;
-    /* Modern typography feel */
+    font-size: var(--text-base);
+    /* Fiori 14px */
+    line-height: 1.4;
 }
 
 /* === ACCESSIBILITY (Motion Guardrails) === */
@@ -233,7 +313,7 @@ body {
 }
 
 .ui-button:active:not(:disabled) {
-    transform: scale(0.97);
+    background-color: var(--bg-active) !important;
 }
 
 .ui-button-primary:hover:not(:disabled) {
@@ -448,8 +528,18 @@ button {
     }
 
     body {
-        background: white;
-        font-size: 11pt;
+        margin: 0;
+        padding: 0;
+        font-family: var(--font-main);
+        background: var(--bg-main);
+        color: var(--text-main);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        min-height: 100vh;
+        transition: background-color var(--transition-base), color var(--transition-base);
+        font-size: var(--text-base);
+        /* Fiori 14px */
+        line-height: 1.4;
     }
 }
 
@@ -480,9 +570,9 @@ button {
 /* === INSIGHTS BUTTON === */
 .btn-insights {
     padding: 8px 16px !important;
-    background: var(--text-main) !important;
-    color: var(--bg-main) !important;
-    border: 1px solid var(--text-main) !important;
+    background: var(--color-accent) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--color-accent) !important;
     border-radius: var(--radius-sm) !important;
     cursor: pointer !important;
     font-size: 13px !important;
@@ -490,10 +580,17 @@ button {
     font-family: var(--font-main) !important;
     transition: all 0.15s !important;
     letter-spacing: -0.01em !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='light'] .btn-insights {
+    background: var(--text-main) !important;
+    color: var(--bg-main) !important;
+    border-color: var(--text-main) !important;
 }
 
 .btn-insights:hover {
-    opacity: 0.85 !important;
+    filter: brightness(1.1);
 }
 
 /* === REACT GRID LAYOUT === */

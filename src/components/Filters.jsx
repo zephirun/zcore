@@ -69,19 +69,21 @@ const Filters = ({ rightElement }) => {
     const isActive = (path) => location.pathname === path;
     const isVendorRestricted = userRole !== 'admin' && allowedVendor;
 
-    const tabStyle = (path) => ({
+    const tabStyle = (path, isLast = false) => ({
         textDecoration: 'none',
-        fontSize: '13px',
-        fontWeight: isActive(path) ? '600' : '400',
-        color: isActive(path) ? 'var(--bg-main)' : 'var(--text-muted)',
-        padding: '7px 18px',
-        borderRadius: '8px',
-        background: isActive(path) ? 'var(--color-primary)' : 'transparent',
-        transition: 'all 0.15s ease',
+        fontSize: '12px',
+        fontWeight: isActive(path) ? '800' : 'var(--font-semibold)',
+        color: isActive(path) ? 'var(--color-info-strong, #005a9e)' : 'var(--text-muted)',
+        padding: '6px 16px',
+        borderRadius: '0',
+        background: isActive(path) ? 'var(--bg-card)' : 'transparent',
+        borderRight: isLast ? 'none' : '1px solid var(--border-color)',
+        transition: 'all 0.1s ease',
         display: 'flex',
         alignItems: 'center',
-        gap: '7px',
+        gap: '6px',
         whiteSpace: 'nowrap',
+        boxShadow: isActive(path) ? 'inset 0 -2px 0 var(--color-info-strong, #005a9e)' : 'none'
     });
 
     return (
@@ -94,10 +96,12 @@ const Filters = ({ rightElement }) => {
         }}>
             {/* Header row: Title + Tabs + Right */}
             <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: 'wrap',
+                gap: 'var(--space-4)',
+                marginBottom: "var(--space-4)"
             }}>
                 {/* Title */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -130,11 +134,11 @@ const Filters = ({ rightElement }) => {
                 {/* Tabs */}
                 <nav style={{
                     display: 'flex',
-                    gap: '2px',
                     background: 'var(--bg-input)',
-                    padding: '3px',
-                    borderRadius: '10px',
+                    padding: '2px',
+                    borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--border-color)',
+                    overflow: 'hidden'
                 }}>
                     <Link to="/sales/dashboard" style={tabStyle('/sales/dashboard')}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -152,7 +156,7 @@ const Filters = ({ rightElement }) => {
                         </svg>
                         Relatório
                     </Link>
-                    <Link to="/sales/simulation" style={tabStyle('/sales/simulation')}>
+                    <Link to="/sales/simulation" style={tabStyle('/sales/simulation', true)}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="10" y1="15" x2="10" y2="9"></line>
@@ -163,7 +167,7 @@ const Filters = ({ rightElement }) => {
                 </nav>
 
                 {/* Right element */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>
                     {rightElement}
                 </div>
             </div>
@@ -171,19 +175,18 @@ const Filters = ({ rightElement }) => {
             {/* Filters Row — flat, no background box */}
             <div style={{
                 display: 'flex',
-                gap: '24px',
+                gap: "var(--space-6)",
                 alignItems: 'flex-end',
                 flexWrap: 'wrap',
                 marginTop: '8px'
             }}>
                 {/* Vendor */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '200px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '220px' }}>
                     <label style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        color: 'var(--text-muted)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'var(--text-main)',
+                        letterSpacing: '0.01em',
                     }}>
                         Vendedor
                     </label>
@@ -197,13 +200,12 @@ const Filters = ({ rightElement }) => {
                 </div>
 
                 {/* Representative */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '200px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '220px' }}>
                     <label style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        color: 'var(--text-muted)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'var(--text-main)',
+                        letterSpacing: '0.01em',
                     }}>
                         Representante
                     </label>
@@ -216,13 +218,12 @@ const Filters = ({ rightElement }) => {
                 </div>
 
                 {/* Client */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '260px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '320px' }}>
                     <label style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        color: 'var(--text-muted)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'var(--text-main)',
+                        letterSpacing: '0.01em',
                     }}>
                         Cliente
                     </label>
@@ -235,13 +236,12 @@ const Filters = ({ rightElement }) => {
                 </div>
 
                 {/* Ranking */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '200px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '220px' }}>
                     <label style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        color: 'var(--text-muted)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'var(--text-main)',
+                        letterSpacing: '0.01em',
                     }}>
                         Ordenação
                     </label>
@@ -262,7 +262,7 @@ const Filters = ({ rightElement }) => {
                 </div>
 
                 {/* Reset */}
-                <div style={{ paddingBottom: '1px' }}>
+                <div style={{ paddingBottom: '0' }}>
                     <Button
                         onClick={() => {
                             if (!isVendorRestricted) {
@@ -272,36 +272,36 @@ const Filters = ({ rightElement }) => {
                             }
                         }}
                         style={{
-                            padding: '0 14px',
-                            height: '36px',
-                            background: 'transparent',
+                            padding: '0 16px',
+                            height: '40px',
+                            background: 'var(--bg-card)',
                             color: 'var(--text-muted)',
                             border: '1px solid var(--border-color)',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-sm)',
                             cursor: 'pointer',
-                            fontSize: '11px',
+                            fontSize: '12px',
                             fontWeight: '600',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
                             transition: 'all 0.15s',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '8px',
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--color-error)';
-                            e.currentTarget.style.color = 'var(--color-error)';
+                            e.currentTarget.style.borderColor = 'var(--color-error-strong, #bb0000)';
+                            e.currentTarget.style.color = 'var(--color-error-strong, #bb0000)';
+                            e.currentTarget.style.background = 'var(--bg-hover)';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.borderColor = 'var(--border-color)';
                             e.currentTarget.style.color = 'var(--text-muted)';
+                            e.currentTarget.style.background = 'var(--bg-card)';
                         }}
                     >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 6h18"></path>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        Limpar
+                        Limpar Filtros
                     </Button>
                 </div>
             </div>

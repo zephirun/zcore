@@ -5,15 +5,21 @@ const Select = forwardRef(({
     label,
     error,
     hint,
+    success,
     required,
     options = [],
     fullWidth = true,
     className = '',
     containerStyle = {},
     hasError = false,
+    isSuccess = false,
     ...props
 }, ref) => {
     const isInvalid = !!error || hasError;
+    const isValid = !!success || isSuccess;
+
+    // Determine border color: error trumps success
+    const borderColor = isInvalid ? 'var(--color-error)' : (isValid ? 'var(--color-success)' : 'var(--border-input)');
 
     const selectElement = (
         <select
@@ -23,9 +29,9 @@ const Select = forwardRef(({
                 width: fullWidth ? '100%' : 'auto',
                 height: 'var(--density-input-height)',
                 padding: '0 var(--density-padding-md)',
-                border: `1px solid ${isInvalid ? 'var(--color-error)' : 'var(--border-input)'}`,
+                border: `1px solid ${borderColor}`,
                 borderRadius: 'var(--radius-sm)',
-                fontSize: 'var(--text-sm)',
+                fontSize: 'var(--text-base)',
                 background: 'var(--bg-input)',
                 color: 'var(--text-main)',
                 outline: 'none',
@@ -36,8 +42,8 @@ const Select = forwardRef(({
                 backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 14px center',
-                backgroundSize: '16px',
-                paddingRight: '40px',
+                backgroundSize: 'var(--space-4)',
+                paddingRight: 'var(--space-10)',
                 transition: 'border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard)',
                 ...(props.style || {})
             }}
@@ -49,9 +55,9 @@ const Select = forwardRef(({
         </select>
     );
 
-    if (label || error || hint) {
+    if (label || error || hint || success) {
         return (
-            <FormField label={label} error={error} hint={hint} required={required} style={containerStyle}>
+            <FormField label={label} error={error} hint={hint} success={success} required={required} style={containerStyle}>
                 {selectElement}
             </FormField>
         );

@@ -1,5 +1,4 @@
 import Select from '@/components/ui/Select';
-
 import React from 'react';
 
 const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
@@ -12,46 +11,48 @@ const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
 
     return (
         <div style={{
-            background: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            border: '1px solid #e0e0e0',
-            marginBottom: '20px',
+            background: 'var(--bg-card)',
+            padding: '16px 20px',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-color)',
+            marginBottom: 'var(--space-4)',
             display: 'flex',
             alignItems: 'center',
-            gap: '15px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            gap: "var(--space-4)",
+            boxShadow: 'var(--shadow-sm)'
         }}>
             <label style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#2c3e50',
-                minWidth: '150px'
+                fontSize: '12px',
+                fontWeight: '700',
+                color: 'var(--text-main)',
+                minWidth: '140px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
             }}>
-                📅 Selecione o Trimestre:
+                📅 Trimestre
             </label>
 
             <Select
                 value={selectedQuarter}
                 onChange={(e) => onQuarterChange(parseInt(e.target.value))}
                 style={{
-                    padding: '10px 15px',
-                    fontSize: '14px',
-                    border: '2px solid #006400',
-                    borderRadius: '6px',
-                    background: 'white',
-                    color: '#2c3e50',
+                    padding: '8px 12px',
+                    fontSize: '13px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--bg-input)',
+                    color: 'var(--text-main)',
                     fontWeight: '500',
                     cursor: 'pointer',
                     outline: 'none',
                     minWidth: '200px',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.15s ease'
                 }}
-                onMouseOver={(e) => e.target.style.borderColor = '#004d00'}
-                onMouseOut={(e) => e.target.style.borderColor = '#006400'}
+                onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
             >
                 {quarters.map((q) => (
-                    <option key={q.value} value={q.value}>
+                    <option key={q.value} value={q.value} style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>
                         {q.name}
                     </option>
                 ))}
@@ -59,12 +60,13 @@ const QuarterSelector = ({ selectedQuarter, onQuarterChange }) => {
 
             <div style={{
                 fontSize: '12px',
-                color: '#7f8c8d',
-                marginLeft: '10px',
-                padding: '8px 12px',
-                background: '#f8f9fa',
-                borderRadius: '4px',
-                border: '1px solid #e0e0e0'
+                color: 'var(--text-muted)',
+                marginLeft: 'auto',
+                padding: '6px 14px',
+                background: 'var(--bg-input)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)',
+                fontWeight: '500'
             }}>
                 {quarters[selectedQuarter].months.join(' • ')}
             </div>

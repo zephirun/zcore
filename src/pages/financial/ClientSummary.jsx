@@ -2,7 +2,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 import PageContainer from '@/components/ui/PageContainer';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@/components/ui/Table';
+import DataGrid from '@/components/ui/DataGrid';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -176,7 +176,63 @@ const ClientSummary = () => {
         return selectedClientData;
     }, [selectedClientData, activeFilter]);
 
+    const columns = useMemo(() => [
+        {
+            key: 'vendedor',
+            label: 'Vendedor',
+            sortable: true,
+            width: '150px',
+            render: (row) => row.repre?.split('Vendedor: ')[1]?.split(' ')[0] || '-'
+        },
+        { 
+            key: 'docto', 
+            label: 'Docto', 
+            sortable: true,
+            width: '120px',
+            render: (row) => <span style={{ fontWeight: 'var(--font-semibold)' }}>{row.docto}</span>
+        },
+        { 
+            key: 'emissao', 
+            label: 'Emissão', 
+            sortable: true, 
+            width: '120px',
+            render: (row) => formatDate(row.emissao)
+        },
+        { 
+            key: 'vencto', 
+            label: 'Vencimento', 
+            sortable: true, 
+            width: '120px',
+            render: (row) => <span style={{ fontWeight: row.seq === 1 ? 'var(--font-bold)' : 'var(--font-medium)' }}>{formatDate(row.vencto)}</span>
+        },
+        { 
+            key: 'seq', 
+            label: 'Situação', 
+            sortable: true, 
+            align: 'center',
+            width: '120px',
+            render: (row) => (
+                <span style={{
+                    padding: '2px 8px', borderRadius: 'var(--space-1)', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
+                    background: row.seq === 1 ? 'var(--color-error-dim)' : row.seq === 2 ? 'var(--color-info-dim)' : row.seq === 3 ? 'var(--color-warning-dim)' : row.seq === 5 ? 'var(--color-success-dim)' : 'rgba(0,0,0,0.05)',
+                    color: row.seq === 1 ? 'var(--color-error)' : row.seq === 2 ? 'var(--color-info)' : row.seq === 3 ? 'var(--color-warning)' : row.seq === 5 ? 'var(--color-success)' : 'var(--text-muted)'
+                }}>
+                    {row.seq === 1 ? 'Vencido' : row.seq === 2 ? 'A Vencer' : row.seq === 3 ? 'Cheque' : row.seq === 4 ? 'Carteira' : 'Crédito'}
+                </span>
+            )
+        },
+        {
+            key: 'valor',
+            label: 'Valor',
+            sortable: true,
+            align: 'right',
+            width: '150px',
+            render: (row) => <span style={{ fontWeight: 'var(--font-bold)' }}>{formatCurrency(row.valor)}</span>
+        }
+    ], []);
+
     const detailsTotal = useMemo(() => {
+
         return detailsFilteredData.reduce((sum, curr) => sum + (curr.valor || 0), 0);
     }, [detailsFilteredData]);
 
@@ -191,15 +247,15 @@ const ClientSummary = () => {
     };
 
     const cardStyle = {
-        background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-color)',
-        padding: '24px', boxShadow: 'var(--shadow-sm)'
+        background: 'var(--bg-card)', borderRadius: 'var(--space-4)', border: '1px solid var(--border-color)',
+        padding: 'var(--space-6)', boxShadow: 'var(--shadow-sm)'
     };
 
     if (loading) {
         return (
             <div style={{ ...containerStyle, alignItems: 'center', justifyContent: 'center' }}>
                 <Loader2 size={40} className="animate-spin" style={{ color: 'var(--color-primary)', opacity: 0.5 }} />
-                <p style={{ marginTop: '16px', color: 'var(--text-muted)', fontSize: '15px' }}>Consultando Oracle via API...</p>
+                <p style={{ marginTop: 'var(--space-4)', color: 'var(--text-muted)', fontSize: '15px' }}>Consultando Oracle via API...</p>
                 <style>{`.animate-spin { animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
             </div>
         );
@@ -209,11 +265,11 @@ const ClientSummary = () => {
         return (
             <div style={containerStyle}>
                 <main style={{ padding: '80px 20px', maxWidth: '700px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
-                    <div style={{ marginBottom: '40px' }}>
+                    <div style={{ marginBottom: 'var(--space-4)' }}>
                         <div style={{ width: '60px', height: '60px', background: 'var(--bg-card)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-                            <Search size={28} style={{ color: 'var(--color-primary)' }} />
+<Search size={28} style={{ color: 'var(--color-primary)' }} />
                         </div>
-                        <h1 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '-0.04em', marginBottom: '8px' }}>Saúde Financeira</h1>
+                        <h1 style={{ fontSize: 'var(--text-4xl)', fontWeight: '800', letterSpacing: '-0.04em', marginBottom: 'var(--space-4)' }}>Saúde Financeira</h1>
                         <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Busque um cliente para ver seu dashboard individual.</p>
                     </div>
 
@@ -223,14 +279,14 @@ const ClientSummary = () => {
                             borderRadius: '18px', padding: '14px 22px', border: '2px solid var(--border-color)',
                             boxShadow: 'var(--shadow-lg)', transition: 'all 0.2s'
                         }}>
-                            <Search size={20} style={{ color: 'var(--text-muted)', marginRight: '14px' }} />
+<Search size={20} style={{ color: 'var(--text-muted)', marginRight: '14px' }} />
                             <Input
                                 autoFocus
                                 type="text"
                                 placeholder="Nome ou ID do cliente..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: '17px', width: '100%', outline: 'none', fontWeight: '500' }}
+                                style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: '17px', width: '100%', outline: 'none', fontWeight: 'var(--font-medium)' }}
                             />
                             {searching && <Loader2 size={16} className="animate-spin" style={{ color: 'var(--text-muted)', opacity: 0.5 }} />}
                         </div>
@@ -246,14 +302,14 @@ const ClientSummary = () => {
                                             className="search-item"
                                         >
                                             <div>
-                                                <div style={{ fontWeight: '700', fontSize: '14px' }}>{client.NOME || client.nome}</div>
-                                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Código: {client.IDPESS || client.idpess}</div>
+                                                <div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)' }}>{client.NOME || client.nome}</div>
+                                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Código: {client.IDPESS || client.idpess}</div>
                                             </div>
                                             <ChevronRight size={16} style={{ opacity: 0.3 }} />
                                         </div>
                                     ))
                                 ) : searchTerm.trim().length >= (isNumeric(searchTerm.trim()) ? 1 : 2) && !searching && (
-                                    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+                                    <div style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-base)' }}>
                                         Nenhum parceiro encontrado para "{searchTerm.trim()}"
                                     </div>
                                 )}
@@ -261,17 +317,17 @@ const ClientSummary = () => {
                         )}
 
                         {error && (
-                            <div style={{ marginTop: '20px', padding: '14px', borderRadius: '12px', background: 'var(--color-error-dim)', color: 'var(--color-error)', border: '1px solid var(--color-error)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                                <AlertCircle size={16} />
+                            <div style={{ marginTop: 'var(--space-5)', padding: '14px', borderRadius: 'var(--space-3)', background: 'var(--color-error-dim)', color: 'var(--color-error)', border: '1px solid var(--color-error)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', justifyContent: 'center' }}>
+<AlertCircle size={16} />
                                 {error}
                             </div>
                         )}
                     </div>
 
-                    <div style={{ marginTop: '60px', opacity: 0.4, display: 'flex', justifyContent: 'center', gap: '40px' }}>
-                        <div style={{ textAlign: 'center' }}><Users size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: '4px' }}>PARCEIROS</div></div>
-                        <div style={{ textAlign: 'center' }}><Wallet size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: '4px' }}>TÍTULOS</div></div>
-                        <div style={{ textAlign: 'center' }}><TrendingUp size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: '4px' }}>PONTUALIDADE</div></div>
+                    <div style={{ marginTop: '60px', opacity: 0.4, display: 'flex', justifyContent: 'center', gap: 'var(--space-4)' }}>
+<div style={{ textAlign: 'center' }}><Users size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: 'var(--space-1)' }}>PARCEIROS</div></div>
+                        <div style={{ textAlign: 'center' }}><Wallet size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: 'var(--space-1)' }}>TÍTULOS</div></div>
+                        <div style={{ textAlign: 'center' }}><TrendingUp size={20} /><div style={{ fontSize: '10px', fontWeight: '800', marginTop: 'var(--space-1)' }}>PONTUALIDADE</div></div>
                     </div>
                 </main>
                 <style>{`.search-item:hover { background: var(--bg-hover); }`}</style>
@@ -285,16 +341,16 @@ const ClientSummary = () => {
         return (
             <div style={containerStyle}>
                 <PageContainer maxWidth="1200px" title="Dashboard Individual" actions={
-                    <Button variant="ghost" onClick={handleBack} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <Button variant="ghost" onClick={handleBack} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                         <ArrowLeft size={18} /> Voltar
                     </Button>
                 }>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
                         {/* Info & Core KPIs */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-                            <Card style={{ borderLeft: '4px solid var(--color-primary)' }}>
-                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>Cliente</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<Card style={{ borderLeft: '4px solid var(--color-primary)' }}>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', textTransform: 'uppercase', marginBottom: 'var(--space-4)' }}>Cliente</div>
                                 <div style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>{selectedClientInfo?.cliente}</div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
                                     <div>
@@ -310,19 +366,19 @@ const ClientSummary = () => {
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4)' }}>
                                 <Card>
-                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-2)' }}>CARTEIRA</div>
+                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>CARTEIRA</div>
                                     <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)' }}>{formatCurrency(finalMetrics.carteira)}</div>
                                 </Card>
                                 <Card>
-                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-2)' }}>CHEQUES</div>
+                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>CHEQUES</div>
                                     <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)' }}>{formatCurrency(finalMetrics.cheques)}</div>
                                 </Card>
                                 <Card>
-                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-2)' }}>CRÉDITO</div>
+                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>CRÉDITO</div>
                                     <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)', color: 'var(--color-success)' }}>{formatCurrency(finalMetrics.creditos)}</div>
                                 </Card>
                                 <Card style={{ background: 'var(--bg-hover)' }}>
-                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-2)' }}>SALDO DEVEDOR</div>
+                                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>SALDO DEVEDOR</div>
                                     <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)', color: finalMetrics.saldoDevedor > 0 ? 'var(--color-error)' : 'var(--text-main)' }}>
                                         {formatCurrency(finalMetrics.saldoDevedor)}
                                     </div>
@@ -330,7 +386,7 @@ const ClientSummary = () => {
                             </div>
 
                             <Card style={{ textAlign: 'center', background: 'var(--color-primary-dim)', border: '1px solid var(--color-primary)' }}>
-                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-primary)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-1)' }}>RESUMO (DISPONIBILIDADE)</div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-primary)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)' }}>RESUMO (DISPONIBILIDADE)</div>
                                 <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--font-black)', color: finalMetrics.resumo > 0 ? 'var(--color-error)' : 'var(--color-success)' }}>
                                     {formatCurrency(Math.abs(finalMetrics.resumo))}
                                     <span style={{ fontSize: 'var(--text-xs)', marginLeft: 'var(--space-2)', opacity: 0.7 }}>
@@ -341,8 +397,8 @@ const ClientSummary = () => {
                         </div>
 
                         {/* Charts Area */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-                            <Card style={{ height: '240px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+<Card style={{ height: '240px' }}>
                                 <div style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-black)', marginBottom: 'var(--space-4)', textAlign: 'center' }}>DISTRIBUIÇÃO POR TIPO</div>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
@@ -390,7 +446,7 @@ const ClientSummary = () => {
                         style={{
                             padding: 'var(--space-5)',
                             fontSize: 'var(--text-md)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-4)',
                             width: '100%',
                             marginTop: 'var(--space-4)'
                         }}
@@ -407,12 +463,12 @@ const ClientSummary = () => {
         <div style={containerStyle}>
             <PageContainer maxWidth="1200px" title="Resumo de Títulos" actions={
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                    <Button variant="ghost" onClick={handleBack} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+<Button variant="ghost" onClick={handleBack} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                         <ArrowLeft size={18} /> Voltar
                     </Button>
 
-                    <div style={{ display: 'flex', gap: 'var(--space-2)', background: 'var(--bg-card)', padding: 'var(--space-1)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
-                        {['Todos', 'Carteira', 'Cheques', 'Crédito', 'Vencidos', 'A Vencer'].map(filter => (
+                    <div style={{ display: 'flex', gap: 'var(--space-4)', background: 'var(--bg-card)', padding: 'var(--space-1)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
+{['Todos', 'Carteira', 'Cheques', 'Crédito', 'Vencidos', 'A Vencer'].map(filter => (
                             <Button
                                 key={filter}
                                 variant={activeFilter === filter ? 'primary' : 'ghost'}
@@ -440,57 +496,18 @@ const ClientSummary = () => {
                     </div>
 
                     {/* Table */}
-                    <Table>
-                        <Thead>
-                            <Tr>
-                                <Th>Vendedor</Th>
-                                <Th>Docto</Th>
-                                <Th>Emissão</Th>
-                                <Th>Vencimento</Th>
-                                <Th>Situação</Th>
-                                <Th align="right">Valor</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {detailsFilteredData.map((row, idx) => (
-                                <Tr key={idx}>
-                                    <Td>{row.repre?.split('Vendedor: ')[1]?.split(' ')[0]}</Td>
-                                    <Td style={{ fontWeight: 'var(--font-semibold)' }}>{row.docto}</Td>
-                                    <Td>{formatDate(row.emissao)}</Td>
-                                    <Td style={{ fontWeight: row.seq === 1 ? 'var(--font-bold)' : 'var(--font-medium)' }}>{formatDate(row.vencto)}</Td>
-                                    <Td>
-                                        <span style={{
-                                            padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
-                                            background:
-                                                row.seq === 1 ? 'var(--color-error-dim)' :
-                                                    row.seq === 2 ? 'var(--color-info-dim)' :
-                                                        row.seq === 3 ? 'var(--color-warning-dim)' :
-                                                            row.seq === 5 ? 'var(--color-success-dim)' : 'rgba(0,0,0,0.05)',
-                                            color:
-                                                row.seq === 1 ? 'var(--color-error)' :
-                                                    row.seq === 2 ? 'var(--color-info)' :
-                                                        row.seq === 3 ? 'var(--color-warning)' :
-                                                            row.seq === 5 ? 'var(--color-success)' : 'var(--text-muted)',
-                                        }}>
-                                            {row.seq === 1 ? 'Vencido' :
-                                                row.seq === 2 ? 'A Vencer' :
-                                                    row.seq === 3 ? 'Cheque' :
-                                                        row.seq === 4 ? 'Carteira' : 'Crédito'}
-                                        </span>
-                                    </Td>
-                                    <Td align="right" style={{ fontWeight: 'var(--font-bold)' }}>{formatCurrency(row.valor)}</Td>
-                                </Tr>
-                            ))}
-                            <Tr style={{ background: 'var(--bg-elevated)' }}>
-                                <Td colSpan={5} align="right" style={{ fontWeight: 'var(--font-bold)' }}>
-                                    TOTAL:
-                                </Td>
-                                <Td align="right" style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)', color: 'var(--color-error)' }}>
-                                    {formatCurrency(detailsTotal)}
-                                </Td>
-                            </Tr>
-                        </Tbody>
-                    </Table>
+                                            <DataGrid
+                            columns={columns}
+                            data={detailsFilteredData}
+                            height="400px"
+                            emptyMessage="Nenhum título encontrado para este filtro."
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 24px', background: 'var(--bg-elevated)', borderTop: '1px solid var(--border-color)' }}>
+<div style={{ fontWeight: 'var(--font-bold)', marginRight: 'var(--space-6)' }}>TOTAL:</div>
+                            <div style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-black)', color: 'var(--color-error)' }}>
+                                {formatCurrency(detailsTotal)}
+                            </div>
+                        </div>
                 </Card>
             </PageContainer>
         </div>

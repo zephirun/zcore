@@ -7,19 +7,20 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
     // Styles for the compact corporate look
     const headerStyle = {
         background: 'var(--bg-input)',
-        color: 'var(--text-muted)',
-        padding: '10px 12px',
+        color: 'var(--text-main)',
+        padding: '12px 14px',
         fontSize: '11px',
         fontWeight: '800',
         textAlign: 'center',
         borderRight: '1px solid var(--border-color)',
+        borderBottom: '1px solid var(--border-color)',
         textTransform: 'uppercase',
         letterSpacing: '0.05em'
     };
 
     const cellStyle = {
-        padding: '10px 12px',
-        fontSize: '14px',
+        padding: '12px 14px',
+        fontSize: '13px',
         borderBottom: '1px solid var(--border-color)',
         borderRight: '1px solid var(--border-color)',
         color: 'var(--text-main)'
@@ -92,7 +93,7 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                 )}
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #999' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--border-color)' }}>
                 <thead>
                     <tr>
                         <th style={{ ...headerStyle, textAlign: 'left', width: '30%', background: 'var(--bg-input)' }}>CLIENTE / ID / VEND. / REPRES.</th>
@@ -140,7 +141,7 @@ const SalesTable = ({ reportData, totals, currentPage, onPageChange, totalRows, 
                         </tr>
                     ))}
 
-                    <tr className="total-row" style={{ borderTop: '2px solid #000' }}>
+                    <tr className="total-row" style={{ borderTop: '2px solid var(--text-main)' }}>
                         <td style={{ ...cellStyle, textAlign: 'right', fontWeight: 'bold' }}>TOTAIS GERAIS:</td>
 
                         <GrandTotalCells reportData={reportData} />
@@ -211,13 +212,14 @@ const GrandTotalCells = ({ reportData }) => {
     });
 
     const numberStyle = {
-        padding: '4px 8px',
-        fontSize: '11px',
+        padding: '12px 14px',
+        fontSize: '13px',
         textAlign: 'right',
-        fontFamily: 'Arial, sans-serif',
-        borderBottom: '1px solid #ccc',
-        borderRight: '1px solid #eee',
-        fontWeight: 'bold'
+        fontFamily: 'var(--font-main)',
+        borderBottom: '1px solid var(--border-color)',
+        borderRight: '1px solid var(--border-color)',
+        fontWeight: 'bold',
+        color: 'var(--text-main)'
     };
 
     return (

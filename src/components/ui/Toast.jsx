@@ -74,15 +74,15 @@ const Toast = ({ id, type, message, description, duration, onClose }) => {
             style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: '12px',
+                gap: 'var(--space-3)',
                 width: '320px',
-                padding: '16px',
+                padding: 'var(--space-4)',
                 background: 'var(--bg-elevated)',
                 border: '1px solid var(--border-color)',
-                borderRadius: '12px',
+                borderRadius: 'var(--space-3)',
                 boxShadow: 'var(--shadow-lg)',
                 pointerEvents: 'auto',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'all var(--transition-base)',
                 fontFamily: 'var(--font-main)',
             }}
         >
@@ -91,8 +91,8 @@ const Toast = ({ id, type, message, description, duration, onClose }) => {
             </div>
             <div style={{ flex: 1 }}>
                 <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
+                    fontSize: 'var(--text-base)',
+                    fontWeight: 'var(--font-semibold)',
                     color: 'var(--text-main)',
                     letterSpacing: '-0.01em',
                     lineHeight: '1.4'
@@ -101,7 +101,7 @@ const Toast = ({ id, type, message, description, duration, onClose }) => {
                 </div>
                 {description && (
                     <div style={{
-                        marginTop: '4px',
+                        marginTop: 'var(--space-1)',
                         fontSize: '13px',
                         color: 'var(--text-muted)',
                         lineHeight: '1.4'
@@ -117,7 +117,7 @@ const Toast = ({ id, type, message, description, duration, onClose }) => {
                     color: 'var(--text-muted)',
                     flexShrink: 0,
                     padding: '2px',
-                    transition: 'color 0.15s',
+                    transition: 'color var(--transition-fast)',
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-main)'}
                 onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}

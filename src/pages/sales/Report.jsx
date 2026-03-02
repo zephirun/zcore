@@ -83,13 +83,13 @@ const Report = () => {
                 padding: '80px 40px', textAlign: 'center', fontFamily: 'var(--font-main)',
                 color: 'var(--text-muted)',
             }}>
-                <h2 style={{ color: 'var(--text-main)', fontWeight: '700', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+                <h2 style={{ color: 'var(--text-main)', fontWeight: 'var(--font-bold)', letterSpacing: '-0.03em', marginBottom: 'var(--space-4)' }}>
                     Nenhum dado disponível
                 </h2>
 
                 {userRole === 'admin' ? (
                     <>
-                        <p style={{ fontSize: '14px', marginBottom: '24px' }}>É necessário carregar a base de dados mensal.</p>
+                        <p style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-4)' }}>É necessário carregar a base de dados mensal.</p>
                         <Button
                             onClick={() => navigate('/admin/upload')}
                             style={{
@@ -97,9 +97,9 @@ const Report = () => {
                                 background: 'var(--text-main)',
                                 color: 'var(--bg-main)',
                                 border: 'none',
-                                borderRadius: '16px',
+                                borderRadius: 'var(--space-4)',
                                 cursor: 'pointer',
-                                fontWeight: '600',
+                                fontWeight: 'var(--font-semibold)',
                                 fontSize: '13px',
                                 fontFamily: 'var(--font-main)',
                             }}
@@ -108,7 +108,7 @@ const Report = () => {
                         </Button>
                     </>
                 ) : (
-                    <p style={{ fontSize: '14px' }}>Por favor, solicite ao administrador para carregar os dados do mês.</p>
+                    <p style={{ fontSize: 'var(--text-base)' }}>Por favor, solicite ao administrador para carregar os dados do mês.</p>
                 )}
             </div>
         );
@@ -161,24 +161,17 @@ const Report = () => {
             fontFamily: 'var(--font-main)'
         }}>
             <div className="print-only" style={{ padding: '0 40px' }}>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '4px solid #000',
-                    paddingBottom: '15px',
-                    marginBottom: '25px'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <img src={logoGmad} alt="GMAD Logo" style={{ height: '35px' }} />
-                        <div style={{ borderLeft: '2px solid #000', paddingLeft: '20px' }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<img src={logoGmad} alt="GMAD Logo" style={{ height: '35px' }} />
+                        <div style={{ borderLeft: '2px solid #000', paddingLeft: 'var(--space-5)' }}>
                             <h1 style={{
                                 margin: 0, fontSize: '26px', color: '#000', fontWeight: '800', letterSpacing: '-1px', fontFamily: 'var(--font-main)'
                             }}>{activeUnit?.replace('gmad_', '').toUpperCase()}</h1>
-                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginTop: '2px' }}>
-                                <p style={{ margin: 0, fontSize: '15px', color: '#1e293b', fontWeight: '700', fontFamily: '"Inter", sans-serif' }}>Faturamento Trimestral</p>
+                            <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center', marginTop: '2px' }}>
+<p style={{ margin: 0, fontSize: '15px', color: 'var(--text-main)', fontWeight: 'var(--font-bold)', fontFamily: '"Inter", sans-serif' }}>Faturamento Trimestral</p>
                                 <span style={{ color: '#cbd5e1' }}>|</span>
-                                <p style={{ margin: 0, fontSize: '14px', color: '#475569', fontWeight: '600', fontFamily: '"Inter", sans-serif' }}>
+                                <p style={{ margin: 0, fontSize: 'var(--text-base)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)', fontFamily: '"Inter", sans-serif' }}>
                                     {globalFilters.vendor !== 'Selecionar Todos' && `Vendedor: ${globalFilters.vendor.toUpperCase()}`}
                                     {globalFilters.vendor !== 'Selecionar Todos' && (globalFilters.representative !== 'Selecionar Todos' || globalFilters.client !== 'Selecionar Todos') && ' - '}
                                     {globalFilters.representative !== 'Selecionar Todos' && `Representante: ${globalFilters.representative.toUpperCase()}`}
@@ -190,8 +183,8 @@ const Report = () => {
                         </div>
                     </div>
                     <div style={{ textAlign: 'right', fontFamily: '"Inter", sans-serif' }}>
-                        <p style={{ margin: 0, fontSize: '9px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Documento Emitido em</p>
-                        <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#1e293b' }}>{new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p style={{ margin: 0, fontSize: '9px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Documento Emitido em</p>
+                        <p style={{ margin: 0, fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>{new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                 </div>
             </div>
@@ -201,19 +194,19 @@ const Report = () => {
             <div className="no-print" style={{ background: 'var(--bg-input)' }}>
                 <Filters
                     rightElement={
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <Button
+                        <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
+<Button
                                 onClick={() => setShowInsights(true)}
                                 className="btn-insights"
                                 style={{
                                     padding: '8px 16px',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--space-4)',
                                     cursor: 'pointer',
                                     fontSize: '13px',
-                                    fontWeight: '600',
+                                    fontWeight: 'var(--font-semibold)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px',
+                                    gap: 'var(--space-4)',
                                     boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                 }}
                             >
@@ -237,8 +230,8 @@ const Report = () => {
                     color: 'var(--text-muted)',
                     background: 'var(--bg-card)'
                 }}>
-                    <h1 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Bem-vindo ao Relatório</h1>
-                    <p style={{ fontSize: '18px' }}>
+                    <h1 style={{ color: 'var(--text-main)', marginBottom: 'var(--space-4)' }}>Bem-vindo ao Relatório</h1>
+                    <p style={{ fontSize: 'var(--text-xl)' }}>
                         Para visualizar os dados, selecione um <strong>Vendedor</strong>, um <strong>Cliente</strong><br />
                         ou escolha a opção <strong>"Selecionar Todos"</strong> nos filtros acima.
                     </p>

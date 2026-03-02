@@ -1,22 +1,55 @@
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
-
+import EmptyState from '@/components/ui/EmptyState';
+import Spinner from '@/components/ui/Spinner';
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
 import { useData } from '../../context/DataContext';
+import { useToast } from '../../context/ToastContext';
 import * as api from '../../services/api';
+
+
+const brandSchema = z.object({
+    id: z.string().optional(),
+    name: z.string().min(2, 'O nome da marca deve ter pelo menos 2 caracteres'),
+    website: z.string().optional(),
+    logoUrl: z.string().optional()
+});
 
 const BrandsAndBuyers = () => {
     const { theme, userRole } = useData();
+    const toast = useToast();
     const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedBrand, setSelectedBrand] = useState(null); // For detail view/modal
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // New Brand Form Data
-    const [formData, setFormData] = useState({ name: '', website: '', logoUrl: '' });
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(brandSchema),
+        mode: 'onTouched',
+        defaultValues: {
+            name: '',
+            website: '',
+            logoUrl: ''
+        }
+    });
 
+    // We still keep the file state manually since it's an object not supported out of the box by simple text zod inputs
+    const [logoFile, setLogoFile] = useState(null);
+    const watchLogoUrl = watch('logoUrl');
+    const watchName = watch('name');
     // Buyers Data (Users)
     const [users, setUsers] = useState([]);
     const [brandBuyers, setBrandBuyers] = useState([]); // Buyers linked to selected brand
@@ -53,7 +86,7 @@ const BrandsAndBuyers = () => {
         const result = await api.saveBrand(formData, formData.logoFile);
 
         if (!result.success) {
-            alert('Erro ao salvar marca: ' + result.error);
+            toast.error('Erro ao salvar', result.error);
             return;
         }
 
@@ -84,7 +117,7 @@ const BrandsAndBuyers = () => {
             loadBrandBuyers(selectedBrand.id);
             setSelectedBuyerId('');
         } else {
-            alert(result.error);
+            toast.error('Erro de validação', result.error);
         }
     };
 
@@ -148,13 +181,12 @@ const BrandsAndBuyers = () => {
                 setImporting(false);
 
                 if (result.success) {
-                    alert(`${newProducts.length} produtos importados com sucesso!`);
-                    loadProducts(selectedBrand.id);
+                    toast.success('Sucesso', `${newProducts.length} produtos importados com sucesso!`);
                 } else {
-                    alert('Erro na importação: ' + result.error);
+                    toast.error('Erro na importação', result.error);
                 }
             } else {
-                alert('Nenhum produto válido encontrado no CSV.');
+                toast.warning('Aviso', 'Nenhum produto válido encontrado no CSV.');
             }
 
             // Reset input
@@ -174,13 +206,13 @@ const BrandsAndBuyers = () => {
     });
 
     return (
-        <div className="fade-in" style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-main)' }}>
+        <div className="fade-in" style={{ padding: 'var(--space-6)', maxWidth: '1600px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+<div>
+                    <h1 style={{ fontSize: 'var(--text-4xl)', fontWeight: '800', marginBottom: 'var(--space-4)', color: 'var(--text-main)' }}>
                         Marcas e Compradores
                     </h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
                         Gerencie as marcas parceiras e vincule seus respectivos compradores responsáveis.
                     </p>
                 </div>
@@ -196,12 +228,12 @@ const BrandsAndBuyers = () => {
                             background: 'var(--color-primary)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '16px',
-                            fontWeight: '600',
+                            borderRadius: 'var(--space-4)',
+                            fontWeight: 'var(--font-semibold)',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px',
+                            gap: 'var(--space-4)',
                             boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                         }}
                     >
@@ -214,31 +246,31 @@ const BrandsAndBuyers = () => {
                 )}
             </div>
 
-            <div style={{ display: 'flex', gap: '24px', height: 'calc(100vh - 180px)' }}>
-                {/* Left: Brands List */}
+            <div style={{ display: 'flex', gap: 'var(--space-4)', height: 'calc(100vh - 180px)' }}>
+{/* Left: Brands List */}
                 <div style={{
                     flex: '1',
                     background: 'var(--glass-bg)',
                     backdropFilter: 'var(--glass-blur)',
-                    borderRadius: '16px',
+                    borderRadius: 'var(--space-4)',
                     border: 'var(--glass-border)',
                     boxShadow: 'var(--glass-shadow)',
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden'
                 }}>
-                    <div style={{ padding: '16px', borderBottom: 'var(--glass-border)' }}>
+<div style={{ padding: 'var(--space-4)', borderBottom: 'var(--glass-border)' }}>
                         <div style={{
                             position: 'relative',
                             background: 'var(--bg-input)',
-                            borderRadius: '16px',
+                            borderRadius: 'var(--space-4)',
                             border: '1px solid var(--border-input)',
                             display: 'flex',
                             alignItems: 'center'
                         }}>
-                            <svg
+<svg
                                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                                style={{ marginLeft: '12px', color: 'var(--text-secondary)' }}
+                                style={{ marginLeft: 'var(--space-3)', color: 'var(--text-secondary)' }}
                             >
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -250,12 +282,12 @@ const BrandsAndBuyers = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 style={{
                                     width: '100%',
-                                    padding: '12px',
+                                    padding: 'var(--space-3)',
                                     background: 'transparent',
                                     border: 'none',
                                     color: 'var(--text-main)',
                                     outline: 'none',
-                                    fontSize: '14px'
+                                    fontSize: 'var(--text-base)'
                                 }}
                             />
                         </div>
@@ -263,9 +295,14 @@ const BrandsAndBuyers = () => {
 
                     <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
                         {loading ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>Carregando...</div>
+                            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+<Spinner size="md" /></div>
                         ) : filteredBrands.length === 0 ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>Nenhuma marca encontrada.</div>
+                            <EmptyState
+                                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>}
+                                title="Nenhuma marca encontrada"
+                                description="Sua pesquisa não retornou resultados."
+                            />
                         ) : (
                             filteredBrands.map(brand => (
                                 <div
@@ -285,29 +322,29 @@ const BrandsAndBuyers = () => {
                                         transition: 'all 0.2s'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{
-                                            width: '40px', height: '40px',
-                                            borderRadius: '16px',
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<div style={{
+                                            width: 'var(--space-10)', height: 'var(--space-10)',
+                                            borderRadius: 'var(--space-4)',
                                             background: '#f3f4f6',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '18px', fontWeight: 'bold', color: '#666',
+                                            fontSize: 'var(--text-xl)', fontWeight: 'bold', color: 'var(--text-muted)',
                                             overflow: 'hidden'
                                         }}>
-                                            {brand.logo_url ? (
+{brand.logo_url ? (
                                                 <img src={brand.logo_url} alt={brand.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : brand.name.substring(0, 1)}
                                         </div>
                                         <div>
                                             <h3 style={{ margin: 0, fontSize: '15px', color: 'var(--text-main)' }}>{brand.name}</h3>
                                             {brand.website && (
-                                                <a href={brand.website} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: 'var(--color-primary)', textDecoration: 'none', display: 'block', marginBottom: '2px' }} onClick={e => e.stopPropagation()}>
+                                                <a href={brand.website} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', textDecoration: 'none', display: 'block', marginBottom: 'var(--space-4)' }} onClick={e => e.stopPropagation()}>
                                                     Visitar site
                                                 </a>
                                             )}
                                             {brand.brand_buyers && brand.brand_buyers.length > 0 && (
-                                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', marginTop: '2px' }}>
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                                     {brand.brand_buyers.map(bb => bb.users?.name?.split(' ')[0]).join(', ').substring(0, 30)}{brand.brand_buyers.length > 2 ? '...' : ''}
                                                 </div>
                                             )}
@@ -333,19 +370,19 @@ const BrandsAndBuyers = () => {
                     flex: '2',
                     background: 'var(--glass-bg)',
                     backdropFilter: 'var(--glass-blur)',
-                    borderRadius: '16px',
+                    borderRadius: 'var(--space-4)',
                     border: 'var(--glass-border)',
                     boxShadow: 'var(--glass-shadow)',
-                    padding: '24px',
+                    padding: 'var(--space-6)',
                     overflowY: 'auto',
                     opacity: selectedBrand ? 1 : 0.6,
                     pointerEvents: selectedBrand ? 'auto' : 'none'
                 }}>
                     {selectedBrand ? (
                         <>
-                            <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                                <div>
-                                    <h2 style={{ fontSize: '22px', marginBottom: '8px', color: 'var(--text-main)' }}>{selectedBrand.name}</h2>
+                            <div style={{ marginBottom: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+<div>
+                                    <h2 style={{ fontSize: '22px', marginBottom: 'var(--space-4)', color: 'var(--text-main)' }}>{selectedBrand.name}</h2>
                                     <p style={{ color: 'var(--text-secondary)' }}>Gerenciamento de compradores vinculados</p>
                                 </div>
                                 {userRole === 'admin' && (
@@ -364,32 +401,32 @@ const BrandsAndBuyers = () => {
                                 )}
                             </div>
 
-                            <div style={{ marginBottom: '32px' }}>
-                                <h3 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ marginBottom: 'var(--space-4)' }}>
+                                <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                     Compradores Vinculados
                                 </h3>
 
                                 {/* List Buyers */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
                                     {brandBuyers.length > 0 ? (
                                         brandBuyers.map(buyer => (
                                             <div key={buyer.id} style={{
                                                 background: 'var(--bg-card)',
-                                                padding: '16px',
-                                                borderRadius: '12px',
+                                                padding: 'var(--space-4)',
+                                                borderRadius: 'var(--space-3)',
                                                 border: '1px solid var(--border-color)',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'space-between'
                                             }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ff9800', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                        {buyer.name?.substring(0, 1) || '?'}
+<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<div style={{ width: 'var(--space-8)', height: 'var(--space-8)', borderRadius: '50%', background: '#ff9800', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+{buyer.name?.substring(0, 1) || '?'}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '14px' }}>{buyer.name}</div>
-                                                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{buyer.username}</div>
+                                                        <div style={{ fontWeight: 'var(--font-semibold)', color: 'var(--text-main)', fontSize: 'var(--text-base)' }}>{buyer.name}</div>
+                                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{buyer.username}</div>
                                                     </div>
                                                 </div>
                                                 {userRole === 'admin' && (
@@ -404,9 +441,12 @@ const BrandsAndBuyers = () => {
                                             </div>
                                         ))
                                     ) : (
-                                        <div style={{ gridColumn: '1/-1', padding: '24px', textAlign: 'center', border: '2px dashed var(--border-color)', borderRadius: '12px', color: 'var(--text-secondary)' }}>
-                                            Nenhum comprador vinculado a esta marca ainda.
-                                        </div>
+                                        <EmptyState
+                                            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>}
+                                            title="Nenhum comprador vinculado"
+                                            description="Adicione compradores a esta marca pelo menu abaixo."
+                                            style={{ gridColumn: '1/-1' }}
+                                        />
                                     )}
                                 </div>
 
@@ -414,19 +454,19 @@ const BrandsAndBuyers = () => {
                                 {userRole === 'admin' && (
                                     <div style={{
                                         background: 'var(--bg-input)',
-                                        padding: '20px',
-                                        borderRadius: '12px',
+                                        padding: 'var(--space-5)',
+                                        borderRadius: 'var(--space-3)',
                                         border: '1px solid var(--border-input)'
                                     }}>
-                                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>Vincular Novo Comprador</label>
-                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                            <Select
+                                        <label style={{ display: 'block', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)', fontWeight: 'var(--font-semibold)', color: 'var(--text-main)' }}>Vincular Novo Comprador</label>
+                                        <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+<Select
                                                 value={selectedBuyerId}
                                                 onChange={(e) => setSelectedBuyerId(e.target.value)}
                                                 style={{
                                                     flex: 1,
                                                     padding: '10px',
-                                                    borderRadius: '16px',
+                                                    borderRadius: 'var(--space-4)',
                                                     border: '1px solid var(--border-color)',
                                                     background: 'var(--bg-card)',
                                                     color: 'var(--text-main)',
@@ -446,8 +486,8 @@ const BrandsAndBuyers = () => {
                                                     background: selectedBuyerId ? 'var(--color-primary)' : 'var(--border-color)',
                                                     color: 'white',
                                                     border: 'none',
-                                                    borderRadius: '16px',
-                                                    fontWeight: '600',
+                                                    borderRadius: 'var(--space-4)',
+                                                    fontWeight: 'var(--font-semibold)',
                                                     cursor: selectedBuyerId ? 'pointer' : 'not-allowed'
                                                 }}
                                             >
@@ -459,9 +499,9 @@ const BrandsAndBuyers = () => {
                             </div>
 
                             {/* --- PRODUCTS SECTION --- */}
-                            <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                    <h3 style={{ fontSize: '16px', margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ marginTop: 'var(--space-8)', borderTop: '1px solid var(--border-color)', paddingTop: 'var(--space-6)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+<h3 style={{ fontSize: 'var(--text-lg)', margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                                         Produtos ({products.length})
                                     </h3>
@@ -481,17 +521,17 @@ const BrandsAndBuyers = () => {
                                                     padding: '8px 16px',
                                                     background: importing ? 'var(--text-muted)' : 'var(--color-primary)',
                                                     color: 'white',
-                                                    borderRadius: '16px',
+                                                    borderRadius: 'var(--space-4)',
                                                     fontSize: '13px',
-                                                    fontWeight: '600',
+                                                    fontWeight: 'var(--font-semibold)',
                                                     cursor: importing ? 'wait' : 'pointer',
-                                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                                    display: 'flex', alignItems: 'center', gap: 'var(--space-4)',
                                                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                                 }}
                                             >
                                                 {importing ? (
                                                     <>
-                                                        <span style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                                                        <span style={{ display: 'inline-block', width: 'var(--space-3)', height: 'var(--space-3)', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
                                                         Importando...
                                                     </>
                                                 ) : (
@@ -506,26 +546,26 @@ const BrandsAndBuyers = () => {
                                 </div>
 
                                 {/* Products Grid/List */}
-                                <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }} className="hide-scrollbar">
+                                <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: 'var(--space-2)' }} className="hide-scrollbar">
                                     {products.length > 0 ? (
                                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                                             <thead>
                                                 <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                                                    <th style={{ padding: '8px', fontWeight: '600' }}>Nome</th>
-                                                    <th style={{ padding: '8px', fontWeight: '600' }}>SKU</th>
-                                                    <th style={{ padding: '8px', fontWeight: '600' }}>Preço</th>
-                                                    <th style={{ padding: '8px', width: '40px' }}></th>
+                                                    <th style={{ padding: 'var(--space-2)', fontWeight: 'var(--font-semibold)' }}>Nome</th>
+                                                    <th style={{ padding: 'var(--space-2)', fontWeight: 'var(--font-semibold)' }}>SKU</th>
+                                                    <th style={{ padding: 'var(--space-2)', fontWeight: 'var(--font-semibold)' }}>Preço</th>
+                                                    <th style={{ padding: 'var(--space-2)', width: 'var(--space-10)' }}></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {products.map(p => (
                                                     <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color-subtle)' }}>
-                                                        <td style={{ padding: '8px', color: 'var(--text-main)' }}>{p.name}</td>
-                                                        <td style={{ padding: '8px', color: 'var(--text-secondary)' }}>{p.sku || '-'}</td>
-                                                        <td style={{ padding: '8px', color: 'var(--text-main)' }}>
+                                                        <td style={{ padding: 'var(--space-2)', color: 'var(--text-main)' }}>{p.name}</td>
+                                                        <td style={{ padding: 'var(--space-2)', color: 'var(--text-secondary)' }}>{p.sku || '-'}</td>
+                                                        <td style={{ padding: 'var(--space-2)', color: 'var(--text-main)' }}>
                                                             {p.price ? `R$ ${p.price.toFixed(2)}` : '-'}
                                                         </td>
-                                                        <td style={{ padding: '8px', textAlign: 'right' }}>
+                                                        <td style={{ padding: 'var(--space-2)', textAlign: 'right' }}>
                                                             {userRole === 'admin' && (
                                                                 <Button
                                                                     onClick={() => handleDeleteProduct(p.id)}
@@ -541,21 +581,22 @@ const BrandsAndBuyers = () => {
                                             </tbody>
                                         </table>
                                     ) : (
-                                        <div style={{ padding: '32px', textAlign: 'center', border: '2px dashed var(--border-color)', borderRadius: '12px', color: 'var(--text-secondary)' }}>
-                                            <p style={{ margin: 0, fontSize: '14px' }}>Nenhum produto cadastrado.</p>
-                                            <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.7 }}>Importe um CSV (Nome, SKU, Preço, Descrição)</p>
-                                        </div>
+                                        <EmptyState
+                                            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>}
+                                            title="Nenhum produto cadastrado"
+                                            description="Importe um arquivo CSV com os produtos para esta marca (Nome, SKU, Preço, Descrição)."
+                                        />
                                     )}
                                 </div>
                             </div>
                         </>
                     ) : (
                         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: '16px', opacity: 0.5 }}>
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: 'var(--space-4)', opacity: 0.5 }}>
                                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                                 <line x1="7" y1="7" x2="7.01" y2="7"></line>
                             </svg>
-                            <p style={{ fontSize: '18px' }}>Selecione uma marca para ver os detalhes</p>
+                            <p style={{ fontSize: 'var(--text-xl)' }}>Selecione uma marca para ver os detalhes</p>
                         </div>
                     )}
                 </div>
@@ -567,49 +608,49 @@ const BrandsAndBuyers = () => {
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
                     background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
                     zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }} onClick={() => setIsModalOpen(false)}>
+                }} onClick={() =>
+setIsModalOpen(false)}>
                     <div
-                        style={{ width: '400px', background: 'var(--bg-card)', borderRadius: '16px', padding: '32px', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', border: '1px solid var(--border-color)' }}
+                        style={{ width: '400px', background: 'var(--bg-card)', borderRadius: 'var(--space-4)', padding: 'var(--space-8)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', border: '1px solid var(--border-color)' }}
                         onClick={e => e.stopPropagation()}
                     >
-                        <h2 style={{ marginBottom: '24px', color: 'var(--text-main)' }}>{formData.id ? 'Editar Marca' : 'Nova Marca'}</h2>
-                        <form onSubmit={handleSaveBrand}>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>Nome da Marca</label>
+                        <h2 style={{ marginBottom: 'var(--space-4)', color: 'var(--text-main)' }}>{watch('id') ? 'Editar Marca' : 'Nova Marca'}</h2>
+                        <form onSubmit={handleSubmit(onFormSubmit)} style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            <div style={{ marginBottom: 'var(--space-4)' }}>
+                                <label style={{ display: 'block', marginBottom: 'var(--space-4)', color: 'var(--text-secondary)', fontSize: '13px' }}>Nome da Marca</label>
                                 <Input
                                     type="text"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
+                                    error={errors.name?.message}
+                                    {...register('name')}
+                                    style={{ width: '100%' }}
                                     placeholder="Ex: Nike, Adidas..."
-                                    required
                                 />
                             </div>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>Website (Opcional)</label>
+                            <div style={{ marginBottom: 'var(--space-4)' }}>
+                                <label style={{ display: 'block', marginBottom: 'var(--space-4)', color: 'var(--text-secondary)', fontSize: '13px' }}>Website (Opcional)</label>
                                 <Input
                                     type="url"
-                                    value={formData.website}
-                                    onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-input)', background: 'var(--bg-input)', color: 'var(--text-main)', outline: 'none' }}
+                                    error={errors.website?.message}
+                                    {...register('website')}
+                                    style={{ width: '100%' }}
                                     placeholder="https://..."
                                 />
                             </div>
-                            <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>Logo da Marca</label>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                    <div style={{
-                                        width: '64px', height: '64px', borderRadius: '12px',
+                            <div style={{ marginBottom: 'var(--space-4)' }}>
+                                <label style={{ display: 'block', marginBottom: 'var(--space-4)', color: 'var(--text-secondary)', fontSize: '13px' }}>Logo da Marca</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+<div style={{
+                                        width: 'var(--space-16)', height: 'var(--space-16)', borderRadius: 'var(--space-3)',
                                         background: 'var(--bg-input)', border: '1px dashed var(--border-color)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         overflow: 'hidden'
                                     }}>
-                                        {formData.logoFile ? (
-                                            <img src={URL.createObjectURL(formData.logoFile)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : formData.logoUrl ? (
-                                            <img src={formData.logoUrl} alt="Current" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+{logoFile ? (
+                                            <img src={URL.createObjectURL(logoFile)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : watchLogoUrl ? (
+                                            <img src={watchLogoUrl} alt="Current" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
-                                            <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Sem Logo</span>
+                                            <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>Sem Logo</span>
                                         )}
                                     </div>
                                     <div style={{ flex: 1 }}>
@@ -618,28 +659,28 @@ const BrandsAndBuyers = () => {
                                             accept="image/*"
                                             onChange={e => {
                                                 if (e.target.files[0]) {
-                                                    setFormData({ ...formData, logoFile: e.target.files[0] });
+                                                    setLogoFile(e.target.files[0]);
                                                 }
                                             }}
                                             style={{
                                                 width: '100%',
                                                 padding: '10px',
-                                                borderRadius: '16px',
+                                                borderRadius: 'var(--space-4)',
                                                 border: '1px solid var(--border-input)',
                                                 background: 'var(--bg-input)',
                                                 color: 'var(--text-main)',
                                                 fontSize: '13px'
                                             }}
                                         />
-                                        <p style={{ marginTop: '4px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                        <p style={{ marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
                                             PNG, JPG ou WEBP (Max. 2MB)
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <Button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '12px', borderRadius: '16px', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-main)', cursor: 'pointer' }}>Cancelar</Button>
-                                <Button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Salvar</Button>
+                            <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+<Button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: 'var(--space-3)', borderRadius: 'var(--space-4)', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-main)', cursor: 'pointer' }}>Cancelar</Button>
+                                <Button type="submit" style={{ flex: 1, padding: 'var(--space-3)', borderRadius: 'var(--space-4)', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Salvar</Button>
                             </div>
                         </form>
                     </div>

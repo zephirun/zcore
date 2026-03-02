@@ -10,7 +10,16 @@ import { useData } from '../context/DataContext';
 import { categories, allModules } from '../config/menuConfig';
 
 const Header = () => {
-    const { username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS, switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed, setSidebarCollapsed, toggleTheme, density, setDensity } = useData();
+    const {
+        username, name, avatarUrl, isAuthenticated, activeUnit, AVAILABLE_UNITS,
+        switchUnit, logout, userRole, allowedModules, theme, sidebarCollapsed,
+        setSidebarCollapsed, toggleTheme, density, setDensity,
+        dataMode, setDataMode, isDbOnline, lastSync, syncOfflineCache
+    } = useData();
+
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [isDataMenuOpen, setIsDataMenuOpen] = useState(false);
+    const dataRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -40,6 +49,7 @@ const Header = () => {
             if (isAppsMenuOpen && appsRef.current && !appsRef.current.contains(event.target)) setIsAppsMenuOpen(false);
             if (isAiMenuOpen && aiRef.current && !aiRef.current.contains(event.target)) setIsAiMenuOpen(false);
             if (isUserMenuOpen && userRef.current && !userRef.current.contains(event.target)) setIsUserMenuOpen(false);
+            if (isDataMenuOpen && dataRef.current && !dataRef.current.contains(event.target)) setIsDataMenuOpen(false);
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -149,9 +159,7 @@ const Header = () => {
                     <div style={{ width: '1px', height: '14px', background: 'var(--border-color)' }} />
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                            Ambiente
-                        </span>
+
                         <img
                             src={theme === 'dark' ? logoGmadWhite : logoGmad}
                             alt="GMAD"
@@ -172,55 +180,14 @@ const Header = () => {
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    {/* AI icon */}
-                    <div ref={aiRef} onClick={() => setIsAiMenuOpen(!isAiMenuOpen)} style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
-                        <div style={{
-                            width: '30px', height: '30px',
-                            background: isAiMenuOpen ? 'var(--text-main)' : 'var(--bg-elevated)',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '8px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.15s ease',
-                        }}
-                            onMouseEnter={e => { if (!isAiMenuOpen) e.currentTarget.style.borderColor = 'var(--border-input)'; }}
-                            onMouseLeave={e => { if (!isAiMenuOpen) e.currentTarget.style.borderColor = 'var(--border-color)'; }}
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                stroke={isAiMenuOpen ? 'var(--bg-main)' : 'var(--text-muted)'}
-                                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                            </svg>
-                        </div>
-
-                        {isAiMenuOpen && (
-                            <div style={{ ...dropdownStyle, top: '40px', left: '-8px', width: '260px', padding: '6px' }}>
-                                <div style={{ padding: '8px 14px 6px', fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                    Inteligência Artificial
-                                </div>
-                                {allModules.filter(m => m.category === 'ia').map(module => (
-                                    <Link key={module.id} to={module.path} onClick={() => setIsAiMenuOpen(false)}
-                                        style={dropdownItemStyle}
-                                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-                                    >
-                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', flexShrink: 0 }}>
-                                            {React.cloneElement(module.icon, { width: 14, height: 14 })}
-                                        </div>
-                                        <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)' }}>{module.title}</span>
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
                     {/* Search bar */}
                     <div style={{ flex: 1, position: 'relative' }}>
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
                             backgroundColor: 'var(--bg-input)',
-                            borderRadius: '8px',
-                            height: '32px',
+                            borderRadius: 'var(--radius)',
+                            height: 'var(--density-input-height)',
                             border: '1px solid var(--border-color)',
                             padding: '0 4px 0 10px',
                             transition: 'border-color 0.15s'
@@ -275,7 +242,16 @@ const Header = () => {
                                         onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
                                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                                     >
-                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--text-muted)', flexShrink: 0 }} />
+                                        <div style={{
+                                            width: '28px', height: '28px',
+                                            borderRadius: '6px',
+                                            background: `${result.categoryColor}15`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: result.categoryColor,
+                                            flexShrink: 0
+                                        }}>
+                                            {React.isValidElement(result.icon) && React.cloneElement(result.icon, { width: 14, height: 14, strokeWidth: 2 })}
+                                        </div>
                                         <div>
                                             <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-main)' }}>{result.title}</div>
                                             <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{result.categoryName}</div>
@@ -296,7 +272,7 @@ const Header = () => {
 
                     {/* Unit selector */}
                     <div ref={unitRef} onClick={() => setIsUnitMenuOpen(!isUnitMenuOpen)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', position: 'relative', padding: '5px 10px', borderRadius: '8px', transition: 'background 0.15s' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', position: 'relative', padding: '5px 10px', borderRadius: 'var(--radius)', transition: 'background 0.15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
@@ -328,6 +304,96 @@ const Header = () => {
                                         {unit.name}
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Sync & Cache Controls */}
+                    <div ref={dataRef} style={{ position: 'relative' }}>
+                        <div
+                            onClick={() => setIsDataMenuOpen(!isDataMenuOpen)}
+                            style={{
+                                width: '32px', height: '32px',
+                                borderRadius: '8px',
+                                backgroundColor: isDataMenuOpen ? 'var(--bg-elevated)' : 'transparent',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease',
+                                border: `1px solid ${isDataMenuOpen ? 'var(--border-color)' : 'transparent'}`,
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                            onMouseLeave={e => { if (!isDataMenuOpen) e.currentTarget.style.backgroundColor = 'transparent'; }}
+                        >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 4v6h-6"></path>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                        </div>
+
+                        {isDataMenuOpen && (
+                            <div style={{ ...dropdownStyle, top: '42px', right: '0', width: '240px', padding: '12px' }}>
+                                <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '10px' }}>
+                                    Controle de Dados (Local)
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>Modo Offline</span>
+                                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Usar dados em cache</span>
+                                        </div>
+                                        <div
+                                            onClick={() => setDataMode(dataMode === 'live' ? 'cache' : 'live')}
+                                            style={{
+                                                width: '34px', height: '18px', borderRadius: '10px',
+                                                background: dataMode === 'cache' ? 'var(--color-info-strong)' : 'var(--bg-input)',
+                                                position: 'relative', transition: 'all 0.3s', cursor: 'pointer'
+                                            }}
+                                        >
+                                            <div style={{
+                                                width: '14px', height: '14px', borderRadius: '50%', background: '#fff',
+                                                position: 'absolute', top: '2px',
+                                                left: dataMode === 'cache' ? '18px' : '2px',
+                                                transition: 'all 0.3s ease'
+                                            }} />
+                                        </div>
+                                    </div>
+
+                                    <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
+
+                                    <div style={{ padding: '4px' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                                            Última Sincronização: <br />
+                                            <span style={{ color: 'var(--text-main)', fontWeight: '500' }}>
+                                                {lastSync ? new Date(lastSync).toLocaleString('pt-BR') : 'Nunca realizada'}
+                                            </span>
+                                        </div>
+
+                                        <button
+                                            onClick={async () => {
+                                                setIsSyncing(true);
+                                                await syncOfflineCache();
+                                                setIsSyncing(false);
+                                            }}
+                                            disabled={isSyncing}
+                                            style={{
+                                                width: '100%', padding: '8px', borderRadius: '6px',
+                                                background: 'var(--bg-input)', border: '1px solid var(--border-color)',
+                                                color: 'var(--text-main)', fontSize: '12px', cursor: isSyncing ? 'wait' : 'pointer',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                                        >
+                                            <svg className={isSyncing ? 'spin' : ''} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M23 4v6h-6"></path>
+                                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                            </svg>
+                                            {isSyncing ? 'Sincronizando...' : 'Sincronizar Banco Agora'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -415,7 +481,7 @@ const Header = () => {
                             cursor: 'pointer',
                             position: 'relative',
                             padding: '5px 10px',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius)',
                             transition: 'all 0.15s ease'
                         }}
                         onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
@@ -525,7 +591,7 @@ const Header = () => {
                         height: 'calc(100vh - 74px)',
                         backgroundColor: 'var(--bg-elevated)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
+                        borderRadius: 'var(--radius-lg)',
                         boxShadow: 'var(--shadow-xl)',
                         zIndex: 40,
                         display: 'flex',
@@ -565,7 +631,7 @@ const Header = () => {
                                         fontWeight: isActive ? '600' : '400',
                                         fontSize: '13px',
                                         transition: 'all 0.15s ease',
-                                        borderRadius: '8px',
+                                        borderRadius: 'var(--radius-sm)',
                                         letterSpacing: '-0.01em'
                                     }}
                                     onMouseLeave={e => {
@@ -584,7 +650,7 @@ const Header = () => {
                             flex: 1,
                             background: 'var(--bg-card)',
                             padding: '20px',
-                            display: 'flex', flexDirection: 'column', gap: '16px',
+                            display: 'flex', flexDirection: 'column', gap: "var(--space-4)",
                             overflowY: 'auto'
                         }}>
                             {(() => {

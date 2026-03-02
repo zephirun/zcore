@@ -1,14 +1,15 @@
 import React from 'react';
 
+// Basic Fiori 3 Table Fallback (for non-virtualized, small datasets like widgets)
 export const Table = ({ children, className = '', compact = false, ...props }) => {
     return (
-        <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)' }}>
             <table
                 style={{
                     width: '100%',
                     borderCollapse: 'collapse',
                     textAlign: 'left',
-                    fontSize: 'var(--text-sm)',
+                    fontSize: 'var(--text-base)',
                     ...(props.style || {})
                 }}
                 className={`ui-table ${compact ? 'compact' : ''} ${className}`}
@@ -16,13 +17,29 @@ export const Table = ({ children, className = '', compact = false, ...props }) =
             >
                 {children}
             </table>
+            <style>{`
+                .ui-table .ui-tr:hover {
+                    background-color: var(--color-primary-dim); /* Fiori distinct hover line selection hint */
+                }
+                .ui-table.compact td, .ui-table.compact th {
+                    padding: var(--density-padding-sm) var(--density-padding-md) !important;
+                    font-size: var(--text-sm) !important;
+                }
+            `}</style>
         </div>
     );
 };
 
 export const Thead = ({ children, ...props }) => {
     return (
-        <thead style={{ borderBottom: '1px solid var(--border-color)', ...(props.style || {}) }} {...props}>
+        <thead style={{
+            borderBottom: '1px solid var(--border-color)',
+            background: 'var(--bg-card)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            ...(props.style || {})
+        }} {...props}>
             {children}
         </thead>
     );
@@ -59,7 +76,7 @@ export const Th = ({ children, ...props }) => {
                 padding: 'var(--density-table-cell-padding)',
                 fontWeight: 'var(--font-semibold)',
                 color: 'var(--text-muted)',
-                fontSize: '12px',
+                fontSize: 'var(--text-sm)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
                 ...(props.style || {})

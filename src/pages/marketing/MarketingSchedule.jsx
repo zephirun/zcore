@@ -29,16 +29,16 @@ const MarketingSchedule = () => {
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         fontFamily: 'var(--font-main)',
-        paddingBottom: '40px'
+        paddingBottom: 'var(--space-10)'
     };
 
     const glassCardStyle = {
         background: 'rgba(255, 255, 255, 0.7)',
         backdropFilter: 'blur(10px)',
-        borderRadius: '16px',
+        borderRadius: 'var(--space-4)',
         border: '1px solid rgba(255, 255, 255, 0.3)',
         boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
-        padding: '24px',
+        padding: 'var(--space-6)',
         margin: '20px auto',
         maxWidth: '1200px'
     };
@@ -47,16 +47,16 @@ const MarketingSchedule = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px'
+        marginBottom: 'var(--space-6)'
     };
 
     const buttonStyle = (active) => ({
         padding: '10px 20px',
-        borderRadius: '12px',
+        borderRadius: 'var(--space-3)',
         border: 'none',
         background: active ? '#2563eb' : 'rgba(255,255,255,0.5)',
         color: active ? 'white' : '#475569',
-        fontWeight: '600',
+        fontWeight: 'var(--font-semibold)',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: active ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none'
@@ -73,28 +73,29 @@ const MarketingSchedule = () => {
             days.push(
                 <div key={i} style={{
                     background: 'rgba(255,255,255,0.4)',
-                    borderRadius: '12px',
+                    borderRadius: 'var(--space-3)',
                     padding: '10px',
                     minHeight: '120px',
                     border: '1px solid rgba(255,255,255,0.5)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '5px',
+                    gap: 'var(--space-4)',
                     transition: 'transform 0.2s',
                     cursor: 'pointer'
                 }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                    onMouseEnter={e =>
+e.currentTarget.style.transform = 'scale(1.02)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                    <span style={{ fontWeight: '700', color: '#64748b', marginBottom: '5px', display: 'block' }}>{i}</span>
+                    <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', display: 'block' }}>{i}</span>
                     {dayEvents.map(ev => (
                         <div key={ev.id} style={{
                             background: ev.color,
                             color: 'white',
                             padding: '4px 8px',
                             borderRadius: '6px',
-                            fontSize: '11px',
-                            fontWeight: '600',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 'var(--font-semibold)',
                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                         }}>
                             {ev.title}
@@ -114,22 +115,22 @@ const MarketingSchedule = () => {
                 <div style={glassCardStyle}>
                     <div style={headerStyle}>
                         <div>
-                            <h1 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '800' }}>Cronograma de Marketing e Eventos</h1>
-                            <p style={{ color: '#64748b', margin: '5px 0 0 0' }}>Planejamento de campanhas e ações</p>
+                            <h1 style={{ fontSize: 'var(--text-4xl)', color: 'var(--text-main)', margin: 0, fontWeight: '800' }}>Cronograma de Marketing e Eventos</h1>
+                            <p style={{ color: 'var(--text-muted)', margin: '5px 0 0 0' }}>Planejamento de campanhas e ações</p>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <Button style={buttonStyle(viewMode === 'month')} onClick={() => setViewMode('month')}>Mês</Button>
+                        <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+<Button style={buttonStyle(viewMode === 'month')} onClick={() => setViewMode('month')}>Mês</Button>
                             <Button style={buttonStyle(viewMode === 'week')} onClick={() => setViewMode('week')}>Semana</Button>
                             <Button style={{ ...buttonStyle(true), background: '#10b981' }}>+ Novo Evento</Button>
                         </div>
                     </div>
 
                     {/* Filters / Legend */}
-                    <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap' }}>
-                        {categories.map(cat => (
-                            <div key={cat.name} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.5)', padding: '6px 12px', borderRadius: '20px' }}>
-                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: cat.color }}></div>
-                                <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>{cat.name}</span>
+                    <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-4)', flexWrap: 'wrap' }}>
+{categories.map(cat => (
+                            <div key={cat.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', background: 'rgba(255,255,255,0.5)', padding: '6px 12px', borderRadius: 'var(--space-5)' }}>
+<div style={{ width: '10px', height: '10px', borderRadius: '50%', background: cat.color }}></div>
+                                <span style={{ fontSize: '13px', fontWeight: 'var(--font-semibold)', color: 'var(--text-muted)' }}>{cat.name}</span>
                             </div>
                         ))}
                     </div>
@@ -138,7 +139,7 @@ const MarketingSchedule = () => {
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                        gap: '15px'
+                        gap: 'var(--space-4)'
                     }}>
                         {renderCalendarGrid()}
                     </div>

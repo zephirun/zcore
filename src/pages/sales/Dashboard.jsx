@@ -10,9 +10,10 @@ import Filters from '../../components/Filters';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import KPICards from '../../components/KPICards';
+import Skeleton from '../../components/ui/Skeleton';
 
 const Dashboard = () => {
-    const { salesData, refreshData, globalFilters, theme } = useData();
+    const { salesData, refreshData, globalFilters, theme, isSalesDataLoading, salesDataError } = useData();
     const [loading, setLoading] = useState(false);
     const [activeMetric, setActiveMetric] = useState('revenue'); // 'revenue', 'margin', 'deadline'
 
@@ -296,26 +297,37 @@ const Dashboard = () => {
             background: 'var(--bg-main)',
             fontFamily: "'Inter', sans-serif",
             color: 'var(--text-main)',
-            paddingBottom: '40px'
+            paddingBottom: 'var(--space-10)'
         }}>
 
             {/* Filters Bar */}
             {hasData && (
-                <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div style={{ marginBottom: 'var(--space-4)' }}>
                     <Filters />
                 </div>
             )}
 
-            {hasData && !isBlankState && (
+            {isSalesDataLoading ? (
+                <div style={{ marginBottom: 'var(--space-4)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
+                        <Skeleton height={120} borderRadius="var(--radius-sm)" />
+                        <Skeleton height={120} borderRadius="var(--radius-sm)" />
+                        <Skeleton height={120} borderRadius="var(--radius-sm)" />
+                        <Skeleton height={120} borderRadius="var(--radius-sm)" />
+                    </div>
+                </div>
+            ) : hasData && !isBlankState && (
                 <>
-                    <div style={{ marginBottom: 'var(--space-6)' }}>
+                    <div style={{ marginBottom: 'var(--space-4)' }}>
                         <KPICards
                             totals={{
                                 amount: metrics.totalBilling,
                                 margin_percent: metrics.avgMargin,
                                 deadline: metrics.avgTerm
                             }}
-                            extraInfo={{ count: filteredData.length }}
+                            extraInfo={{
+                                count: filteredData.length
+                            }}
                         />
                     </div>
                 </>
@@ -325,11 +337,12 @@ const Dashboard = () => {
                 maxWidth="1600px"
                 title="Dashboard Financeiro"
                 subtitle="Visão executiva consolidada e análise comercial."
+                actions={null}
             >
-                {!hasData && (
+                {!isSalesDataLoading && !hasData && (
                     <Card style={{ padding: '60px 40px', textAlign: 'center' }}>
-                        <h2 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Nenhum dado disponível</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '16px', marginBottom: '20px' }}>
+                        <h2 style={{ color: 'var(--text-main)', marginBottom: 'var(--space-4)' }}>Nenhum dado disponível</h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)' }}>
                             Faça o upload de um arquivo CSV na página de <strong>Admin</strong> para visualizar os dados aqui.
                         </p>
                         <Button
@@ -339,9 +352,9 @@ const Dashboard = () => {
                                 background: 'var(--text-main)',
                                 color: 'var(--bg-main)',
                                 border: 'none',
-                                borderRadius: '8px',
+                                borderRadius: 'var(--space-2)',
                                 cursor: 'pointer',
-                                fontWeight: '600',
+                                fontWeight: 'var(--font-semibold)',
                                 fontSize: '13px',
                                 fontFamily: 'var(--font-main)',
                             }}
@@ -351,35 +364,39 @@ const Dashboard = () => {
                     </Card>
                 )}
 
-                {hasData && isBlankState && (
+                {!isSalesDataLoading && hasData && isBlankState && (
                     <Card style={{ padding: '80px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        <h1 style={{ color: 'var(--text-main)', marginBottom: '10px', fontWeight: '800' }}>Bem-vindo ao Dashboard</h1>
-                        <p style={{ fontSize: '18px' }}>
+                        <h1 style={{ color: 'var(--text-main)', marginBottom: 'var(--space-4)', fontWeight: '800' }}>Bem-vindo ao Dashboard</h1>
+                        <p style={{ fontSize: 'var(--text-xl)' }}>
                             Para visualizar os dados, selecione um <strong>Vendedor</strong>, um <strong>Cliente</strong><br />
                             ou escolha a opção <strong>"Selecionar Todos"</strong> nos filtros acima.
                         </p>
                     </Card>
                 )}
 
-                {hasData && !isBlankState && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
+                {isSalesDataLoading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <Skeleton height={200} borderRadius="var(--radius-sm)" />
+                        <Skeleton height={400} borderRadius="var(--radius-sm)" />
+                    </div>
+                ) : hasData && !isBlankState && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                         {/* Monthly Performance Section */}
                         <ChartCard title="Performance Mensal">
-                            <div style={{ overflowX: 'auto' }}>
-                                <Table>
-                                    <Thead>
+                            <div style={{ overflowX: 'auto', width: '100%' }}>
+                                <Table style={{ border: 'none', background: 'transparent', boxShadow: 'none', width: '100%', tableLayout: 'fixed' }}>
+                                    <Thead style={{ background: 'var(--bg-main)' }}>
                                         <Tr>
-                                            <Th style={{ textAlign: 'left' }}>Mês</Th>
-                                            <Th style={{ textAlign: 'right' }}>Faturamento</Th>
-                                            <Th style={{ textAlign: 'right' }}>Margem</Th>
-                                            <Th style={{ textAlign: 'right' }}>Prazo Médio</Th>
+                                            <Th style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)', width: 'auto' }}>Mês</Th>
+                                            <Th style={{ textAlign: 'right', borderBottom: '1px solid var(--border-color)', width: '25%' }}>Faturamento</Th>
+                                            <Th style={{ textAlign: 'right', borderBottom: '1px solid var(--border-color)', width: '15%' }}>Margem</Th>
+                                            <Th style={{ textAlign: 'right', borderBottom: '1px solid var(--border-color)', width: '20%' }}>Prazo Médio</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
                                         {monthlyPerformance.map((month, idx) => (
                                             <Tr key={idx} className="hover-row">
-                                                <Td style={{ fontWeight: 'var(--font-semibold)' }}>{month.month}</Td>
+                                                <Td style={{ fontWeight: '600' }}>{month.month}</Td>
                                                 <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatCurrency(month.revenue)}</Td>
                                                 <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{formatPercent(month.margin)}</Td>
                                                 <Td style={{ textAlign: 'right', fontWeight: 'var(--font-medium)' }}>{month.deadline.toFixed(0)} dias</Td>
@@ -394,26 +411,34 @@ const Dashboard = () => {
                         <ChartCard
                             title="Comparação por Clientes (Top 5)"
                             action={
-                                <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-input)', padding: '4px', borderRadius: '8px' }}>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: 0,
+                                    background: 'var(--bg-input)',
+                                    padding: '2px',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--border-color)'
+                                }}>
                                     {[
-                                        { id: 'revenue', label: 'Faturamento', color: 'var(--color-success, #10b981)' },
-                                        { id: 'margin', label: 'Margem %', color: 'var(--color-info, #3b82f6)' },
-                                        { id: 'deadline', label: 'Prazo', color: 'var(--color-error, #ef4444)' }
-                                    ].map(m => (
+                                        { id: 'revenue', label: 'Faturamento', color: 'var(--color-success-strong, #107e3e)' },
+                                        { id: 'margin', label: 'Margem %', color: 'var(--color-info-strong, #005a9e)' },
+                                        { id: 'deadline', label: 'Prazo', color: 'var(--color-error-strong, #bb0000)' }
+                                    ].map((m, idx, arr) => (
                                         <Button
                                             key={m.id}
                                             onClick={() => setActiveMetric(m.id)}
                                             style={{
-                                                padding: '6px 14px',
-                                                borderRadius: '6px',
-                                                border: 'none',
+                                                padding: '8px 24px',
+                                                borderRadius: '0',
+                                                borderRight: idx < arr.length - 1 ? '1px solid var(--border-color)' : 'none',
                                                 fontSize: '12px',
-                                                fontWeight: '700',
+                                                fontWeight: '800',
                                                 cursor: 'pointer',
-                                                transition: 'all 0.2s',
+                                                transition: 'all 0.1s',
                                                 background: activeMetric === m.id ? 'var(--bg-card)' : 'transparent',
-                                                color: activeMetric === m.id ? m.color : 'var(--text-muted)',
-                                                boxShadow: activeMetric === m.id ? 'var(--shadow-sm)' : 'none'
+                                                color: activeMetric === m.id ? 'var(--color-accent)' : 'var(--text-muted)',
+                                                boxShadow: activeMetric === m.id ? `inset 0 -2px 0 var(--color-accent), var(--shadow-sm)` : 'none',
+                                                minWidth: '120px'
                                             }}
                                         >
                                             {m.label}
@@ -424,28 +449,28 @@ const Dashboard = () => {
                         >
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                                gap: '24px'
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+                                gap: 'var(--space-4)'
                             }}>
                                 {monthlyClientData.map((month, idx) => {
                                     const config = {
-                                        revenue: { name: 'Faturamento', color: 'var(--color-success, #10b981)', formatter: formatCurrency, axisFormatter: (val) => `R$${(val / 1000).toFixed(0)}k` },
-                                        margin: { name: 'Margem', color: 'var(--color-info, #3b82f6)', formatter: formatPercent, axisFormatter: (val) => `${(val * 100).toFixed(0)}%` },
-                                        deadline: { name: 'Prazo Médio', color: 'var(--color-error, #ef4444)', formatter: (val) => `${val.toFixed(0)} dias`, axisFormatter: (val) => `${val.toFixed(0)}d` }
+                                        revenue: { name: 'Faturamento', color: 'var(--color-success-strong, #107e3e)', formatter: formatCurrency, axisFormatter: (val) => `R$${(val / 1000).toFixed(0)}k` },
+                                        margin: { name: 'Margem', color: 'var(--color-info-strong, #005a9e)', formatter: formatPercent, axisFormatter: (val) => `${(val * 100).toFixed(0)}%` },
+                                        deadline: { name: 'Prazo Médio', color: 'var(--color-error-strong, #bb0000)', formatter: (val) => `${val.toFixed(0)} dias`, axisFormatter: (val) => `${val.toFixed(0)}d` }
                                     }[activeMetric];
 
                                     return (
                                         <div key={idx} style={{
                                             background: 'var(--bg-input)',
-                                            padding: '20px',
-                                            borderRadius: '12px',
+                                            padding: 'var(--space-2)',
+                                            borderRadius: 'var(--radius-sm)',
                                             border: '1px solid var(--border-color)'
                                         }}>
                                             <h4 style={{
                                                 fontSize: '13px',
                                                 fontWeight: '800',
                                                 color: 'var(--text-muted)',
-                                                marginBottom: '20px',
+                                                marginBottom: 'var(--space-4)',
                                                 textAlign: 'center',
                                                 textTransform: 'uppercase',
                                                 letterSpacing: '0.5px'
@@ -457,7 +482,7 @@ const Dashboard = () => {
                                                     <BarChart
                                                         layout="vertical"
                                                         data={month.data}
-                                                        margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+                                                        margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                                                     >
                                                         <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="var(--border-color)" />
                                                         <XAxis
@@ -469,17 +494,18 @@ const Dashboard = () => {
                                                         <YAxis
                                                             dataKey="name"
                                                             type="category"
-                                                            width={90}
+                                                            width={150}
+                                                            tickFormatter={(val) => val.length > 22 ? `${val.substring(0, 20)}...` : val}
                                                             tick={{ fontSize: 10, fontWeight: '600', fill: 'var(--text-muted)' }}
                                                             axisLine={{ stroke: 'var(--border-color)' }}
                                                         />
                                                         <Tooltip
                                                             formatter={(value) => config.formatter(value)}
                                                             contentStyle={{
-                                                                borderRadius: '8px',
+                                                                borderRadius: 'var(--space-2)',
                                                                 border: '1px solid var(--border-color)',
                                                                 boxShadow: 'var(--shadow-card)',
-                                                                fontSize: '12px',
+                                                                fontSize: 'var(--text-sm)',
                                                                 backgroundColor: 'var(--bg-card)',
                                                                 color: 'var(--text-main)'
                                                             }}
@@ -491,16 +517,16 @@ const Dashboard = () => {
                                                             name={config.name}
                                                             fill={config.color}
                                                             radius={[0, 4, 4, 0]}
-                                                            barSize={20}
+                                                            barSize={activeMetric === 'deadline' ? 12 : 18}
                                                         />
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             ) : (
                                                 <div style={{
                                                     textAlign: 'center',
-                                                    padding: '40px',
+                                                    padding: 'var(--space-10)',
                                                     color: 'var(--text-muted)',
-                                                    fontSize: '12px'
+                                                    fontSize: 'var(--text-sm)'
                                                 }}>
                                                     Sem dados para este mês
                                                 </div>
@@ -515,7 +541,7 @@ const Dashboard = () => {
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-                            gap: '24px'
+                            gap: 'var(--space-4)'
                         }}>
                             {/* Top Clients */}
                             <ChartCard
@@ -535,7 +561,7 @@ const Dashboard = () => {
                                             {topClients.map((client, idx) => (
                                                 <Tr key={idx}>
                                                     <Td>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                                             <Link
                                                                 to={`/sales/client-records?id=${client.id}`}
                                                                 title="Ver Ficha"
@@ -557,7 +583,7 @@ const Dashboard = () => {
                                                                 </svg>
                                                             </Link>
                                                             <div>
-                                                                <div style={{ fontWeight: 'var(--font-semibold)', marginBottom: 'var(--space-1)' }}>{client.name}</div>
+                                                                <div style={{ fontWeight: 'var(--font-semibold)', marginBottom: 'var(--space-4)' }}>{client.name}</div>
                                                                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
                                                                     {client.vendor} <span style={{ opacity: 0.5 }}>|</span> {client.representative} <span style={{ opacity: 0.5 }}>|</span> ID: {client.id}
                                                                 </div>
@@ -592,7 +618,7 @@ const Dashboard = () => {
                                             {topVendors.map((vendor, idx) => (
                                                 <Tr key={idx}>
                                                     <Td>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                                             <div style={{
                                                                 width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px',
@@ -632,7 +658,7 @@ const Dashboard = () => {
                                             {topRepresentatives.map((rep, idx) => (
                                                 <Tr key={idx}>
                                                     <Td>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                                             <div style={{
                                                                 width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px',
@@ -663,31 +689,31 @@ const Dashboard = () => {
                     background-color: var(--bg-hover) !important;
                 }
             `}</style>
-        </div>
+        </div >
     );
 };
 
-const ChartCard = ({ title, children, action, headerBorderColor }) => (
-    <Card style={{ padding: '24px' }}>
+const ChartCard = ({ title, children, action }) => (
+    <Card style={{ padding: 0, borderRadius: 'var(--radius-sm)', boxShadow: "var(--shadow-sm)", background: 'var(--bg-card)' }}>
         <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 'var(--space-4)',
-            paddingBottom: headerBorderColor ? 'var(--space-3)' : '0',
-            borderBottom: headerBorderColor ? `2px solid ${headerBorderColor}` : 'none',
+            padding: 'var(--space-4) var(--space-6)',
+            borderBottom: '1px solid var(--border-color)',
         }}>
             <h3 style={{
-                fontSize: '11px',
-                fontWeight: '800',
-                color: 'var(--text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                margin: 0
+                fontSize: '14px',
+                fontWeight: 'var(--font-bold)',
+                color: 'var(--text-main)',
+                margin: 0,
+                letterSpacing: '0.01em',
             }}>{title}</h3>
             {action && action}
         </div>
-        {children}
+        <div style={{ padding: 'var(--space-6)' }}>
+            {children}
+        </div>
     </Card>
 );
 

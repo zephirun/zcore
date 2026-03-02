@@ -11,9 +11,9 @@ const ThemeSwitcher = ({ style }) => {
             className="ui-theme-switcher"
             aria-label="Toggle Dark Mode"
             style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
+                width: 'var(--space-8)',
+                height: 'var(--space-8)',
+                borderRadius: 'var(--space-2)',
                 border: '1px solid transparent',
                 background: 'transparent',
                 display: 'flex',
