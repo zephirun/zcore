@@ -162,7 +162,7 @@ const UserProfile = () => {
                             position: 'relative',
                             border: '1px solid var(--border-color)'
                         }}>
-{imagePreview || avatarUrl ? (
+                            {imagePreview || avatarUrl ? (
                                 <img
                                     src={imagePreview || avatarUrl}
                                     alt="Profile"
@@ -201,7 +201,7 @@ const UserProfile = () => {
                         </div>
                     </div>
                     <h2 style={{ margin: 0, color: 'var(--text-main)', fontSize: 'var(--text-3xl)', fontWeight: '800', letterSpacing: '-0.02em' }}>
-                        {formData.displayName || name}
+                        {watch('displayName') || name}
                     </h2>
                     <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 'var(--font-medium)' }}>
                         {userRole === 'admin' ? 'Administrador do Sistema' : 'Usuário'}
@@ -228,7 +228,7 @@ const UserProfile = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit(onFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto'}}>
+                <form onSubmit={handleSubmit(onFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto' }}>
                     <Input
                         label="Usuário (Login)"
                         type="text"
@@ -264,7 +264,7 @@ const UserProfile = () => {
                     />
 
                     <div style={{ marginTop: 'var(--space-3)', display: 'flex', gap: 'var(--space-4)' }}>
-<Button
+                        <Button
                             variant="ghost"
                             type="button"
                             onClick={() => navigate('/menu')}

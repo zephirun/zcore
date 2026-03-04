@@ -286,12 +286,17 @@ const Header = () => {
                                 {(AVAILABLE_UNITS.find(u => u.id === activeUnit)?.name || 'Selecione')}
                             </span>
                         </div>
+
                         {isUnitMenuOpen && (
-                            <div style={{ ...dropdownStyle, top: '46px', right: '0', width: '180px', padding: '6px' }}>
+                            <div style={{ ...dropdownStyle, top: '46px', right: '0', width: '200px', padding: '6px' }}>
                                 {AVAILABLE_UNITS.map(unit => (
                                     <div
                                         key={unit.id}
-                                        onClick={() => { switchUnit(unit.id); setIsUnitMenuOpen(false); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            switchUnit(unit.id);
+                                            setIsUnitMenuOpen(false);
+                                        }}
                                         style={{
                                             ...dropdownItemStyle,
                                             color: activeUnit === unit.id ? 'var(--text-main)' : 'var(--text-muted)',

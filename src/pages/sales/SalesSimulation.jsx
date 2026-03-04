@@ -4,7 +4,7 @@ import Input from '@/components/ui/Input';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '../../context/DataContext.jsx';
 import { useToast } from '../../context/ToastContext';
-import { RefreshCw, DollarSign, TrendingUp, Users, AlertCircle, Search, Sliders, RotateCcw, Target, Play, Save, CheckCircle, Trash2 } from 'lucide-react';
+import { RefreshCw, DollarSign, TrendingUp, Users, AlertCircle, Search, Sliders, RotateCcw, Target, Play, Save, CheckCircle, Trash2, Lock, Unlock } from 'lucide-react';
 import * as api from '../../services/api';
 import Filters from '../../components/Filters';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
@@ -13,9 +13,10 @@ import Skeleton from '../../components/ui/Skeleton';
 const SalesSimulation = () => {
     const { salesData, globalFilters, username, activeUnit, isSalesDataLoading, salesDataError } = useData();
     const [simulatedValues, setSimulatedValues] = useState({});
+    const [manualMonthlyGoal, setManualMonthlyGoal] = useState(0);
+    const [manualMarginGoal, setManualMarginGoal] = useState(0);
     const [growthScenario, setGrowthScenario] = useState(0);
     const [marginScenario, setMarginScenario] = useState(0);
-    const [directMarginScenario, setDirectMarginScenario] = useState(0);
     const [simulationName, setSimulationName] = useState('');
     const [savedSimulations, setSavedSimulations] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
@@ -25,48 +26,136 @@ const SalesSimulation = () => {
     const [showAIModal, setShowAIModal] = useState(false);
     const [saveStatus, setSaveStatus] = useState('idle');
     const [aiFilter, setAiFilter] = useState('all');
+    const [isLocked, setIsLocked] = useState(false);
+    const [globalLockedBy, setGlobalLockedBy] = useState(null);
+    const [repLockOverrides, setRepLockOverrides] = useState({});
 
-    // Load available simulations for this vendor
+    // Load available simulations for this vendor/representative
     const loadVersionsList = async () => {
-        if (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos') {
-            const list = await api.fetchSimulations(globalFilters.vendor, activeUnit);
+        const activeTarget = globalFilters.representative && globalFilters.representative !== 'Selecionar Todos'
+            ? globalFilters.representative
+            : (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' ? globalFilters.vendor : null);
+
+        if (activeTarget) {
+            const list = await api.fetchSimulations(activeTarget, activeUnit);
             setSavedSimulations(list);
+        } else {
+            setSavedSimulations([]);
         }
     };
 
-    // Load saved simulation when vendor is selected
+    // Load saved simulation when vendor or rep is selected
     useEffect(() => {
         const loadInitialSimulation = async () => {
-            if (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos') {
-                const list = await api.fetchSimulations(globalFilters.vendor, activeUnit);
+            const activeTarget = globalFilters.representative && globalFilters.representative !== 'Selecionar Todos'
+                ? globalFilters.representative
+                : (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' ? globalFilters.vendor : null);
+
+            if (activeTarget) {
+                const list = await api.fetchSimulations(activeTarget, activeUnit);
                 setSavedSimulations(list);
+
+                // --- Fetch Representative Locks ---
+                let localRepLocks = {};
+                if (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' && (!globalFilters.representative || globalFilters.representative === 'Selecionar Todos')) {
+                    const reps = [...new Set(salesData.filter(d => d.client?.vendor === activeTarget && d.client?.representative).map(d => d.client.representative))];
+                    if (reps.length > 0) {
+                        const repSimsList = await api.fetchSimulationsByVendors(reps, activeUnit);
+                        const latestRepSims = {};
+                        repSimsList.forEach(sim => {
+                            if (!latestRepSims[sim.vendor]) latestRepSims[sim.vendor] = sim;
+                        });
+
+                        Object.values(latestRepSims).forEach(sim => {
+                            if (sim.simulated_values) {
+                                const repIsGloballyLocked = sim.simulated_values.locked;
+                                const repGlobalLocker = sim.simulated_values.globalLockedBy || sim.username;
+
+                                Object.entries(sim.simulated_values).forEach(([clientId, clientData]) => {
+                                    if (clientId === 'globalGoal' || clientId === 'marginGoal' || clientId === 'locked' || clientId === 'globalLockedBy') return;
+
+                                    if (clientData.isLocked || repIsGloballyLocked) {
+                                        localRepLocks[clientId] = {
+                                            ...clientData,
+                                            isLocked: true,
+                                            lockedBy: clientData.lockedBy || repGlobalLocker,
+                                            isRepLock: true
+                                        };
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+                setRepLockOverrides(localRepLocks);
+                // ---------------------------------
 
                 // If there's a default/latest one, or just clear
                 if (list.length > 0) {
                     const latest = list[0];
-                    setSimulatedValues(latest.simulated_values || {});
+                    const baseVals = latest.simulated_values || {};
+                    const mergedVals = { ...baseVals, ...localRepLocks };
+
+                    setSimulatedValues(mergedVals);
                     setGrowthScenario(latest.growth_scenario || 0);
                     setMarginScenario(latest.margin_scenario || 0);
-                    setDirectMarginScenario(latest.direct_margin_scenario || 0);
                     setSimulationName(latest.version_name || '');
+
+                    if (latest.simulated_values?.globalGoal) {
+                        setManualMonthlyGoal(latest.simulated_values.globalGoal);
+                    }
+                    if (latest.simulated_values?.marginGoal !== undefined) {
+                        setManualMarginGoal(latest.simulated_values.marginGoal);
+                    }
+                    setIsLocked(latest.simulated_values?.locked || false);
+                    setGlobalLockedBy(latest.simulated_values?.globalLockedBy || null);
                 } else {
-                    setSimulatedValues({});
+                    setSimulatedValues({ ...localRepLocks });
                     setGrowthScenario(0);
                     setMarginScenario(0);
-                    setDirectMarginScenario(0);
                     setSimulationName('');
+                    setManualMonthlyGoal(0);
+                    setManualMarginGoal(0);
+                    setIsLocked(false);
+                }
+
+                // Load Rep/Vendor Goal from records
+                const repDb = await api.fetchRepRecords();
+                const record = repDb.find(r => r.rep_name === activeTarget);
+                if (record && record.monthly_goal) {
+                    setManualMonthlyGoal(record.monthly_goal);
+                } else {
+                    setManualMonthlyGoal(0);
+                }
+                if (record && record.margin_goal !== undefined) {
+                    setManualMarginGoal(record.margin_goal);
+                } else {
+                    setManualMarginGoal(0);
                 }
             }
         };
-        loadInitialSimulation();
-    }, [globalFilters.vendor, activeUnit]);
+
+        if (!isSalesDataLoading) {
+            loadInitialSimulation();
+        }
+    }, [globalFilters.vendor, globalFilters.representative, activeUnit, isSalesDataLoading, salesData]);
 
     const loadSpecificVersion = (version) => {
-        setSimulatedValues(version.simulated_values || {});
+        const baseVals = version.simulated_values || {};
+        const mergedVals = { ...baseVals, ...repLockOverrides };
+
+        setSimulatedValues(mergedVals);
         setGrowthScenario(version.growth_scenario || 0);
         setMarginScenario(version.margin_scenario || 0);
-        setDirectMarginScenario(version.direct_margin_scenario || 0);
         setSimulationName(version.version_name || '');
+        if (version.simulated_values?.globalGoal) {
+            setManualMonthlyGoal(version.simulated_values.globalGoal);
+        }
+        if (version.simulated_values?.marginGoal !== undefined) {
+            setManualMarginGoal(version.simulated_values.marginGoal);
+        }
+        setIsLocked(version.simulated_values?.locked || false);
+        setGlobalLockedBy(version.simulated_values?.globalLockedBy || null);
         setShowHistory(false);
     };
 
@@ -112,6 +201,8 @@ const SalesSimulation = () => {
                     name: clientName,
                     realizedRevenue: 0,
                     realizedMargin: 0,
+                    quarterRevenue: 0,
+                    quarterMargin: 0,
                     m2m3Revenue: 0,
                     m2m3Margin: 0,
                     basisRevenue: 0,
@@ -120,36 +211,43 @@ const SalesSimulation = () => {
             }
 
             const availableMonths = item.months || [];
+
+            // Target the last available month (M1) as the current month
             const m1 = availableMonths[0] || { amount: 0, margin_percent: 0 };
             const m2 = availableMonths[1] || { amount: 0, margin_percent: 0 };
             const m3 = availableMonths[2] || { amount: 0, margin_percent: 0 };
 
-            const revenueM1M2M3 = (m1.amount || 0) + (m2.amount || 0) + (m3.amount || 0);
-            const marginM1M2M3 =
-                ((m1.amount * (m1.margin_percent / 100)) || 0) +
-                ((m2.amount * (m2.margin_percent / 100)) || 0) +
-                ((m3.amount * (m3.margin_percent / 100)) || 0);
+            const revenueM1 = m1.amount || 0;
+            const marginM1 = (m1.amount * (m1.margin_percent / 100)) || 0;
+            const deadline = item.total?.deadline || 0;
 
-            const revenueM2M3 = (m2.amount || 0) + (m3.amount || 0);
-            const marginM2M3 =
-                ((m2.amount * (m2.margin_percent / 100)) || 0) +
-                ((m3.amount * (m3.margin_percent / 100)) || 0);
+            const revenueM2 = m2.amount || 0;
+            const marginM2 = (m2.amount * (m2.margin_percent / 100)) || 0;
 
-            clientMap[clientId].realizedRevenue += revenueM1M2M3;
-            clientMap[clientId].realizedMargin += marginM1M2M3;
-            clientMap[clientId].m2m3Revenue += revenueM2M3;
-            clientMap[clientId].m2m3Margin += marginM2M3;
+            const revenueM3 = m3.amount || 0;
+            const marginM3 = (m3.amount * (m3.margin_percent / 100)) || 0;
+
+            clientMap[clientId].realizedRevenue += revenueM1;
+            clientMap[clientId].realizedMargin += marginM1;
+
+            clientMap[clientId].quarterRevenue += (revenueM1 + revenueM2 + revenueM3);
+            clientMap[clientId].quarterMargin += (marginM1 + marginM2 + marginM3);
+
+            // Weighted sum for deadline calculation
+            clientMap[clientId].weightedDeadlineSum = (clientMap[clientId].weightedDeadlineSum || 0) + (revenueM1 * deadline);
         });
 
         const list = Object.values(clientMap).map(c => {
-            const basisRevenue = Math.round((c.realizedRevenue / 3) * 100) / 100;
-            const avgMarginRatio = c.realizedRevenue ? (c.realizedMargin / c.realizedRevenue) : 0;
+            const basisRevenue = c.quarterRevenue / 3; // Basis is 3-month average
+            const avgMarginRatio = c.quarterRevenue ? (c.quarterMargin / c.quarterRevenue) : 0;
+            const avgDeadline = c.realizedRevenue ? (c.weightedDeadlineSum / c.realizedRevenue) : 0;
             const basisMargin = Math.round(avgMarginRatio * 10000) / 100;
 
             return {
                 ...c,
                 basisRevenue,
                 basisMargin,
+                avgDeadline,
                 realizedMarginPct: c.realizedRevenue ? (c.realizedMargin / c.realizedRevenue) * 100 : 0
             };
         });
@@ -165,16 +263,20 @@ const SalesSimulation = () => {
     }, [filteredData, globalFilters.ranking]);
 
     const totals = useMemo(() => {
-        let totalRealizedRevenue = 0;
-        let totalRealizedMargin = 0;
-        let totalBasisRevenue = 0;
-        let totalProjectedRevenue = 0;
-        let totalProjectedMargin = 0;
+        const totalRealizedQuarterRevenue = clients.reduce((acc, curr) => acc + curr.quarterRevenue, 0);
+        const totalRealizedQuarterMargin = clients.reduce((acc, curr) => acc + curr.quarterMargin, 0);
 
-        clients.forEach(client => {
-            totalRealizedRevenue += client.realizedRevenue;
-            totalRealizedMargin += client.realizedMargin;
-            totalBasisRevenue += client.basisRevenue;
+        const totalRealizedRevenue = clients.reduce((acc, curr) => acc + curr.basisRevenue, 0);
+        const totalRealizedMargin = clients.reduce((acc, curr) => acc + (curr.basisRevenue * (curr.realizedMarginPct / 100)), 0);
+        const globalBasisMarginPct = totalRealizedRevenue ? (totalRealizedMargin / totalRealizedRevenue) * 100 : 0;
+
+        let marginDeltaPreview = marginScenario; // Default to point slider
+        if (manualMarginGoal > 0) {
+            marginDeltaPreview = manualMarginGoal - globalBasisMarginPct;
+        }
+
+        const clientData = clients.map(client => {
+            let totalBasisRevenue = client.basisRevenue;
 
             // Check for individual overrides in simulatedValues
             const hasOverride = !!simulatedValues[client.id];
@@ -186,28 +288,50 @@ const SalesSimulation = () => {
             } else {
                 // Apply global scenarios to basis for real-time totals
                 simRev = client.basisRevenue * (1 + (growthScenario / 100));
-
-                if (directMarginScenario > 0) {
-                    simMarg = directMarginScenario;
-                } else {
-                    simMarg = client.basisMargin + marginScenario;
-                }
+                simMarg = client.basisMargin + marginDeltaPreview;
             }
-
-            totalProjectedRevenue += simRev;
-            totalProjectedMargin += (simRev * (simMarg / 100));
+            return {
+                ...client,
+                projectedRevenue: simRev,
+                projectedMarginPct: simMarg
+            };
         });
 
+        // Compute totals globally
+        const realizedRevenue = totalRealizedRevenue;
+        const realizedMargin = totalRealizedMargin;
+
+        // Projected defaults to goal if input, otherwise sum of clients
+        const clientsProjectedRevenue = clientData.reduce((acc, curr) => acc + curr.projectedRevenue, 0);
+        const projectedRevenue = manualMonthlyGoal > 0 ? manualMonthlyGoal : clientsProjectedRevenue;
+
+        // Spread margin goal: calculate absolute margin from all clients' projected margins, then find the weighted average again.
+        // If manual margin goal is set, it overrides the global weighted total
+        let projectedMargin;
+        if (manualMarginGoal > 0) {
+            projectedMargin = projectedRevenue * (manualMarginGoal / 100);
+        } else {
+            projectedMargin = clientData.reduce((acc, curr) => {
+                const weight = clientsProjectedRevenue > 0 ? (curr.projectedRevenue / clientsProjectedRevenue) : 0;
+                const adjustedClientRev = manualMonthlyGoal > 0 ? (manualMonthlyGoal * weight) : curr.projectedRevenue;
+                return acc + (adjustedClientRev * (curr.projectedMarginPct / 100));
+            }, 0);
+        }
+
+        const totalBasisRevenueAll = clientData.reduce((acc, curr) => acc + curr.basisRevenue, 0);
+
         return {
-            realizedRevenue: totalRealizedRevenue,
-            realizedMargin: totalRealizedMargin,
-            realizedMarginPct: totalRealizedRevenue ? (totalRealizedMargin / totalRealizedRevenue) * 100 : 0,
-            projectedRevenue: totalProjectedRevenue,
-            projectedMargin: totalProjectedMargin,
-            projectedMarginPct: totalProjectedRevenue ? (totalProjectedMargin / totalProjectedRevenue) * 100 : 0,
-            diffRevenue: totalBasisRevenue ? ((totalProjectedRevenue / totalBasisRevenue) - 1) * 100 : 0
+            quarterRevenue: totalRealizedQuarterRevenue,
+            quarterMarginPct: totalRealizedQuarterRevenue ? (totalRealizedQuarterMargin / totalRealizedQuarterRevenue) * 100 : 0,
+            realizedRevenue: realizedRevenue,
+            realizedMargin: realizedMargin,
+            realizedMarginPct: realizedRevenue ? (realizedMargin / realizedRevenue) * 100 : 0,
+            projectedRevenue: projectedRevenue,
+            projectedMargin: projectedMargin,
+            projectedMarginPct: projectedRevenue ? (projectedMargin / projectedRevenue) * 100 : 0,
+            diffRevenue: totalBasisRevenueAll ? ((projectedRevenue / totalBasisRevenueAll) - 1) * 100 : 0
         };
-    }, [clients, simulatedValues, growthScenario, marginScenario, directMarginScenario]);
+    }, [clients, simulatedValues, growthScenario, marginScenario, manualMonthlyGoal, manualMarginGoal]);
 
     // AI advisor engine removed to adhere to Fiori ERP standards.
     const aiInsights = null;
@@ -237,18 +361,17 @@ const SalesSimulation = () => {
     const handleInputChange = (clientId, field, value) => {
         let newValue = value;
 
+        // Prevent modification if locked by someone else
+        const currentSim = simulatedValues[clientId];
+        if (currentSim?.isLocked && currentSim?.lockedBy !== username && isLocked) {
+            return; // Or show a toast
+        }
+
         if (field === 'revenue') {
             newValue = parseBRLInput(value);
         } else if (field === 'margin') {
-            // Handle comma to dot for internal processing
-            let normalized = value.replace(',', '.');
-            // If typing a separator or minus, keep as string
-            if (normalized.endsWith('.') || normalized === '' || normalized === '-') {
-                newValue = normalized;
-            } else {
-                const parsed = parseFloat(normalized);
-                newValue = isNaN(parsed) ? 0 : parsed;
-            }
+            // Keep as string during typing to avoid coordinate issues and trailing zero deletions
+            newValue = value;
         }
 
         setSimulatedValues(prev => {
@@ -267,15 +390,100 @@ const SalesSimulation = () => {
         });
     };
 
+    const toggleClientLock = (clientId) => {
+        if (!isOwnerOrRep) return; // Only owner/rep can toggle locks
+
+        setSimulatedValues(prev => {
+            const client = clients.find(c => c.id === clientId);
+            const basisRevenue = client ? client.basisRevenue : 0;
+            const basisMargin = client ? client.basisMargin : 0;
+
+            const current = prev[clientId] || { revenue: basisRevenue, margin: basisMargin };
+            const isCurrentlyLocked = current.isLocked;
+
+            return {
+                ...prev,
+                [clientId]: {
+                    ...current,
+                    isLocked: !isCurrentlyLocked,
+                    lockedBy: !isCurrentlyLocked ? username : null
+                }
+            };
+        });
+    };
+
+    const handleGlobalLockToggle = () => {
+        if (!isOwnerOrRep) return;
+
+        if (isLocked && globalLockedBy && globalLockedBy !== username) {
+            toast.error("Esta simulação foi travada por outro usuário.");
+            return;
+        }
+
+        const willBeLocked = !isLocked;
+        setIsLocked(willBeLocked);
+        setGlobalLockedBy(willBeLocked ? username : null);
+
+        setSimulatedValues(prev => {
+            const nextVals = { ...prev };
+            // Apply the global lock state to all currently filtered clients
+            clients.forEach(client => {
+                const currentSim = nextVals[client.id] || {
+                    revenue: client.basisRevenue,
+                    margin: client.basisMargin
+                };
+
+                nextVals[client.id] = {
+                    ...currentSim,
+                    isLocked: willBeLocked,
+                    lockedBy: willBeLocked ? username : null
+                };
+            });
+            return nextVals;
+        });
+    };
+
     const applyScenarios = () => {
         setIsSimulating(true);
         setTimeout(() => {
             const newSimulatedValues = {};
+
+            // Calc total base revenue first to get weights
+            const totalBaseRevenue = clients.reduce((acc, c) => acc + c.basisRevenue, 0);
+            const totalBaseMargin = clients.reduce((acc, curr) => acc + (curr.basisRevenue * (curr.realizedMarginPct / 100)), 0);
+            const globalBaseMarginPct = totalBaseRevenue ? (totalBaseMargin / totalBaseRevenue) * 100 : 0;
+
+            let marginDelta = marginScenario;
+            if (manualMarginGoal > 0) {
+                marginDelta = manualMarginGoal - globalBaseMarginPct;
+            }
+
             clients.forEach(client => {
-                const baseMargin = directMarginScenario > 0 ? directMarginScenario : client.basisMargin;
+                const currentSim = simulatedValues[client.id] || {};
+
+                // If the client is locked, preserve their current values
+                if (currentSim.isLocked) {
+                    newSimulatedValues[client.id] = { ...currentSim };
+                    return;
+                }
+
+                let simRev = client.basisRevenue * (1 + growthScenario / 100);
+
+                // If a manual revenue goal is set, distribute it proportionally based on basis revenue weight
+                // Note: In a fully advanced system, we'd subtract locked revenues from the total goal first,
+                // but for proportional distribution, applying to unlocked is the standard MVP approach.
+                if (manualMonthlyGoal > 0 && totalBaseRevenue > 0) {
+                    const weight = client.basisRevenue / totalBaseRevenue;
+                    simRev = manualMonthlyGoal * weight;
+                }
+
+                let simMarg = client.basisMargin + marginDelta;
+
                 newSimulatedValues[client.id] = {
-                    revenue: client.basisRevenue * (1 + growthScenario / 100),
-                    margin: Math.max(0, baseMargin + marginScenario)
+                    revenue: simRev,
+                    margin: parseFloat(Math.max(0, simMarg).toFixed(2)),
+                    isLocked: false,
+                    lockedBy: null
                 };
             });
             setSimulatedValues(newSimulatedValues);
@@ -287,24 +495,43 @@ const SalesSimulation = () => {
         setSimulatedValues({});
         setGrowthScenario(0);
         setMarginScenario(0);
-        setDirectMarginScenario(0);
         setShowAIModal(false);
     };
 
     const handleSave = async () => {
-        if (!globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos') return;
         setSaveStatus('saving');
+
+        const activeTarget = globalFilters.representative && globalFilters.representative !== 'Selecionar Todos'
+            ? globalFilters.representative
+            : (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' ? globalFilters.vendor : 'Global');
+
         const simulationData = {
             username,
-            vendor: globalFilters.vendor,
+            vendor: activeTarget,
             unit: activeUnit,
-            versionName: simulationName || 'Padrão', // Use the input name
-            simulatedValues,
+            versionName: simulationName || 'Padrão',
+            simulatedValues: {
+                ...simulatedValues,
+                globalGoal: manualMonthlyGoal,
+                marginGoal: manualMarginGoal,
+                locked: isLocked,
+                globalLockedBy: isLocked ? (globalLockedBy || username) : null
+            },
             growthScenario,
-            marginScenario,
-            directMarginScenario
+            marginScenario
         };
         const result = await api.saveSimulation(simulationData);
+
+        // Also save the Goal to the Rep Records
+        if (activeTarget !== 'Global' && (manualMonthlyGoal > 0 || manualMarginGoal > 0)) {
+            await api.saveRepRecord({
+                repName: activeTarget,
+                monthlyGoal: manualMonthlyGoal,
+                marginGoal: manualMarginGoal,
+                observations: ''
+            });
+        }
+
         if (result.success) {
             setSaveStatus('success');
             loadVersionsList(); // Refresh the list after saving
@@ -321,6 +548,14 @@ const SalesSimulation = () => {
             (globalFilters.representative && globalFilters.representative !== 'Selecionar Todos') ||
             (globalFilters.client && globalFilters.client !== 'Selecionar Todos');
     }, [globalFilters]);
+
+    // Check if the current user is the owner (can lock/unlock) OR if it is locked and they are forced into read-only
+    const activeTargetDisplay = globalFilters.representative && globalFilters.representative !== 'Selecionar Todos'
+        ? globalFilters.representative
+        : (globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' ? globalFilters.vendor : null);
+
+    const isOwnerOrRep = !!activeTargetDisplay;
+    const isReadOnly = isLocked && globalLockedBy && globalLockedBy !== username;
 
     return (
         <div style={{ background: 'var(--bg-main)', minHeight: '100vh' }}>
@@ -362,7 +597,7 @@ const SalesSimulation = () => {
                         {/* KPI Section */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(4, 1fr)',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
                             gap: 'var(--space-4)',
                             padding: '0 40px 24px 40px',
                             marginTop: '10px'
@@ -376,11 +611,11 @@ const SalesSimulation = () => {
                                 borderLeft: '3px solid var(--color-primary)',
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
-                                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Faturamento Realizado</span>
+                                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Faturamento Realizado (Trimestre)</span>
                                     <DollarSign size={14} color="var(--color-primary)" />
                                 </div>
-                                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.realizedRevenue)}</div>
-                                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 'var(--font-semibold)', marginTop: 'var(--space-1)' }}>Margem: {formatPercent(totals.realizedMarginPct || 0)}</div>
+                                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatCurrency(totals.quarterRevenue)}</div>
+                                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 'var(--font-semibold)', marginTop: 'var(--space-1)' }}>Margem: {formatPercent(totals.quarterMarginPct || 0)}</div>
                             </div>
 
                             <div style={{
@@ -424,151 +659,246 @@ const SalesSimulation = () => {
                                 </div>
                                 <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)' }}>{formatPercent(totals.projectedMarginPct)}</div>
                             </div>
-
-                            <div style={{
-                                background: 'var(--bg-card)',
-                                padding: 'var(--space-4)',
-                                borderRadius: 'var(--radius-sm)',
-                                boxShadow: 'var(--shadow-sm)',
-                                border: '1px solid var(--border-color)',
-                                borderLeft: '3px solid var(--color-purple, #8b5cf6)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                gap: 'var(--space-4)'
-                            }}>
-                                <Input
-                                    type="text"
-                                    placeholder="Nome da Versão"
-                                    value={simulationName}
-                                    onChange={(e) => setSimulationName(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        background: 'var(--bg-input)',
-                                        border: '1px solid var(--border-color)',
-                                        borderRadius: 'var(--space-4)',
-                                        color: 'var(--text-main)',
-                                        fontSize: 'var(--text-sm)',
-                                        fontWeight: 'var(--font-semibold)',
-                                        outline: 'none'
-                                    }}
-                                />
-                                <div style={{ display: 'flex', gap: 'var(--space-4)', width: '100%' }}>
-                                    <Button
-                                        onClick={handleSave}
-                                        disabled={saveStatus === 'saving'}
-                                        style={{
-                                            flex: 2,
-                                            padding: '10px',
-                                            background: saveStatus === 'success' ? 'var(--color-success)' : (saveStatus === 'error' ? 'var(--color-error)' : 'var(--color-primary)'),
-                                            color: 'var(--bg-main)',
-                                            border: 'none',
-                                            borderRadius: 'var(--radius-sm)',
-                                            fontWeight: 'var(--font-bold)',
-                                            fontSize: '13px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: 'var(--space-4)',
-                                            cursor: 'pointer',
-                                            transition: 'background 0.3s',
-                                        }}
-                                    >
-                                        {saveStatus === 'saving' ? <RefreshCw size={16} className="animate-spin" /> : saveStatus === 'success' ? <CheckCircle size={16} /> : <Save size={16} />}
-                                        {saveStatus === 'saving' ? 'Salvando...' : saveStatus === 'success' ? 'Salvo!' : 'Salvar'}
-                                    </Button>
-                                    <Button
-                                        onClick={() => setShowHistory(true)}
-                                        style={{
-                                            flex: 1,
-                                            padding: '10px',
-                                            background: 'var(--bg-input)',
-                                            color: 'var(--text-main)',
-                                            border: '1px solid var(--border-color)',
-                                            borderRadius: 'var(--radius-sm)',
-                                            fontWeight: 'var(--font-bold)',
-                                            fontSize: '13px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: 'var(--space-4)',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        <RotateCcw size={16} />
-                                    </Button>
-                                </div>
-                            </div>
                         </div>
 
-                        {/* Global Simulator Panel */}
-                        <div style={{ padding: '0 40px 24px 40px' }}>
-                            <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-color)', padding: 'var(--space-6)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                                        <div style={{ width: '36px', height: '36px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
-                                            <Sliders size={18} />
-                                        </div>
-                                        <div>
-                                            <h3 style={{ margin: 0, fontSize: 'var(--text-base)', fontWeight: 'var(--font-bold)', letterSpacing: '-0.02em' }}>Simulador Global</h3>
-                                            <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Aplique cenários em todos os clientes filtrados</p>
-                                        </div>
-                                    </div>
-                                </div >
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
-                                    <div style={{ background: 'var(--bg-input)', padding: 'var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
-                                        <div style={{ marginBottom: 'var(--space-4)' }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-                                                <label style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)' }}>Cenário de Crescimento (%)</label>
-                                                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: growthScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{growthScenario >= 0 ? '+' : ''}{growthScenario}%</span>
+                        {/* Global Simulator Panel & Side Actions */}
+                        <div style={{ padding: '0 40px 24px 40px', display: 'grid', gridTemplateColumns: '800px 320px', gap: 'var(--space-4)', justifyContent: 'center' }}>
+                            {/* Left: Settings */}
+                            <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-color)', padding: 'var(--space-5)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                            <div style={{ width: '36px', height: '36px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}>
+                                                <Sliders size={18} />
                                             </div>
-                                            <Input
-                                                type="range" min="-30" max="100" value={growthScenario}
-                                                onChange={(e) => setGrowthScenario(parseInt(e.target.value))}
-                                                style={{ width: '100%', height: 'var(--space-1)', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', outline: 'none' }}
-                                            />
+                                            <div>
+                                                <h3 style={{ margin: 0, fontSize: 'var(--text-base)', fontWeight: 'var(--font-bold)', letterSpacing: '-0.02em', color: 'var(--text-main)' }}>Simulador Global</h3>
+                                                <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Aplique cenários em todos os clientes filtrados</p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'var(--bg-input)', padding: 'var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
-                                        <div style={{ marginBottom: 'var(--space-4)' }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-                                                <label style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)' }}>Configurar Margem Direta (%)</label>
-                                                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: 'var(--color-info, #3b82f6)' }}>{directMarginScenario > 0 ? `${directMarginScenario}%` : 'Usar Base'}</span>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', marginBottom: 'var(--space-5)' }}>
+                                        {/* Sliders Row */}
+                                        <div style={{ background: 'var(--bg-input)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
+                                            <div style={{ marginBottom: 'var(--space-1)' }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+                                                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Crescimento (%)</label>
+                                                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: growthScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{growthScenario >= 0 ? '+' : ''}{growthScenario}%</span>
+                                                </div>
+                                                <Input
+                                                    type="range" min="-30" max="100" value={growthScenario}
+                                                    onChange={(e) => setGrowthScenario(parseInt(e.target.value))}
+                                                    style={{ width: '100%', height: '4px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', outline: 'none' }}
+                                                />
                                             </div>
-                                            <Input
-                                                type="range" min="0" max="50" step="0.5" value={directMarginScenario}
-                                                onChange={(e) => setDirectMarginScenario(parseFloat(e.target.value))}
-                                                style={{ width: '100%', height: 'var(--space-1)', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', outline: 'none' }}
-                                            />
-                                            <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>{directMarginScenario > 0 ? 'Sobrequescreve a margem base de todos os clientes.' : 'Mantém a margem histórica de cada cliente.'}</p>
                                         </div>
-                                    </div>
 
-                                    <div style={{ background: 'var(--bg-input)', padding: 'var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
-                                        <div style={{ marginBottom: 'var(--space-4)' }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-                                                <label style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)' }}>Ajuste de Margem (Pontos %)</label>
-                                                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: marginScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{marginScenario >= 0 ? '+' : ''}{marginScenario}%</span>
+                                        <div style={{ background: 'var(--bg-input)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
+                                            <div style={{ marginBottom: 'var(--space-1)' }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+                                                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ajuste Margem (pontos %)</label>
+                                                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-bold)', color: marginScenario >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>{marginScenario >= 0 ? '+' : ''}{marginScenario}%</span>
+                                                </div>
+                                                <Input
+                                                    type="range" min="-10" max="15" value={marginScenario}
+                                                    onChange={(e) => setMarginScenario(parseInt(e.target.value))}
+                                                    style={{ width: '100%', height: '4px', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', outline: 'none' }}
+                                                />
                                             </div>
-                                            <Input
-                                                type="range" min="-10" max="15" value={marginScenario}
-                                                onChange={(e) => setMarginScenario(parseInt(e.target.value))}
-                                                style={{ width: '100%', height: 'var(--space-1)', background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', outline: 'none' }}
-                                            />
+                                        </div>
+
+                                        {/* Metas Row */}
+                                        <div style={{ background: 'var(--bg-input)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Meta do Mês</label>
+                                                </div>
+                                                <Input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    value={formatBRLInput(manualMonthlyGoal)}
+                                                    onChange={(e) => setManualMonthlyGoal(parseBRLInput(e.target.value))}
+                                                    disabled={isReadOnly}
+                                                    placeholder="R$ 0,00"
+                                                    style={{
+                                                        width: '100%', padding: '8px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontSize: '14px', fontWeight: 'var(--font-bold)', outline: 'none',
+                                                        opacity: isReadOnly ? 0.7 : 1, cursor: isReadOnly ? 'not-allowed' : 'text'
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ background: 'var(--bg-input)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-sm)' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Meta Margem %</label>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
+                                                    <Input
+                                                        type="text"
+                                                        inputMode="decimal"
+                                                        value={manualMarginGoal !== undefined && manualMarginGoal !== null
+                                                            ? (typeof manualMarginGoal === 'string'
+                                                                ? manualMarginGoal.replace('.', ',')
+                                                                : manualMarginGoal.toString().replace('.', ','))
+                                                            : '0,00'
+                                                        }
+                                                        onChange={(e) => {
+                                                            const val = e.target.value.replace('.', ',');
+                                                            if (/^-?\d*,?\d*$/.test(val)) {
+                                                                setManualMarginGoal(val);
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            const val = e.target.value.replace(',', '.');
+                                                            const parsed = parseFloat(val);
+                                                            if (!isNaN(parsed)) {
+                                                                setManualMarginGoal(parsed.toFixed(2));
+                                                            }
+                                                        }}
+                                                        disabled={isReadOnly}
+                                                        placeholder="0,00"
+                                                        style={{
+                                                            width: '100%', padding: '8px 10px', background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: '14px', fontWeight: 'var(--font-bold)', outline: 'none',
+                                                            opacity: isReadOnly ? 0.7 : 1, cursor: isReadOnly ? 'not-allowed' : 'text', textAlign: 'right'
+                                                        }}
+                                                    />
+                                                    <span style={{ fontSize: '14px', fontWeight: 'var(--font-bold)', color: 'var(--text-muted)', paddingRight: '12px' }}>%</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-                                    <Button onClick={clearScenarios} style={{ padding: '10px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 'var(--font-bold)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                    <Button onClick={clearScenarios} disabled={isSimulating || isReadOnly} style={{ padding: '10px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 'var(--font-bold)', cursor: isReadOnly ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-4)', opacity: isReadOnly ? 0.5 : 1 }}>
                                         <RotateCcw size={16} /> Resetar
                                     </Button>
-                                    <Button onClick={applyScenarios} disabled={isSimulating} style={{ minWidth: '200px', padding: '10px 24px', background: 'var(--color-primary)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'var(--bg-main)', fontSize: '13px', fontWeight: 'var(--font-bold)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-4)' }}>
+                                    <Button onClick={applyScenarios} disabled={isSimulating || isReadOnly} style={{ padding: '10px 24px', background: 'var(--text-main)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'var(--bg-main)', fontSize: '13px', fontWeight: 'var(--font-bold)', cursor: isReadOnly ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-4)', opacity: isReadOnly ? 0.5 : 1 }}>
                                         {isSimulating ? <RefreshCw size={16} className="animate-spin" /> : <Play size={16} />} Aplicar Cenários
                                     </Button>
+                                </div>
+                            </div>
+
+                            {/* Right: Saving */}
+                            <div style={{
+                                background: 'var(--bg-card)',
+                                padding: 'var(--space-5)',
+                                borderRadius: 'var(--radius-sm)',
+                                boxShadow: 'var(--shadow-sm)',
+                                border: '1px solid var(--border-color)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 'var(--space-5)',
+                                justifyContent: 'center'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: '-10px' }}>
+                                    <Save size={16} color="var(--text-muted)" />
+                                    <h4 style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Salvar Simulação</h4>
+                                </div>
+                                <div style={{ height: '1px', background: 'var(--border-color)' }}></div>
+
+
+                                {/* Save Section */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                    <Input
+                                        type="text"
+                                        placeholder="Nome da Versão"
+                                        value={simulationName}
+                                        onChange={(e) => setSimulationName(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 12px',
+                                            background: 'var(--bg-input)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: 'var(--space-4)',
+                                            color: 'var(--text-main)',
+                                            fontSize: 'var(--text-sm)',
+                                            fontWeight: 'var(--font-semibold)',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                    <div style={{ display: 'flex', gap: 'var(--space-4)', width: '100%' }}>
+                                        <Button
+                                            onClick={handleSave}
+                                            disabled={saveStatus === 'saving' || isReadOnly}
+                                            style={{
+                                                flex: 2,
+                                                padding: '10px',
+                                                background: saveStatus === 'success' ? 'var(--color-success)' : (saveStatus === 'error' ? 'var(--color-error)' : 'var(--text-main)'),
+                                                color: 'var(--bg-main)',
+                                                border: 'none',
+                                                borderRadius: 'var(--radius-sm)',
+                                                fontWeight: 'var(--font-bold)',
+                                                fontSize: '13px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 'var(--space-4)',
+                                                cursor: isReadOnly ? 'not-allowed' : 'pointer',
+                                                transition: 'background 0.3s',
+                                                opacity: isReadOnly ? 0.5 : 1
+                                            }}
+                                        >
+                                            {saveStatus === 'saving' ? <RefreshCw size={16} className="animate-spin" /> : saveStatus === 'success' ? <CheckCircle size={16} /> : <Save size={16} />}
+                                            {saveStatus === 'saving' ? 'Salvando...' : saveStatus === 'success' ? 'Salvo!' : 'Salvar'}
+                                        </Button>
+
+                                        {isOwnerOrRep && (
+                                            <Button
+                                                onClick={handleGlobalLockToggle}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '10px',
+                                                    background: isLocked ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-input)',
+                                                    color: isLocked ? 'var(--color-error)' : 'var(--text-muted)',
+                                                    border: `1px solid ${isLocked ? 'var(--color-error)' : 'var(--border-color)'}`,
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    fontWeight: 'var(--font-bold)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: '8px',
+                                                    cursor: (isLocked && globalLockedBy && globalLockedBy !== username) ? 'not-allowed' : 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    opacity: (isLocked && globalLockedBy && globalLockedBy !== username) ? 0.6 : 1
+                                                }}
+                                                disabled={isLocked && globalLockedBy && globalLockedBy !== username}
+                                                title={isLocked ? `Travado por: ${globalLockedBy || 'Desconhecido'}` : "Travar Simulação"}
+                                            >
+                                                {isLocked ? <Lock size={16} /> : <Unlock size={16} />}
+                                            </Button>
+                                        )}
+
+                                        <Button
+                                            onClick={() => setShowHistory(true)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px',
+                                                background: 'var(--bg-input)',
+                                                color: 'var(--text-main)',
+                                                border: '1px solid var(--border-color)',
+                                                borderRadius: 'var(--radius-sm)',
+                                                fontWeight: 'var(--font-bold)',
+                                                fontSize: '13px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 'var(--space-4)',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            <RotateCcw size={16} />
+                                        </Button>
+                                    </div>
+
+                                    {isReadOnly && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--color-error)', background: 'rgba(239, 68, 68, 0.1)', padding: '8px 12px', borderRadius: '4px', marginTop: '4px' }}>
+                                            <Lock size={14} />
+                                            Esta simulação foi travada pelo Representante (Apenas Leitura).
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -695,7 +1025,7 @@ const SalesSimulation = () => {
                                 <div style={{ padding: 'var(--space-5)', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                         <Users size={18} color="var(--text-muted)" />
-                                        <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: '800' }}>Projeção Trimestral Móvel</h3>
+                                        <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: '800' }}>Projeção de Clientes (Base: Média 3 meses)</h3>
                                     </div>
                                 </div>
 
@@ -704,11 +1034,12 @@ const SalesSimulation = () => {
                                         <thead>
                                             <tr style={{ background: 'rgba(0,0,0,0.1)' }}>
                                                 <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cliente</th>
-                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'right' }}>Faturamento Realizado</th>
-                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-info)', textTransform: 'uppercase', textAlign: 'right' }}>Margem Realizada</th>
+                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'right' }}>Média Fat. (3 meses)</th>
+                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-info)', textTransform: 'uppercase', textAlign: 'right' }}>Média Margem (3 meses)</th>
+                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-error)', textTransform: 'uppercase', textAlign: 'right' }}>Prazo Médio</th>
                                                 <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-warning)', textTransform: 'uppercase', textAlign: 'right' }}>{projectionMonthName} (Projetado)</th>
                                                 <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-success)', textTransform: 'uppercase', textAlign: 'right' }}>Margem Proj. (%)</th>
-                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-primary)', textTransform: 'uppercase', textAlign: 'right' }}>Diferença vs Média</th>
+                                                <th style={{ padding: '15px 20px', fontSize: 'var(--text-xs)', fontWeight: '800', color: 'var(--color-primary)', textTransform: 'uppercase', textAlign: 'right' }}>Diferença vs Base</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -719,28 +1050,63 @@ const SalesSimulation = () => {
                                                 };
                                                 const projectedRolling = client.m2m3Revenue + (simulation.revenue || 0);
 
+                                                const isVendorView = globalFilters.vendor && globalFilters.vendor !== 'Selecionar Todos' && (!globalFilters.representative || globalFilters.representative === 'Selecionar Todos');
+                                                const isClientLocked = simulation.isLocked;
+                                                const isClientReadOnly = isReadOnly || (isClientLocked && (simulation.lockedBy !== username || (isVendorView && simulation.isRepLock)));
+
                                                 return (
-                                                    <tr key={client.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
+                                                    <tr key={client.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s', background: isClientLocked ? 'rgba(231, 76, 60, 0.02)' : 'transparent' }}>
                                                         <td style={{ padding: '15px 20px' }}>
-                                                            <div style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>{client.name}</div>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                                                <div style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--font-bold)', color: 'var(--text-main)' }}>{client.name}</div>
+                                                                {isClientLocked && (
+                                                                    <div title={`Travado por: ${simulation.lockedBy || 'Desconhecido'}`} style={{ display: 'flex', alignItems: 'center', color: 'var(--color-error)' }}>
+                                                                        <Lock size={12} />
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                                                 ID: {client.id}
                                                             </div>
                                                         </td>
-                                                        <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 'var(--font-semibold)' }}>{formatCurrency(client.realizedRevenue)}</td>
+                                                        <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 'var(--font-semibold)' }}>{formatCurrency(client.basisRevenue)}</td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 'var(--font-semibold)', color: '#3498db' }}>{formatPercent(client.realizedMarginPct)}</td>
+                                                        <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 'var(--font-semibold)', color: 'var(--color-error)' }}>{client.avgDeadline ? `${client.avgDeadline.toFixed(0)} dias` : '-'}</td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right' }}>
-                                                            <Input
-                                                                type="text"
-                                                                inputMode="numeric"
-                                                                value={formatBRLInput(simulation.revenue)}
-                                                                onChange={(e) => handleInputChange(client.id, 'revenue', e.target.value)}
-                                                                style={{
-                                                                    width: '180px', textAlign: 'right', padding: '8px 12px',
-                                                                    background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                                                                    borderRadius: 'var(--radius-sm)', color: 'var(--color-warning)', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)'
-                                                                }}
-                                                            />
+                                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                                                                {isOwnerOrRep && (!isClientLocked || (simulation.lockedBy === username && !(isVendorView && simulation.isRepLock))) && (
+                                                                    <button
+                                                                        onClick={() => toggleClientLock(client.id)}
+                                                                        title={isClientLocked ? "Destravar Cliente" : "Travar Cliente"}
+                                                                        style={{
+                                                                            background: 'none',
+                                                                            border: 'none',
+                                                                            cursor: 'pointer',
+                                                                            color: isClientLocked ? 'var(--color-error)' : 'var(--text-muted)',
+                                                                            padding: '4px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            transition: 'color 0.2s'
+                                                                        }}
+                                                                    >
+                                                                        {isClientLocked ? <Lock size={14} /> : <Unlock size={14} />}
+                                                                    </button>
+                                                                )}
+                                                                <Input
+                                                                    type="text"
+                                                                    inputMode="numeric"
+                                                                    value={formatBRLInput(simulation.revenue)}
+                                                                    onChange={(e) => handleInputChange(client.id, 'revenue', e.target.value)}
+                                                                    disabled={isClientReadOnly}
+                                                                    style={{
+                                                                        width: '180px', textAlign: 'right', padding: '8px 12px',
+                                                                        background: 'var(--bg-input)', border: '1px solid var(--border-color)',
+                                                                        borderRadius: 'var(--radius-sm)', color: 'var(--color-warning)', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)',
+                                                                        opacity: isClientReadOnly ? 0.7 : 1, cursor: isClientReadOnly ? 'not-allowed' : 'text'
+                                                                    }}
+                                                                />
+                                                            </div>
                                                         </td>
                                                         <td style={{ padding: '15px 20px', textAlign: 'right' }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 'var(--space-4)' }}>
@@ -768,10 +1134,12 @@ const SalesSimulation = () => {
                                                                             handleInputChange(client.id, 'margin', parsed.toFixed(2));
                                                                         }
                                                                     }}
+                                                                    disabled={isClientReadOnly}
                                                                     style={{
                                                                         width: '80px', textAlign: 'right', padding: '8px 12px',
                                                                         background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                                                                        borderRadius: 'var(--radius-sm)', color: 'var(--color-success)', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)'
+                                                                        borderRadius: 'var(--radius-sm)', color: 'var(--color-success)', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-base)',
+                                                                        opacity: isClientReadOnly ? 0.7 : 1, cursor: isClientReadOnly ? 'not-allowed' : 'text'
                                                                     }}
                                                                 />
                                                                 <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>%</span>

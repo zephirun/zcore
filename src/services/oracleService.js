@@ -69,9 +69,12 @@ export const fetchMonthlyBilling = async () => {
  * Fetches the performance of sellers for the current month.
  * Uses dedicated API endpoint: GET /api/sellers-performance
  */
-export const fetchSellersPerformance = async () => {
+export const fetchSellersPerformance = async (estab) => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/sellers-performance`);
+        const url = new URL(`${ORACLE_API_URL}/sellers-performance`);
+        if (estab) url.searchParams.append('estab', estab);
+
+        const response = await fetch(url);
         return await response.json();
     } catch (error) {
         console.error('Sellers Performance Error:', error.message);
@@ -82,9 +85,12 @@ export const fetchSellersPerformance = async () => {
 /**
  * Fetches detailed KPIs. Uses dedicated API endpoint: GET /api/kpis
  */
-export const fetchDetailedKPIs = async () => {
+export const fetchDetailedKPIs = async (estab) => {
     try {
-        const response = await fetch(`${ORACLE_API_URL}/kpis`);
+        const url = new URL(`${ORACLE_API_URL}/kpis`);
+        if (estab) url.searchParams.append('estab', estab);
+
+        const response = await fetch(url);
         return await response.json();
     } catch (error) {
         console.error('KPIs Error:', error.message);
@@ -96,11 +102,12 @@ export const fetchDetailedKPIs = async () => {
  * @param {string} dtini - Start date (YYYY-MM-DD)
  * @param {string} dtfim - End date (YYYY-MM-DD)
  */
-export const fetchSyntheticSalesSummary = async (dtini, dtfim) => {
+export const fetchSyntheticSalesSummary = async (dtini, dtfim, estab) => {
     try {
         const url = new URL(`${ORACLE_API_URL}/synthetic-sales-summary`);
         if (dtini) url.searchParams.append('dtini', dtini);
         if (dtfim) url.searchParams.append('dtfim', dtfim);
+        if (estab) url.searchParams.append('estab', estab);
 
         const response = await fetch(url);
         return await response.json();

@@ -96,47 +96,7 @@ const UnitSelection = () => {
                                     outline: 'none',
                                 }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: "var(--space-4)" }}>
-                                    {/* Avatar */}
-                                    <div style={{
-                                        width: '40px',
-                                        height: '40px',
-                                        borderRadius: 'var(--radius)',
-                                        background: 'var(--bg-main)',
-                                        border: '1px solid var(--border-subtle)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--color-info-strong)',
-                                        fontWeight: 'var(--font-bold)',
-                                        fontSize: '14px',
-                                        flexShrink: 0,
-                                    }}>
-                                        {unit.id.substring(0, 1).toUpperCase()}
-                                    </div>
-
-                                    {/* Name */}
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{
-                                            fontSize: '15px',
-                                            fontWeight: '600',
-                                            color: 'var(--text-main)',
-                                        }}>
-                                            {unit.name}
-                                        </span>
-                                        <span style={{
-                                            fontSize: '11px',
-                                            color: 'var(--text-muted)',
-                                            fontWeight: 'var(--font-bold)',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.02em',
-                                            marginTop: '2px'
-                                        }}>
-                                            Unidade Operacional
-                                        </span>
-                                    </div>
-                                </div>
-
+                                {unit.name}
                                 {/* Arrow */}
                                 <svg
                                     width="16" height="16"

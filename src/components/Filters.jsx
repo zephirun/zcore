@@ -6,13 +6,7 @@ import SearchableSelect from './SearchableSelect';
 import { useData } from '../context/DataContext';
 
 const Filters = ({ rightElement }) => {
-    const {
-        salesData,
-        globalFilters,
-        setGlobalFilters,
-        userRole,
-        allowedVendor
-    } = useData();
+    const { globalFilters, setGlobalFilters, uniqueVendors, uniqueRepresentatives, userRole, allowedVendor, salesData } = useData();
     const location = useLocation();
 
     // Dynamic Filter Options based on current selection
@@ -175,10 +169,10 @@ const Filters = ({ rightElement }) => {
             {/* Filters Row — flat, no background box */}
             <div style={{
                 display: 'flex',
-                gap: "var(--space-6)",
+                gap: "var(--space-3)",
                 alignItems: 'flex-end',
                 flexWrap: 'wrap',
-                marginTop: '8px'
+                marginBottom: 'var(--space-2)'
             }}>
                 {/* Vendor */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '220px' }}>

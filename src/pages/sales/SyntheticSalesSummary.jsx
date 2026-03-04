@@ -7,9 +7,10 @@ import { useData } from '../../context/DataContext';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { Calendar, Search, Download, Filter, TrendingUp, DollarSign, PieChart, Users, AlertCircle, Loader2 } from 'lucide-react';
 import Skeleton from '../../components/ui/Skeleton';
+import SearchableSelect from '../../components/SearchableSelect';
 
 const SyntheticSalesSummary = () => {
-    const { fetchSyntheticSummary, theme } = useData();
+    const { fetchSyntheticSummary, theme, activeUnit } = useData();
 
     const formatDateLocal = (d) => {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -77,7 +78,7 @@ const SyntheticSalesSummary = () => {
 
     useEffect(() => {
         loadData();
-    }, [dates]);
+    }, [dates, activeUnit]);
 
     const filteredData = useMemo(() => {
         if (!searchTerm) return data;
@@ -165,6 +166,7 @@ const SyntheticSalesSummary = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
+
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',

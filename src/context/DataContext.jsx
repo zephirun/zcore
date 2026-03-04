@@ -11,7 +11,7 @@ export const DataProvider = ({ children }) => {
     const [isSalesDataLoading, setIsSalesDataLoading] = useState(false);
     const [salesDataError, setSalesDataError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [activeUnit, setActiveUnit] = useState('madville');
+    const [activeUnit, setActiveUnit] = useState('1001');
     const [userRole, setUserRole] = useState('viewer'); // 'admin' | 'viewer'
     const [username, setUsername] = useState(''); // Store current username
     const [name, setName] = useState(''); // Store Real Name
@@ -20,7 +20,7 @@ export const DataProvider = ({ children }) => {
     const [allowedUnit, setAllowedUnit] = useState(null); // Store Allowed Unit
     const [allowedVendor, setAllowedVendor] = useState(null); // Store Allowed Vendor
     const [allowedModules, setAllowedModules] = useState([]); // Store Allowed Modules
-    const [users, setUsers] = useState([]);; // List of users
+    const [users, setUsers] = useState([]); // List of users
     const [clientRecords, setClientRecords] = useState([]); // Client Metadata (Payment, Terms, etc)
 
     // --- OFFLINE & RESILIENCE STATE ---
@@ -96,8 +96,9 @@ export const DataProvider = ({ children }) => {
 
     // Dynamic Available Units
     const ALL_UNITS = React.useMemo(() => [
-        { id: 'curitiba', name: 'GMAD Curitiba' },
-        { id: 'madville', name: 'GMAD Madville' }
+        { id: '1001', name: 'GMAD Madville' },
+        { id: '1003', name: 'Madville Soluções' },
+        { id: '1000', name: 'GMAD Curitiba' }
     ], []);
 
     const AVAILABLE_UNITS = React.useMemo(() => {
@@ -111,6 +112,29 @@ export const DataProvider = ({ children }) => {
         // This handles "['madville']", "madville, curitiba", "Madville", etc.
         return ALL_UNITS.filter(u => allowedStr.includes(normalize(u.id)));
     }, [userRole, allowedUnit, ALL_UNITS]);
+
+    // --- VENDOR FILTER SYNC ---
+    // If a user is restricted to a specific vendor, ensure the global filter matches it.
+    useEffect(() => {
+        if (allowedVendor && globalFilters.vendor !== allowedVendor) {
+            setGlobalFilters(prev => ({ ...prev, vendor: allowedVendor }));
+        }
+    }, [allowedVendor]);
+
+    // --- UNIT VALIDATION & AUTO-SWITCH ---
+    // Ensure activeUnit is always a valid choice from AVAILABLE_UNITS.
+    // This handles cases where a restricted user logs in but the default or stored unit is not allowed.
+    useEffect(() => {
+        if (isAuthenticated && AVAILABLE_UNITS.length > 0) {
+            const isValid = AVAILABLE_UNITS.some(u => u.id === activeUnit);
+            if (!isValid) {
+                const autoUnit = AVAILABLE_UNITS[0].id;
+                console.log(`[DataContext] activeUnit ${activeUnit} is invalid/restricted. Auto-switching to ${autoUnit}`);
+                setActiveUnit(autoUnit);
+                localStorage.setItem('gmad_active_unit', autoUnit);
+            }
+        }
+    }, [activeUnit, AVAILABLE_UNITS, isAuthenticated]);
 
     // Centralized Modules List - Grouped by Category
     const MODULE_CATEGORIES = React.useMemo(() => [
@@ -311,10 +335,14 @@ export const DataProvider = ({ children }) => {
             const targetUnit = unit || activeUnit;
             const data = await api.fetchSalesData(targetUnit);
 
-            // Filter data by vendor if restricted
-            const finalData = (userRole !== 'admin' && allowedVendor)
-                ? data.filter(item => item.client?.vendor === allowedVendor)
-                : data;
+            // Filter data by vendor or representative if restricted
+            let finalData = data;
+            if (userRole !== 'admin' && allowedVendor) {
+                const normalizedAllowed = allowedVendor.toLowerCase().trim();
+                finalData = finalData.filter(item =>
+                    item.client?.vendor?.toLowerCase().trim() === normalizedAllowed
+                );
+            }
 
             setSalesData(finalData);
 
@@ -388,10 +416,9 @@ export const DataProvider = ({ children }) => {
         setAllowedUnit(null);
         setAllowedVendor(null);
         setAllowedModules([]);
-        setActiveUnit('madville');
+        setActiveUnit('1001');
     };
 
-    // User Management Functions
     const registerUser = async (newName, newUser, newPass, newRole, newAllowedUnit, newAllowedModules, newAllowedVendor, newGroup) => {
         const result = await api.registerUserApi({
             name: newName,
@@ -460,7 +487,7 @@ export const DataProvider = ({ children }) => {
     const switchUnit = (unit) => {
         setActiveUnit(unit);
         localStorage.setItem('gmad_active_unit', unit);
-        loadServerData(unit);
+        // loadServerData(unit); // Removed redundant call: useEffect handles this
         setQuarterData([]);
     };
 
@@ -548,6 +575,15 @@ export const DataProvider = ({ children }) => {
         return Array.from(vendors).sort();
     }, [salesData]);
 
+    const uniqueRepresentatives = React.useMemo(() => {
+        if (!salesData) return [];
+        const reps = new Set();
+        salesData.forEach(item => {
+            if (item.client?.representative) reps.add(item.client.representative);
+        });
+        return Array.from(reps).sort();
+    }, [salesData]);
+
     return (
         <DataContext.Provider value={{
             salesData,
@@ -566,6 +602,7 @@ export const DataProvider = ({ children }) => {
             clientRecords,
             saveClientRecord,
             uniqueVendors,
+            uniqueRepresentatives,
             AVAILABLE_UNITS,
             ALL_UNITS,
             MODULE_CATEGORIES,
@@ -618,7 +655,13 @@ export const DataProvider = ({ children }) => {
                     return { success: false, error: e.message };
                 }
             },
-            fetchSyntheticSummary: fetchSyntheticSalesSummary,
+            fetchSyntheticSummary: async (dtini, dtfim) => {
+                const results = await fetchSyntheticSalesSummary(dtini, dtfim, activeUnit);
+                if (userRole !== 'admin' && allowedVendor) {
+                    return results.filter(r => r.vendedor && r.vendedor.toLowerCase() === allowedVendor.toLowerCase());
+                }
+                return results;
+            },
             fetchClientSummary,
             searchClients,
             executeOracleQuery

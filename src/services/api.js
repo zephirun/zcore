@@ -698,6 +698,7 @@ export const saveRepRecord = async (record) => {
             .upsert({
                 rep_name: record.repName,
                 monthly_goal: record.monthlyGoal,
+                margin_goal: record.marginGoal || 0,
                 observations: record.observations,
                 updated_at: new Date().toISOString()
             }, { onConflict: 'rep_name' });
@@ -1193,6 +1194,24 @@ export const fetchSimulations = async (vendor, unit) => {
         return data || [];
     } catch (error) {
         console.error("Fetch Simulations Error:", error);
+        return [];
+    }
+};
+
+export const fetchSimulationsByVendors = async (vendorsArray, unit) => {
+    try {
+        if (!vendorsArray || vendorsArray.length === 0) return [];
+        const { data, error } = await supabase
+            .from('sales_simulations')
+            .select('*')
+            .in('vendor', vendorsArray)
+            .eq('unit', unit)
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Fetch Simulations By Vendors Error:", error);
         return [];
     }
 };

@@ -34,7 +34,7 @@ const userSchema = z.object({
 
 const AdminPanel = () => {
     // Correct Destructuring based on DataContext API
-    const { users, registerUser, deleteUser, updateUser, AVAILABLE_UNITS, uniqueVendors } = useData();
+    const { users, registerUser, deleteUser, updateUser, AVAILABLE_UNITS, uniqueVendors, uniqueRepresentatives } = useData();
     const navigate = useNavigate();
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -62,8 +62,8 @@ const AdminPanel = () => {
     const currentUnits = watch('allowedUnit') || [];
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    // Filtering
     const [filter, setFilter] = useState('');
+    const [activeTab, setActiveTab] = useState('all'); // Tab state
 
     const handleRefresh = () => {
         setIsRefreshing(true);
@@ -173,12 +173,34 @@ const AdminPanel = () => {
         setValue('allowedModules', newModules, { shouldValidate: true, shouldDirty: true });
     };
 
-    const filteredUsers = users.filter(u =>
-        u.name.toLowerCase().includes(filter.toLowerCase()) ||
-        u.username.toLowerCase().includes(filter.toLowerCase()) ||
-        (u.group && u.group.toLowerCase().includes(filter.toLowerCase())) ||
-        (u.allowedVendor && u.allowedVendor.toLowerCase().includes(filter.toLowerCase()))
-    );
+    const filteredUsers = users.filter(u => {
+        // First application text filter
+        const matchesText = u.name.toLowerCase().includes(filter.toLowerCase()) ||
+            u.username.toLowerCase().includes(filter.toLowerCase()) ||
+            (u.group && u.group.toLowerCase().includes(filter.toLowerCase())) ||
+            (u.allowedVendor && u.allowedVendor.toLowerCase().includes(filter.toLowerCase()));
+
+        if (!matchesText) return false;
+
+        // Then apply unit tab filter
+        if (activeTab === 'all') return true;
+
+        // Admins are visible in all units (global)
+        if (u.role === 'admin') return true;
+
+        // Parse user units robustly
+        let userUnits = [];
+        try {
+            userUnits = typeof u.allowedUnit === 'string' ? JSON.parse(u.allowedUnit) : u.allowedUnit;
+            if (!Array.isArray(userUnits)) {
+                userUnits = typeof userUnits === 'string' ? userUnits.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [userUnits];
+            }
+        } catch {
+            userUnits = u.allowedUnit ? u.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
+        }
+
+        return userUnits.includes(activeTab);
+    });
 
     // Helper Component for Category-grouped Module Selection (Collapsible)
     const ModulePermissionSelector = ({ selectedModules, onToggle, isEditing = false }) => {
@@ -430,12 +452,12 @@ const AdminPanel = () => {
                                 </div>
 
                                 <Select
-                                    label="Vendedor Associado"
+                                    label="Vendedor / Acesso Liberado"
                                     {...register('allowedVendor')}
                                 >
                                     <option value="">Acesso Irrestrito (Gerencial)</option>
-                                    {uniqueVendors.map(vendor => (
-                                        <option key={vendor} value={vendor}>{vendor}</option>
+                                    {[...new Set([...uniqueVendors, ...uniqueRepresentatives])].sort().map(item => (
+                                        <option key={item} value={item}>{item}</option>
                                     ))}
                                 </Select>
 
@@ -462,128 +484,202 @@ const AdminPanel = () => {
                 </Card>
 
                 {/* RIGHT: LIST */}
-                <Card padding="0" style={{ overflow: 'hidden', border: 'none', boxShadow: 'var(--shadow-md)' }}>
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid var(--border-color)', background: 'var(--bg-main)' }}>
-                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Colaborador</th>
-                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Grupo</th>
-                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Unidades</th>
-                                    <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Acesso</th>
-                                    <th style={{ textAlign: 'right', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredUsers.map(user => {
-                                    let unitsList = [];
-                                    try {
-                                        unitsList = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
-                                        if (!Array.isArray(unitsList)) {
-                                            unitsList = typeof unitsList === 'string' ? unitsList.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [unitsList];
-                                        }
-                                    } catch {
-                                        unitsList = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
-                                    }
-                                    const isGlobal = user.role === 'admin';
-                                    const unitNames = unitsList.map(id => {
-                                        const unit = AVAILABLE_UNITS.find(u => u.id === id);
-                                        return unit ? unit.name : null;
-                                    }).filter(Boolean).join(', ');
-                                    const slicedUnits = unitNames.length > 30 ? unitNames.slice(0, 30) + '...' : unitNames;
-                                    const modCount = user.allowedModules?.length || 0;
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    {/* TABS */}
+                    <div style={{
+                        display: 'flex',
+                        gap: 'var(--space-2)',
+                        background: 'var(--bg-input)',
+                        padding: '4px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        width: 'fit-content'
+                    }}>
+                        <TabButton
+                            active={activeTab === 'all'}
+                            onClick={() => setActiveTab('all')}
+                            label="Todos os Usuários"
+                            count={users.length}
+                        />
+                        {AVAILABLE_UNITS.map(unit => {
+                            const count = users.filter(u => {
+                                if (u.role === 'admin') return true;
+                                let units = [];
+                                try { units = typeof u.allowedUnit === 'string' ? JSON.parse(u.allowedUnit) : u.allowedUnit; } catch { units = []; }
+                                if (!Array.isArray(units)) units = [units];
+                                return units.includes(unit.id);
+                            }).length;
 
-                                    return (
-                                        <React.Fragment key={user.id}>
-                                            <tr
-                                                onClick={() => startEdit(user)}
-                                                style={{
-                                                    borderBottom: '1px solid var(--border-color)',
-                                                    cursor: 'pointer',
-                                                    background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
-                                                    transition: 'background 0.2s ease'
-                                                }}
-                                                className="admin-row"
-                                            >
-                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                                                        <div style={{
-                                                            width: '36px', height: '36px', borderRadius: '50%',
-                                                            background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                                            color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-xs)',
-                                                            border: '1px solid var(--border-color)'
+                            return (
+                                <TabButton
+                                    key={unit.id}
+                                    active={activeTab === unit.id}
+                                    onClick={() => setActiveTab(unit.id)}
+                                    label={unit.name}
+                                    count={count}
+                                />
+                            );
+                        })}
+                    </div>
+
+                    <Card padding="0" style={{ overflow: 'hidden', border: 'none', boxShadow: 'var(--shadow-md)' }}>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '2px solid var(--border-color)', background: 'var(--bg-main)' }}>
+                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Colaborador</th>
+                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Grupo</th>
+                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Unidades</th>
+                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Acesso</th>
+                                        <th style={{ textAlign: 'right', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.map(user => {
+                                        let unitsList = [];
+                                        try {
+                                            unitsList = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
+                                            if (!Array.isArray(unitsList)) {
+                                                unitsList = typeof unitsList === 'string' ? unitsList.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [unitsList];
+                                            }
+                                        } catch {
+                                            unitsList = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
+                                        }
+                                        const isGlobal = user.role === 'admin';
+                                        const unitNames = unitsList.map(id => {
+                                            const unit = AVAILABLE_UNITS.find(u => u.id === id);
+                                            return unit ? unit.name : null;
+                                        }).filter(Boolean).join(', ');
+                                        const slicedUnits = unitNames.length > 30 ? unitNames.slice(0, 30) + '...' : unitNames;
+                                        const modCount = user.allowedModules?.length || 0;
+
+                                        return (
+                                            <React.Fragment key={user.id}>
+                                                <tr
+                                                    onClick={() => startEdit(user)}
+                                                    style={{
+                                                        borderBottom: '1px solid var(--border-color)',
+                                                        cursor: 'pointer',
+                                                        background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
+                                                        transition: 'background 0.2s ease'
+                                                    }}
+                                                    className="admin-row"
+                                                >
+                                                    <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                                            <div style={{
+                                                                width: '36px', height: '36px', borderRadius: '50%',
+                                                                background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
+                                                                color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-xs)',
+                                                                border: '1px solid var(--border-color)'
+                                                            }}>
+                                                                {user.name.charAt(0)}
+                                                            </div>
+                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                <span style={{ fontWeight: 'var(--font-semibold)', fontSize: 'var(--text-sm)', color: 'var(--text-main)' }}>{user.name}</span>
+                                                                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>@{user.username}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                        <span style={{
+                                                            padding: '4px 10px',
+                                                            background: 'var(--bg-input)',
+                                                            borderRadius: 'var(--space-3)',
+                                                            border: '1px solid var(--border-color)',
+                                                            fontSize: '11px',
                                                         }}>
-                                                            {user.name.charAt(0)}
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                            <span style={{ fontWeight: 'var(--font-semibold)', fontSize: 'var(--text-sm)', color: 'var(--text-main)' }}>{user.name}</span>
-                                                            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>@{user.username}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                    <span style={{
-                                                        padding: '4px 10px',
-                                                        background: 'var(--bg-input)',
-                                                        borderRadius: 'var(--space-3)',
-                                                        border: '1px solid var(--border-color)',
-                                                        fontSize: '11px',
-                                                    }}>
-                                                        {user.group || 'Geral'}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)' }}>
-                                                    {isGlobal ? 'Acesso Global' : <span title={unitNames}>{slicedUnits}</span>}
-                                                </td>
-                                                <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: user.role === 'admin' ? '#d32f2f' : '#2e7d32' }}></div>
-                                                        <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--text-main)', fontSize: '11px' }}>
-                                                            {user.role === 'admin' ? 'ADMIN' : `${modCount} MOD.`}
+                                                            {user.group || 'Geral'}
                                                         </span>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
-                                                            style={{ color: 'var(--color-error)' }}
-                                                        >
-                                                            Remover
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {user.allowedVendor && (
-                                                <tr style={{ background: 'var(--bg-main)33' }}>
-                                                    <td colSpan="5" style={{ padding: '0 16px 8px 58px', fontSize: '11px', color: 'var(--color-primary)', fontWeight: '600' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                                            Dados restritos ao vendedor: {user.allowedVendor}
+                                                    </td>
+                                                    <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)' }}>
+                                                        {isGlobal ? 'Acesso Global' : <span title={unitNames}>{slicedUnits}</span>}
+                                                    </td>
+                                                    <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: user.role === 'admin' ? '#d32f2f' : '#2e7d32' }}></div>
+                                                            <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--text-main)', fontSize: '11px' }}>
+                                                                {user.role === 'admin' ? 'ADMIN' : `${modCount} MOD.`}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
+                                                                style={{ color: 'var(--color-error)' }}
+                                                            >
+                                                                Remover
+                                                            </Button>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            )}
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
+                                                {user.allowedVendor && (
+                                                    <tr style={{ background: 'var(--bg-main)33' }}>
+                                                        <td colSpan="5" style={{ padding: '0 16px 8px 58px', fontSize: '11px', color: 'var(--color-primary)', fontWeight: '600' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                                                Dados restritos ao vendedor: {user.allowedVendor}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </Card>
+                </div>
             </div>
 
             <style>{`
                 .admin-row:hover { background: var(--bg-hover) !important; }
                 summary::-webkit-details-marker { display: none; }
                 .admin-row td { vertical-align: middle; }
+                .tab-btn:hover { background: var(--bg-card); color: var(--text-main); }
             `}</style>
         </PageContainer>
     );
 };
+
+const TabButton = ({ active, onClick, label, count }) => (
+    <button
+        onClick={onClick}
+        className="tab-btn"
+        style={{
+            padding: '8px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            background: active ? 'var(--bg-card)' : 'transparent',
+            color: active ? 'var(--color-primary)' : 'var(--text-muted)',
+            fontSize: '12px',
+            fontWeight: active ? 'var(--font-bold)' : 'var(--font-semibold)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease',
+            boxShadow: active ? 'var(--shadow-sm)' : 'none'
+        }}
+    >
+        {label}
+        <span style={{
+            padding: '2px 6px',
+            borderRadius: '6px',
+            background: active ? 'var(--color-primary)' : 'var(--border-color)',
+            color: active ? 'white' : 'var(--text-muted)',
+            fontSize: '10px',
+            fontWeight: 'var(--font-bold)'
+        }}>
+            {count}
+        </span>
+    </button>
+);
 
 const labelStyle = {
     display: 'block',

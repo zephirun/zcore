@@ -39,6 +39,14 @@ app.get('/api/health', async (req, res) => {
 // Ranking de Vendedores (Valor Bruto via V_IA_VENDA + COMISPREDOC_NOTAS + V_VENDEDORFUNCIONARIOFILIAL)
 app.get('/api/sellers-performance', async (req, res) => {
     try {
+        const { estab } = req.query;
+        const binds = {};
+        let estabFilter = '';
+        if (estab) {
+            binds.estab = parseInt(estab);
+            estabFilter = 'AND t.ESTAB = :estab';
+        }
+
         const sql = `
             SELECT vf.NOME as vendedor_nome, SUM(t.VALCONT) as faturamento
             FROM VIASOFTMCP.V_IA_VENDA t
@@ -46,11 +54,12 @@ app.get('/api/sellers-performance', async (req, res) => {
             JOIN VIASOFTMCP.V_VENDEDORFUNCIONARIOFILIAL vf ON c.IDVENDEDOR = vf.IDPESS
             WHERE EXTRACT(YEAR FROM t.EMISSAO) = EXTRACT(YEAR FROM SYSDATE)
             AND EXTRACT(MONTH FROM t.EMISSAO) = EXTRACT(MONTH FROM SYSDATE)
+            ${estabFilter}
             GROUP BY vf.NOME
             ORDER BY faturamento DESC
             FETCH FIRST 10 ROWS ONLY
         `;
-        const result = await db.execute(sql);
+        const result = await db.execute(sql, binds);
         const rows = result.rows;
         const maxVal = rows.length > 0 ? rows[0].faturamento : 1;
         res.json(rows.map(row => ({
@@ -67,6 +76,14 @@ app.get('/api/sellers-performance', async (req, res) => {
 // KPIs Gerais do Mês
 app.get('/api/kpis', async (req, res) => {
     try {
+        const { estab } = req.query;
+        const binds = {};
+        let estabFilter = '';
+        if (estab) {
+            binds.estab = parseInt(estab);
+            estabFilter = 'AND ESTAB = :estab';
+        }
+
         const sqlTotal = `
             SELECT 
                 SUM(VALCONT) as faturamento,
@@ -75,6 +92,7 @@ app.get('/api/kpis', async (req, res) => {
             FROM VIASOFTMCP.V_IA_VENDA
             WHERE EXTRACT(YEAR FROM EMISSAO) = EXTRACT(YEAR FROM SYSDATE)
             AND EXTRACT(MONTH FROM EMISSAO) = EXTRACT(MONTH FROM SYSDATE)
+            ${estabFilter}
         `;
         const sqlDetails = `
             SELECT 
@@ -86,8 +104,9 @@ app.get('/api/kpis', async (req, res) => {
             FROM VIASOFTMCP.OLAPVENDASDET
             WHERE EXTRACT(YEAR FROM EMISSAO) = EXTRACT(YEAR FROM SYSDATE)
             AND EXTRACT(MONTH FROM EMISSAO) = EXTRACT(MONTH FROM SYSDATE)
+            ${estabFilter}
         `;
-        const [r1, r2] = await Promise.all([db.execute(sqlTotal), db.execute(sqlDetails)]);
+        const [r1, r2] = await Promise.all([db.execute(sqlTotal, binds), db.execute(sqlDetails, binds)]);
         const s = r1.rows[0] || {};
         const d = r2.rows[0] || {};
         res.json({
@@ -403,7 +422,7 @@ app.get('/api/client-summary', async (req, res) => {
 
 // Resumo Sintético de Vendas (SQL Completo)
 app.get('/api/synthetic-sales-summary', async (req, res) => {
-    const { dtini, dtfim } = req.query;
+    const { dtini, dtfim, estab } = req.query;
 
     // Default to current month if not provided
     const now = new Date();
@@ -476,6 +495,7 @@ app.get('/api/synthetic-sales-summary', async (req, res) => {
                     AND N.IDNOTACONF IN (1,3,100,154,174,260,261,262,263,305,311,315)
                     AND VIASOFTMCP.NOTAPASSOUCAIXA(N.ESTAB, N.IDNOTA, N.IDNOTACONF) = 'S'
                     AND N.SITUACAO IN (5,10)
+                    AND (:estab IS NULL OR N.ESTAB = :estab)
                     AND (0 = :sql_flag)
                 ) X
                 LEFT JOIN VIASOFTMCP.V_SIMPLEPESS V ON V.IDPESS = X.IDVENDEDORINT
@@ -497,6 +517,7 @@ app.get('/api/synthetic-sales-summary', async (req, res) => {
         const result = await db.execute(sql, {
             dtini: start,
             dtfim: end,
+            estab: estab || null,
             sql_flag: 0
         });
         res.json(result.rows);
