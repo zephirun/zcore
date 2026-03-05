@@ -307,14 +307,7 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* DEBUG INFO */}
-            <div style={{ background: 'red', color: 'white', padding: '10px', marginBottom: '10px' }}>
-                DEBUG - salesData.length: {salesData?.length || 0} |
-                filteredData.length: {filteredData.length} |
-                vendorFilter: "{globalFilters.vendor}" |
-                repFilter: "{globalFilters.representative}" |
-                clientFilter: "{globalFilters.client}"
-            </div>
+
 
             {isSalesDataLoading ? (
                 <div style={{ marginBottom: 'var(--space-4)' }}>
