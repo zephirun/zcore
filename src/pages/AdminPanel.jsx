@@ -3,6 +3,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Card from '@/components/ui/Card';
 import PageContainer from '@/components/ui/PageContainer';
+import Modal from '@/components/ui/Modal';
 
 
 import React, { useState } from 'react';
@@ -12,6 +13,24 @@ import * as z from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { allModules, categories } from '../config/menuConfig';
+
+const parseUserUnits = (allowedUnit) => {
+    if (!allowedUnit || allowedUnit === 'null') return [];
+
+    let units = [];
+    try {
+        units = typeof allowedUnit === 'string' ? JSON.parse(allowedUnit) : allowedUnit;
+        if (!Array.isArray(units)) {
+            units = typeof units === 'string' ? units.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [units];
+        }
+    } catch {
+        units = allowedUnit ? String(allowedUnit).split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
+    }
+
+    // Map legacy string names to new standard numeric string IDs
+    const legacyMap = { 'madville': '1001', 'curitiba': '1000' };
+    return units.map(String).filter(u => u && u !== 'null').map(u => legacyMap[u.toLowerCase()] || u);
+};
 
 const userSchema = z.object({
     name: z.string().min(1, 'Nome é obrigatório'),
@@ -42,6 +61,7 @@ const AdminPanel = () => {
     // Edit State
     const [editingUserId, setEditingUserId] = useState(null); // Stores ID for UI Key
     const [editingUsername, setEditingUsername] = useState(null); // Stores Username for API Link
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Form Hook
     const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm({
@@ -127,24 +147,23 @@ const AdminPanel = () => {
         }
     };
 
+    const handleNewUser = () => {
+        reset({ username: '', password: '', role: 'user', name: '', allowedUnit: [], allowedVendor: '', group: '', allowedModules: [] });
+        setEditingUserId(null);
+        setEditingUsername(null);
+        setError('');
+        setSuccess('');
+        setIsModalOpen(true);
+    };
+
     const startEdit = (user) => {
         setEditingUserId(user.id);
         setEditingUsername(user.username);
+        setError('');
+        setSuccess('');
 
         // Parse allowed units robustly
-        let parsedUnits = [];
-        try {
-            parsedUnits = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
-            if (!Array.isArray(parsedUnits)) {
-                if (typeof parsedUnits === 'string') {
-                    parsedUnits = parsedUnits.split(',').map(s => s.trim().replace(/['"]+/g, ''));
-                } else {
-                    parsedUnits = [parsedUnits];
-                }
-            }
-        } catch {
-            parsedUnits = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
-        }
+        const parsedUnits = parseUserUnits(user.allowedUnit);
 
         reset({
             username: user.username || '',
@@ -156,12 +175,15 @@ const AdminPanel = () => {
             group: user.group || '',
             allowedModules: user.allowedModules || []
         });
+
+        setIsModalOpen(true);
     };
 
     const cancelEdit = () => {
         setEditingUserId(null);
         setEditingUsername(null);
         reset({ username: '', password: '', role: 'user', name: '', allowedUnit: [], allowedVendor: '', group: '', allowedModules: [] });
+        setIsModalOpen(false);
     }
 
     const toggleModuleAccess = (moduleId) => {
@@ -189,17 +211,9 @@ const AdminPanel = () => {
         if (u.role === 'admin') return true;
 
         // Parse user units robustly
-        let userUnits = [];
-        try {
-            userUnits = typeof u.allowedUnit === 'string' ? JSON.parse(u.allowedUnit) : u.allowedUnit;
-            if (!Array.isArray(userUnits)) {
-                userUnits = typeof userUnits === 'string' ? userUnits.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [userUnits];
-            }
-        } catch {
-            userUnits = u.allowedUnit ? u.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
-        }
+        const userUnits = parseUserUnits(u.allowedUnit);
 
-        return userUnits.includes(activeTab);
+        return userUnits.includes(String(activeTab));
     });
 
     // Helper Component for Category-grouped Module Selection (Collapsible)
@@ -215,41 +229,42 @@ const AdminPanel = () => {
 
                     return (
                         <details key={cat.id} style={{
-                            background: 'var(--bg-input)',
-                            borderRadius: '12px',
-                            border: `1px solid var(--border-color)`,
+                            background: '#FFFFFF',
+                            borderRadius: '4px',
+                            border: `1px solid #D9D9D9`,
                             overflow: 'hidden',
-                            transition: 'all 0.2s ease'
+                            transition: 'border 0.2s ease'
                         }}>
                             <summary style={{
-                                padding: 'var(--space-3) var(--space-4)',
+                                padding: '10px 14px',
                                 cursor: 'pointer',
-                                fontSize: 'var(--text-xs)',
-                                fontWeight: 'var(--font-semibold)',
-                                color: 'var(--text-main)',
+                                fontSize: '13px',
+                                fontWeight: 'bold',
+                                color: '#32363A',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 listStyle: 'none',
-                                userSelect: 'none'
+                                userSelect: 'none',
+                                background: activeCount > 0 ? '#F3F8FE' : '#F7F7F7',
+                                borderBottom: activeCount > 0 ? '1px solid #D9D9D9' : 'none'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color || 'var(--color-primary)' }}></div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: cat.color || '#0A6ED1' }}></div>
                                     {cat.name}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span style={{
-                                        background: activeCount > 0 ? (cat.color || 'var(--color-primary)') : 'var(--bg-card)',
-                                        color: activeCount > 0 ? 'white' : 'var(--text-muted)',
+                                        background: activeCount > 0 ? (cat.color || '#0A6ED1') : '#FFFFFF',
+                                        color: activeCount > 0 ? 'white' : '#6A6D70',
                                         padding: '2px 8px',
-                                        borderRadius: '12px',
-                                        fontSize: '10px',
-                                        fontWeight: 'var(--font-bold)',
-                                        border: activeCount > 0 ? 'none' : '1px solid var(--border-color)'
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        border: activeCount > 0 ? 'none' : '1px solid #D9D9D9'
                                     }}>
                                         {activeCount} / {catModules.length}
                                     </span>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity: 0.5 }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ opacity: 0.5 }}>
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </div>
@@ -320,20 +335,30 @@ const AdminPanel = () => {
             actions={
                 <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
                     <div style={{ position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                         </div>
                         <Input
                             type="text"
-                            placeholder="Buscar usuário..."
+                            placeholder="Buscar por nome, login ou departamento..."
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            style={{ paddingLeft: '34px', width: '240px', borderRadius: '12px' }}
+                            style={{
+                                paddingLeft: '40px',
+                                width: '320px',
+                                borderRadius: '4px',
+                                background: '#ffffff',
+                                border: '1px solid #89919A',
+                                boxShadow: 'none'
+                            }}
                         />
                     </div>
+                    <Button variant="primary" onClick={handleNewUser}>
+                        + Novo Usuário
+                    </Button>
                     <Button variant="ghost" onClick={handleRefresh}>
                         Atualizar
                     </Button>
@@ -343,147 +368,158 @@ const AdminPanel = () => {
                 </div>
             }
         >
-            <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 'var(--space-6)', alignItems: 'start' }}>
-                {/* LEFT: FORM */}
-                <Card padding="var(--space-6)" style={{ position: 'sticky', top: 'var(--space-4)', border: editingUserId ? '1px solid var(--color-primary)' : '1px solid transparent', boxShadow: editingUserId ? '0 0 0 4px rgba(21,101,192,0.1)' : 'var(--shadow-md)', transition: 'all 0.3s ease' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-                        <h3 style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: editingUserId ? 'var(--color-primary)' : 'var(--text-main)', margin: 0 }}>
-                            {editingUserId ? 'Editar Usuário' : 'Novo Registro'}
-                        </h3>
-                        {editingUserId && (
-                            <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                                Cancelar
-                            </Button>
-                        )}
-                    </div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={cancelEdit}
+                title={editingUserId ? 'Editando Usuário' : 'Novo Colaborador'}
+                width="480px"
+            >
+                <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <Input
+                        label="Nome Completo"
+                        {...register('name')}
+                        error={errors.name?.message}
+                        placeholder="Nome do colaborador"
+                    />
 
-                    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                        <Input
-                            label="Nome Completo"
-                            {...register('name')}
-                            error={errors.name?.message}
-                            placeholder="Nome do colaborador"
-                        />
+                    <Input
+                        label="Login (Usuário)"
+                        {...register('username')}
+                        error={errors.username?.message}
+                        disabled={!!editingUserId}
+                        placeholder="usuario.sobrenome"
+                    />
 
-                        <Input
-                            label="Login (Usuário)"
-                            {...register('username')}
-                            error={errors.username?.message}
-                            disabled={!!editingUserId}
-                            placeholder="usuario.sobrenome"
-                        />
+                    <Input
+                        label={editingUserId ? "Senha Provisória (Deixe em branco para manter)" : "Senha Provisória"}
+                        type="password"
+                        {...register('password')}
+                        error={errors.password?.message}
+                        placeholder="••••••••"
+                    />
 
-                        {!editingUserId && (
-                            <Input
-                                label="Senha Provisória"
-                                type="password"
-                                {...register('password')}
-                                error={errors.password?.message}
-                                placeholder="••••••••"
-                            />
-                        )}
+                    <Select
+                        label="Função"
+                        {...register('role')}
+                    >
+                        <option value="user">Usuário Padrão</option>
+                        <option value="admin">Administrador Geral</option>
+                    </Select>
 
-                        <Select
-                            label="Função"
-                            {...register('role')}
-                        >
-                            <option value="user">Usuário Padrão</option>
-                            <option value="admin">Administrador Geral</option>
-                        </Select>
+                    <Input
+                        label="Departamento"
+                        {...register('group')}
+                        placeholder="Ex: Comercial, RH"
+                    />
 
-                        <Input
-                            label="Departamento"
-                            {...register('group')}
-                            placeholder="Ex: Comercial, RH"
-                        />
+                    {(currentRole !== 'admin') && (
+                        <>
+                            <div>
+                                <label style={labelStyle}>Unidades com Acesso</label>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr',
+                                    gap: '4px',
+                                    padding: '8px',
+                                    background: '#F7F7F7',
+                                    borderRadius: '6px',
+                                    border: '1px solid #E4E4E4',
+                                    maxHeight: '180px',
+                                    overflowY: 'auto'
+                                }} className="hide-scrollbar">
+                                    {AVAILABLE_UNITS.map(u => {
+                                        const isChecked = currentUnits.map(String).includes(String(u.id));
 
-                        {(currentRole !== 'admin') && (
-                            <>
-                                <div>
-                                    <label style={labelStyle}>Unidades com Acesso</label>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '2px',
-                                        padding: '8px',
-                                        background: 'var(--bg-input)',
-                                        borderRadius: '8px',
-                                        border: '1px solid var(--border-color)',
-                                        maxHeight: '160px',
-                                        overflowY: 'auto'
-                                    }} className="hide-scrollbar">
-                                        {AVAILABLE_UNITS.map(u => {
-                                            const isChecked = currentUnits.includes(u.id);
-
-                                            return (
-                                                <div
-                                                    key={u.id}
-                                                    onClick={() => {
-                                                        const newUnits = isChecked
-                                                            ? currentUnits.filter(id => id !== u.id)
-                                                            : [...currentUnits, u.id];
-                                                        setValue('allowedUnit', newUnits, { shouldValidate: true, shouldDirty: true });
-                                                    }}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        padding: '6px 8px',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        background: isChecked ? 'var(--bg-card)' : 'transparent',
-                                                        transition: 'all 0.15s ease'
-                                                    }}
-                                                >
-                                                    <div style={{
-                                                        width: '14px', height: '14px', borderRadius: '4px',
-                                                        border: isChecked ? 'none' : '2px solid var(--border-color)',
-                                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                                    }}>
-                                                        {isChecked && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
-                                                    </div>
-                                                    <span style={{ fontSize: '12px', color: isChecked ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: isChecked ? '600' : '400' }}>{u.name}</span>
+                                        return (
+                                            <div
+                                                key={u.id}
+                                                onClick={() => {
+                                                    const newUnits = isChecked
+                                                        ? currentUnits.filter(id => String(id) !== String(u.id))
+                                                        : [...currentUnits, String(u.id)];
+                                                    setValue('allowedUnit', newUnits, { shouldValidate: true, shouldDirty: true });
+                                                }}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '12px',
+                                                    padding: '8px 10px',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    background: isChecked ? '#E5F0FA' : '#FFFFFF',
+                                                    border: `1px solid ${isChecked ? '#0A6ED1' : '#D9D9D9'}`,
+                                                    transition: 'background 0.2s ease',
+                                                    userSelect: 'none'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    width: '16px', height: '16px', borderRadius: '2px',
+                                                    border: isChecked ? 'none' : '1px solid #89919A',
+                                                    background: isChecked ? '#0A6ED1' : '#FFFFFF',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    {isChecked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                    {errors.allowedUnit && <span style={{ color: 'var(--color-error)', fontSize: '11px', marginTop: '4px', display: 'block' }}>Selecione ao menos uma unidade.</span>}
+                                                <span style={{
+                                                    fontSize: '13px',
+                                                    color: '#32363A',
+                                                    fontWeight: isChecked ? '600' : '400'
+                                                }}>
+                                                    {u.name}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
+                                {errors.allowedUnit && <span style={{ color: 'var(--color-error)', fontSize: '11px', marginTop: '4px', display: 'block' }}>Selecione ao menos uma unidade.</span>}
+                            </div>
 
-                                <Select
-                                    label="Vendedor / Acesso Liberado"
-                                    {...register('allowedVendor')}
-                                >
-                                    <option value="">Acesso Irrestrito (Gerencial)</option>
-                                    {[...new Set([...uniqueVendors, ...uniqueRepresentatives])].sort().map(item => (
-                                        <option key={item} value={item}>{item}</option>
-                                    ))}
-                                </Select>
+                            <Select
+                                label="Vendedor / Acesso Liberado"
+                                {...register('allowedVendor')}
+                            >
+                                <option value="">Acesso Irrestrito (Gerencial)</option>
+                                {[...new Set([...uniqueVendors, ...uniqueRepresentatives, watch('allowedVendor')])].filter(Boolean).sort().map(item => (
+                                    <option key={item} value={item.toString()}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </Select>
 
-                                <ModulePermissionSelector
-                                    selectedModules={watch('allowedModules') || []}
-                                    onToggle={toggleModuleAccess}
-                                />
-                            </>
-                        )}
+                            <ModulePermissionSelector
+                                selectedModules={watch('allowedModules')}
+                                onToggle={toggleModuleAccess}
+                            />
+                        </>
+                    )}
 
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            fullWidth
-                            loading={isSubmitting}
-                            disabled={isSubmitting || (!isDirty && !!editingUserId)}
-                        >
-                            {editingUserId ? 'Salvar Alterações' : 'Criar Conta'}
-                        </Button>
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        fullWidth
+                        loading={isSubmitting}
+                        disabled={isSubmitting || (!isDirty && !!editingUserId)}
+                        style={{
+                            marginTop: 'var(--space-2)',
+                            padding: '10px',
+                            fontSize: '14px',
+                            borderRadius: '4px',
+                            background: '#0A6ED1',
+                            border: 'none',
+                            color: 'white',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        {editingUserId ? 'Salvar Alterações' : 'Criar Colaborador'}
+                    </Button>
 
-                        {error && <p style={{ color: 'var(--color-error)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{error}</p>}
-                        {success && <p style={{ color: 'var(--color-success)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{success}</p>}
-                    </form>
-                </Card>
+                    {error && <p style={{ color: 'var(--color-error)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{error}</p>}
+                    {success && <p style={{ color: 'var(--color-success)', fontSize: '12px', fontWeight: '600', textAlign: 'center', margin: 0 }}>{success}</p>}
+                </form>
+            </Modal>
 
-                {/* RIGHT: LIST */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 'var(--space-6)', alignItems: 'start' }}>
+                {/* RIGHT: DATA TABLE */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                     {/* TABS */}
                     <div style={{
@@ -504,17 +540,15 @@ const AdminPanel = () => {
                         {AVAILABLE_UNITS.map(unit => {
                             const count = users.filter(u => {
                                 if (u.role === 'admin') return true;
-                                let units = [];
-                                try { units = typeof u.allowedUnit === 'string' ? JSON.parse(u.allowedUnit) : u.allowedUnit; } catch { units = []; }
-                                if (!Array.isArray(units)) units = [units];
-                                return units.includes(unit.id);
+                                const units = parseUserUnits(u.allowedUnit);
+                                return units.includes(String(unit.id));
                             }).length;
 
                             return (
                                 <TabButton
                                     key={unit.id}
-                                    active={activeTab === unit.id}
-                                    onClick={() => setActiveTab(unit.id)}
+                                    active={String(activeTab) === String(unit.id)}
+                                    onClick={() => setActiveTab(String(unit.id))}
                                     label={unit.name}
                                     count={count}
                                 />
@@ -522,33 +556,25 @@ const AdminPanel = () => {
                         })}
                     </div>
 
-                    <Card padding="0" style={{ overflow: 'hidden', border: 'none', boxShadow: 'var(--shadow-md)' }}>
+                    <Card padding="0" style={{ overflow: 'hidden', border: '1px solid #E4E4E4', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)', background: '#FFFFFF' }}>
                         <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', color: '#32363A' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid var(--border-color)', background: 'var(--bg-main)' }}>
-                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Colaborador</th>
-                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Grupo</th>
-                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Unidades</th>
-                                        <th style={{ textAlign: 'left', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Acesso</th>
-                                        <th style={{ textAlign: 'right', padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)', fontWeight: 'var(--font-bold)', fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Ações</th>
+                                    <tr style={{ borderBottom: '1px solid #D9D9D9', background: '#F2F2F2' }}>
+                                        <th style={{ textAlign: 'left', padding: '12px 16px', color: '#515559', fontWeight: 'normal', fontSize: '12px', borderRight: '1px solid #E4E4E4' }}>Colaborador</th>
+                                        <th style={{ textAlign: 'left', padding: '12px 16px', color: '#515559', fontWeight: 'normal', fontSize: '12px', borderRight: '1px solid #E4E4E4' }}>Grupo</th>
+                                        <th style={{ textAlign: 'left', padding: '12px 16px', color: '#515559', fontWeight: 'normal', fontSize: '12px', borderRight: '1px solid #E4E4E4' }}>Unidades</th>
+                                        <th style={{ textAlign: 'left', padding: '12px 16px', color: '#515559', fontWeight: 'normal', fontSize: '12px', borderRight: '1px solid #E4E4E4' }}>Acesso</th>
+                                        <th style={{ textAlign: 'right', padding: '12px 16px', color: '#515559', fontWeight: 'normal', fontSize: '12px' }}>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredUsers.map(user => {
-                                        let unitsList = [];
-                                        try {
-                                            unitsList = typeof user.allowedUnit === 'string' ? JSON.parse(user.allowedUnit) : user.allowedUnit;
-                                            if (!Array.isArray(unitsList)) {
-                                                unitsList = typeof unitsList === 'string' ? unitsList.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [unitsList];
-                                            }
-                                        } catch {
-                                            unitsList = user.allowedUnit ? user.allowedUnit.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
-                                        }
+                                        const unitsList = parseUserUnits(user.allowedUnit);
                                         const isGlobal = user.role === 'admin';
                                         const unitNames = unitsList.map(id => {
-                                            const unit = AVAILABLE_UNITS.find(u => u.id === id);
-                                            return unit ? unit.name : null;
+                                            const unit = AVAILABLE_UNITS.find(u => String(u.id) === String(id));
+                                            return unit ? unit.name : String(id);
                                         }).filter(Boolean).join(', ');
                                         const slicedUnits = unitNames.length > 30 ? unitNames.slice(0, 30) + '...' : unitNames;
                                         const modCount = user.allowedModules?.length || 0;
@@ -556,64 +582,86 @@ const AdminPanel = () => {
                                         return (
                                             <React.Fragment key={user.id}>
                                                 <tr
-                                                    onClick={() => startEdit(user)}
-                                                    style={{
-                                                        borderBottom: '1px solid var(--border-color)',
-                                                        cursor: 'pointer',
-                                                        background: editingUserId === user.id ? 'var(--bg-hover)' : 'transparent',
-                                                        transition: 'background 0.2s ease'
-                                                    }}
+                                                    key={user.id}
                                                     className="admin-row"
+                                                    onClick={() => startEdit(user)}
+                                                    style={{ cursor: 'pointer' }}
                                                 >
                                                     <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                             <div style={{
-                                                                width: '36px', height: '36px', borderRadius: '50%',
-                                                                background: user.role === 'admin' ? 'var(--color-primary)' : 'var(--bg-input)',
-                                                                color: user.role === 'admin' ? 'white' : 'var(--text-muted)',
-                                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'var(--font-bold)', fontSize: 'var(--text-xs)',
-                                                                border: '1px solid var(--border-color)'
+                                                                width: '36px', height: '36px', borderRadius: '4px',
+                                                                background: user.role === 'admin' ? '#0A6ED1' : '#E5E5E5',
+                                                                color: user.role === 'admin' ? 'white' : '#1C4C98',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                fontWeight: 'bold', fontSize: '14px',
+                                                                border: user.role === 'admin' ? 'none' : '1px solid #D9D9D9'
                                                             }}>
                                                                 {user.name.charAt(0)}
                                                             </div>
-                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                                <span style={{ fontWeight: 'var(--font-semibold)', fontSize: 'var(--text-sm)', color: 'var(--text-main)' }}>{user.name}</span>
-                                                                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>@{user.username}</span>
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                                <span style={{ fontWeight: '600', fontSize: '14px', color: '#1C4C98' }}>{user.name}</span>
+                                                                <span style={{ fontSize: '12px', color: '#6A6D70' }}>@{user.username}</span>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                        <span style={{
-                                                            padding: '4px 10px',
-                                                            background: 'var(--bg-input)',
-                                                            borderRadius: 'var(--space-3)',
-                                                            border: '1px solid var(--border-color)',
-                                                            fontSize: '11px',
-                                                        }}>
+                                                    <td style={{ padding: '12px 16px', borderRight: '1px solid #F2F2F2' }}>
+                                                        <span style={{ fontSize: '13px', color: '#32363A' }}>
                                                             {user.group || 'Geral'}
                                                         </span>
                                                     </td>
-                                                    <td style={{ padding: 'var(--space-4) var(--space-5)', color: 'var(--text-muted)' }}>
-                                                        {isGlobal ? 'Acesso Global' : <span title={unitNames}>{slicedUnits}</span>}
+                                                    <td style={{ padding: '12px 16px', borderRight: '1px solid #F2F2F2' }}>
+                                                        {isGlobal ? (
+                                                            <span style={{
+                                                                padding: '2px 6px',
+                                                                background: '#107E3E',
+                                                                color: 'white',
+                                                                borderRadius: '4px',
+                                                                fontSize: '11px',
+                                                                fontWeight: 'bold'
+                                                            }}>Acesso Global</span>
+                                                        ) : (
+                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                                {unitNames.split(', ').map((uName, idx) => (
+                                                                    <span key={idx} style={{
+                                                                        padding: '2px 6px',
+                                                                        background: '#F2F2F2',
+                                                                        color: '#32363A',
+                                                                        borderRadius: '4px',
+                                                                        fontSize: '11px',
+                                                                        border: '1px solid #D9D9D9'
+                                                                    }}>{uName}</span>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </td>
-                                                    <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: user.role === 'admin' ? '#d32f2f' : '#2e7d32' }}></div>
-                                                            <span style={{ fontWeight: 'var(--font-bold)', color: 'var(--text-main)', fontSize: '11px' }}>
-                                                                {user.role === 'admin' ? 'ADMIN' : `${modCount} MOD.`}
-                                                            </span>
-                                                        </div>
+                                                    <td style={{ padding: '12px 16px', borderRight: '1px solid #F2F2F2' }}>
+                                                        <span style={{
+                                                            padding: '2px 6px',
+                                                            background: user.role === 'admin' ? '#FFE8E8' : '#E5F0FA',
+                                                            color: user.role === 'admin' ? '#BB0000' : '#0A6ED1',
+                                                            border: `1px solid ${user.role === 'admin' ? '#FF8888' : '#88B8E6'}`,
+                                                            borderRadius: '4px',
+                                                            fontSize: '11px',
+                                                            fontWeight: 'bold',
+                                                        }}>
+                                                            {user.role === 'admin' ? 'ADMIN' : `${modCount} MOD`}
+                                                        </span>
                                                     </td>
-                                                    <td style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'right' }}>
-                                                        <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir ${user.name}?`)) deleteUser(user.username); }}
-                                                                style={{ color: 'var(--color-error)' }}
+                                                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); startEdit(user); }}
+                                                                style={{ background: 'transparent', border: 'none', color: '#0A6ED1', cursor: 'pointer', fontSize: '13px', padding: 0 }}
+                                                            >
+                                                                Editar
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); if (window.confirm(`Excluir permanentemente o acesso de ${user.name}?`)) deleteUser(user.username); }}
+                                                                style={{ background: 'transparent', border: 'none', color: '#BB0000', cursor: 'pointer', fontSize: '13px', padding: 0 }}
                                                             >
                                                                 Remover
-                                                            </Button>
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -638,10 +686,16 @@ const AdminPanel = () => {
             </div>
 
             <style>{`
-                .admin-row:hover { background: var(--bg-hover) !important; }
+                .admin-row {
+                    transition: background 0.15s ease;
+                    border-bottom: 1px solid #E4E4E4;
+                }
+                .admin-row:hover { 
+                    background: #F3F8FE !important;
+                }
                 summary::-webkit-details-marker { display: none; }
                 .admin-row td { vertical-align: middle; }
-                .tab-btn:hover { background: var(--bg-card); color: var(--text-main); }
+                .tab-btn:hover { background: #F2F2F2; color: #32363A; }
             `}</style>
         </PageContainer>
     );

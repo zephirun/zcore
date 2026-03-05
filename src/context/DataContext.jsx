@@ -102,15 +102,23 @@ export const DataProvider = ({ children }) => {
     ], []);
 
     const AVAILABLE_UNITS = React.useMemo(() => {
-        if (userRole === 'admin' || !allowedUnit) return ALL_UNITS;
+        if (userRole === 'admin' || !allowedUnit || allowedUnit === 'null') return ALL_UNITS;
 
-        // Helper to normalize strings for comparison
-        const normalize = (str) => String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
-        const allowedStr = normalize(allowedUnit);
+        let units = [];
+        try {
+            units = typeof allowedUnit === 'string' ? JSON.parse(allowedUnit) : allowedUnit;
+            if (!Array.isArray(units)) {
+                units = typeof units === 'string' ? units.split(',').map(s => s.trim().replace(/['"]+/g, '')) : [units];
+            }
+        } catch {
+            units = allowedUnit ? String(allowedUnit).split(',').map(s => s.trim().replace(/['"]+/g, '')) : [];
+        }
 
-        // Simple and robust: check if the normalized unit ID exists within the normalized allowed string
-        // This handles "['madville']", "madville, curitiba", "Madville", etc.
-        return ALL_UNITS.filter(u => allowedStr.includes(normalize(u.id)));
+        const mappedLegacyMap = { 'madville': '1001', 'curitiba': '1000' };
+
+        const allowedIds = units.map(String).filter(u => u && u !== 'null').map(u => mappedLegacyMap[u.toLowerCase()] || u);
+
+        return ALL_UNITS.filter(u => allowedIds.includes(String(u.id)));
     }, [userRole, allowedUnit, ALL_UNITS]);
 
     // --- VENDOR FILTER SYNC ---

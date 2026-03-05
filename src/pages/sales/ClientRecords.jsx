@@ -130,7 +130,7 @@ const ClientRecords = () => {
             if (!clientId) return;
 
             // Filter logic
-            if (userRole !== 'admin' && allowedVendor && item.client?.vendor !== allowedVendor) {
+            if (userRole !== 'admin' && allowedVendor && (item.client?.vendor || '').toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
                 return;
             }
 
@@ -287,7 +287,7 @@ const ClientRecords = () => {
             width: '250px',
             render: (row) => (
                 <div style={{ display: 'flex', flexDirection: 'column', padding: '8px 0' }}>
-<div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-sm)', whiteSpace: 'normal' }}>{row.name}</div>
+                    <div style={{ fontWeight: 'var(--font-bold)', fontSize: 'var(--text-sm)', whiteSpace: 'normal' }}>{row.name}</div>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>ID: {row.id}</div>
                 </div>
             )
@@ -409,7 +409,7 @@ const ClientRecords = () => {
                 alignItems: 'center',
                 flexWrap: 'wrap'
             }}>
-<div style={{ flex: 1, minWidth: '250px' }}>
+                <div style={{ flex: 1, minWidth: '250px' }}>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Pesquisar Cliente</div>
                     <Input
                         type="text"
@@ -432,7 +432,7 @@ const ClientRecords = () => {
                 <div style={{ minWidth: '200px' }}>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Status da Carteira</div>
                     <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-<StatusFilter color="all" active={statusFilter === 'all'} onClick={() => setStatusFilter('all')} label="Todos" />
+                        <StatusFilter color="all" active={statusFilter === 'all'} onClick={() => setStatusFilter('all')} label="Todos" />
                         <StatusFilter color="#2e7d32" active={statusFilter === '#2e7d32'} onClick={() => setStatusFilter('#2e7d32')} label="OK" />
                         <StatusFilter color="#fbc02d" active={statusFilter === '#fbc02d'} onClick={() => setStatusFilter('#fbc02d')} label="Atenção" />
                         <StatusFilter color="#d32f2f" active={statusFilter === '#d32f2f'} onClick={() => setStatusFilter('#d32f2f')} label="Crítico" />
@@ -498,10 +498,10 @@ const ClientRecords = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-<div>
+                        <div>
                             <h1 style={{ margin: 0, fontSize: 'var(--text-4xl)', color: 'var(--text-main)' }}>{selectedClient.name}</h1>
                             <div style={{ marginTop: 'var(--space-2)', color: 'var(--text-muted)', display: 'flex', gap: 'var(--space-4)' }}>
-<span>ID: {selectedClient.id}</span>
+                                <span>ID: {selectedClient.id}</span>
                                 <span>Vendedor: {selectedClient.vendor}</span>
                             </div>
                         </div>
@@ -523,7 +523,7 @@ const ClientRecords = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 'var(--space-4)' }}>
                         {/* Left Column: Data & Analytics */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-{/* Key Metrics */}
+                            {/* Key Metrics */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
                                 <MetricCard label="Faturamento (Tri)" value={formatCurrency(selectedClient.totalRevenue)} color="#1565C0" />
                                 <MetricCard label="Margem Média" value={formatPercent(selectedClient.avgMargin)} color="#2e7d32" />
@@ -585,7 +585,7 @@ const ClientRecords = () => {
 
                         {/* Right Column: Management */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-{/* Internal Data Form */}
+                            {/* Internal Data Form */}
                             <div style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-6)', borderRadius: 'var(--space-4)', border: '1px solid var(--border-color)' }}>
                                 <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)', color: 'var(--text-main)' }}>Dados Internos</h3>
                                 <form onSubmit={handleClientSubmit(onClientSubmit)} style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -594,7 +594,7 @@ const ClientRecords = () => {
                                     <div style={{ marginBottom: 'var(--space-4)' }}>
                                         <label style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', display: 'block', marginBottom: 'var(--space-4)' }}>Grupo Econômico</label>
                                         <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-<Select
+                                            <Select
                                                 error={clientErrors.economicGroupId?.message}
                                                 {...registerClient('economicGroupId')}
                                                 style={{
@@ -630,7 +630,7 @@ const ClientRecords = () => {
                                             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
                                             backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
                                         }}>
-<div style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-6)', borderRadius: 'var(--space-4)', width: '300px' }}>
+                                            <div style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-6)', borderRadius: 'var(--space-4)', width: '300px' }}>
                                                 <h3>Novo Grupo</h3>
                                                 <Input
                                                     placeholder="Nome do grupo..."
@@ -638,7 +638,7 @@ const ClientRecords = () => {
                                                     {...registerGroup('name')}
                                                 />
                                                 <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end', marginTop: 'var(--space-4)' }}>
-<Button type="button" onClick={() => { setIsGroupModalOpen(false); resetGroup(); }} style={{ padding: '8px 16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>Cancelar</Button>
+                                                    <Button type="button" onClick={() => { setIsGroupModalOpen(false); resetGroup(); }} style={{ padding: '8px 16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>Cancelar</Button>
                                                     <Button type="button" onClick={handleGroupSubmit(onGroupSubmit)} style={{ padding: '8px 16px', border: 'none', background: '#1565C0', color: '#fff', borderRadius: 'var(--space-4)', cursor: 'pointer' }}>Criar</Button>
                                                 </div>
                                             </div>
@@ -767,7 +767,7 @@ const DashboardCard = ({ title, clients, color, onClickClient }) => (
     }}>
         <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'bold', marginBottom: 'var(--space-4)', color: 'var(--text-main)' }}>{title}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-{clients.map(c => (
+            {clients.map(c => (
                 <div
                     key={c.id}
                     onClick={() => onClickClient(c.id)}

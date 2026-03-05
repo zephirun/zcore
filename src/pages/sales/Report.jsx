@@ -32,9 +32,9 @@ const Report = () => {
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
             const representativeRow = row.client?.representative || '';
 
-            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow === globalFilters.vendor;
-            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted === globalFilters.client;
-            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow === globalFilters.representative;
+            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim() === globalFilters.vendor.toLowerCase().trim();
+            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted.toLowerCase().trim() === globalFilters.client.toLowerCase().trim();
+            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow.toLowerCase().trim() === globalFilters.representative.toLowerCase().trim();
 
             return vendorMatch && clientMatch && representativeMatch;
         });
@@ -162,14 +162,14 @@ const Report = () => {
         }}>
             <div className="print-only" style={{ padding: '0 40px' }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-<img src={logoGmad} alt="GMAD Logo" style={{ height: '35px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                        <img src={logoGmad} alt="GMAD Logo" style={{ height: '35px' }} />
                         <div style={{ borderLeft: '2px solid #000', paddingLeft: 'var(--space-5)' }}>
                             <h1 style={{
                                 margin: 0, fontSize: '26px', color: '#000', fontWeight: '800', letterSpacing: '-1px', fontFamily: 'var(--font-main)'
                             }}>{activeUnit?.replace('gmad_', '').toUpperCase()}</h1>
                             <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center', marginTop: '2px' }}>
-<p style={{ margin: 0, fontSize: '15px', color: 'var(--text-main)', fontWeight: 'var(--font-bold)', fontFamily: '"Inter", sans-serif' }}>Faturamento Trimestral</p>
+                                <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-main)', fontWeight: 'var(--font-bold)', fontFamily: '"Inter", sans-serif' }}>Faturamento Trimestral</p>
                                 <span style={{ color: '#cbd5e1' }}>|</span>
                                 <p style={{ margin: 0, fontSize: 'var(--text-base)', color: 'var(--text-muted)', fontWeight: 'var(--font-semibold)', fontFamily: '"Inter", sans-serif' }}>
                                     {globalFilters.vendor !== 'Selecionar Todos' && `Vendedor: ${globalFilters.vendor.toUpperCase()}`}
@@ -195,7 +195,7 @@ const Report = () => {
                 <Filters
                     rightElement={
                         <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-<Button
+                            <Button
                                 onClick={() => setShowInsights(true)}
                                 className="btn-insights"
                                 style={{

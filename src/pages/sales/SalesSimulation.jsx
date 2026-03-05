@@ -178,10 +178,10 @@ const SalesSimulation = () => {
     const filteredData = useMemo(() => {
         if (!salesData) return [];
         return salesData.filter(item => {
-            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || item.client?.vendor === globalFilters.vendor;
-            const repMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || item.client?.representative === globalFilters.representative;
+            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || (item.client?.vendor || '').toLowerCase().trim() === globalFilters.vendor.toLowerCase().trim();
+            const repMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || (item.client?.representative || '').toLowerCase().trim() === globalFilters.representative.toLowerCase().trim();
             const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' ||
-                (item.client ? (`${item.client.name} - ${item.client.id}` === globalFilters.client || item.client.name === globalFilters.client) : false);
+                (item.client ? (`${item.client.name} - ${item.client.id}`.toLowerCase().trim() === globalFilters.client.toLowerCase().trim() || item.client.name.toLowerCase().trim() === globalFilters.client.toLowerCase().trim()) : false);
             return vendorMatch && repMatch && clientMatch;
         });
     }, [salesData, globalFilters.vendor, globalFilters.representative, globalFilters.client]);

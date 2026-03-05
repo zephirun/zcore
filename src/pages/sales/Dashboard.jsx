@@ -32,9 +32,9 @@ const Dashboard = () => {
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
             const representativeRow = row.client?.representative || '';
 
-            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow === globalFilters.vendor;
-            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted === globalFilters.client;
-            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow === globalFilters.representative;
+            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim() === globalFilters.vendor.toLowerCase().trim();
+            const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted.toLowerCase().trim() === globalFilters.client.toLowerCase().trim();
+            const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow.toLowerCase().trim() === globalFilters.representative.toLowerCase().trim();
 
             return vendorMatch && clientMatch && representativeMatch;
         });

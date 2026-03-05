@@ -54,7 +54,7 @@ const MetricCard = ({ label, value, subtext, color }) => (
         flexDirection: 'column',
         gap: 'var(--space-4)'
     }}>
-<div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{label}</div>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{label}</div>
         <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 'bold', color: color || 'var(--text-main)' }}>{value}</div>
         {subtext && <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{subtext}</div>}
     </div>
@@ -67,7 +67,7 @@ const repDataSchema = z.object({
 });
 
 export default function SalesTeamRecords() {
-    const { allowedUnit, theme } = useData();
+    const { allowedUnit, theme, userRole, allowedVendor } = useData();
     const [salesData, setSalesData] = useState([]);
     const [repRecords, setRepRecords] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -114,6 +114,10 @@ export default function SalesTeamRecords() {
         salesData.forEach(item => {
             const vendorName = item.client?.vendor;
             if (!vendorName) return;
+
+            if (userRole !== 'admin' && allowedVendor && vendorName.toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
+                return;
+            }
 
             // Initialize
             if (!repMap.has(vendorName)) {
@@ -226,7 +230,7 @@ export default function SalesTeamRecords() {
     }, [selectedRep]);
 
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-<Spinner size="lg" /></div>;
+        <Spinner size="lg" /></div>;
 
     return (
         <div className="fade-in" style={{
@@ -252,7 +256,7 @@ export default function SalesTeamRecords() {
                 flexWrap: 'wrap',
                 gap: 'var(--space-4)'
             }}>
-<div style={{ flex: 1, minWidth: '300px' }}>
+                <div style={{ flex: 1, minWidth: '300px' }}>
                     <div style={{ fontSize: 'var(--text-sm)', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', textTransform: 'uppercase' }}>Pesquisar Vendedor</div>
                     <Input
                         type="text"
@@ -274,7 +278,7 @@ export default function SalesTeamRecords() {
 
                 {viewMode === 'list' && (
                     <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-<div style={{ textAlign: 'right' }}>
+                        <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Faturamento Equipe</div>
                             <div style={{ fontSize: 'var(--text-xl)', fontWeight: 'bold', color: '#1565C0' }}>
                                 {formatCurrency(reps.reduce((acc, curr) => acc + curr.totalRevenue, 0))}
@@ -446,7 +450,7 @@ export default function SalesTeamRecords() {
                         <>
                             {/* Header */}
                             <div style={{ backgroundColor: 'var(--bg-card)', padding: '30px', borderRadius: 'var(--space-4)', marginBottom: 'var(--space-4)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-<div>
+                                <div>
                                     <h1 style={{ margin: 0, fontSize: 'var(--text-4xl)', color: 'var(--text-main)' }}>{selectedRep.name}</h1>
                                     <div style={{ marginTop: 'var(--space-2)', color: 'var(--text-muted)' }}>Ficha de Vendedor</div>
                                 </div>
@@ -459,7 +463,7 @@ export default function SalesTeamRecords() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 'var(--space-4)' }}>
                                 {/* Left Column: Metrics & Charts */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
                                         <MetricCard label="Clientes Ativos" value={selectedRep.activeClientsCount} color="#1565C0" />
                                         <MetricCard label="Margem Média" value={formatPercent(selectedRep.avgMargin)} color={selectedRep.avgMargin > 0.12 ? '#2e7d32' : '#fbc02d'} />
                                         <MetricCard label="Ticket Médio" value={formatCurrency(selectedRep.activeClientsCount ? selectedRep.totalRevenue / selectedRep.activeClientsCount : 0)} color="#7b1fa2" />

@@ -68,8 +68,8 @@ const SalesIntelligence = () => {
         salesData.forEach(item => {
             const clientId = item.client?.id;
             if (clientId) {
-                // Filter by vendor if needed
-                if (userRole !== 'admin' && allowedVendor && item.client?.vendor !== allowedVendor) {
+                // Filter by assigned vendor for non-admins
+                if (userRole !== 'admin' && allowedVendor && (item.client?.vendor || '').toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
                     return;
                 }
 
