@@ -52,8 +52,14 @@ async function initialize() {
 
 async function close() {
     if (pool) {
-        await pool.close();
-        console.log('🛑 Oracle Pool Closed');
+        try {
+            await pool.close();
+            console.log('🛑 Oracle Pool Closed');
+        } catch (err) {
+            console.error('⚠️ Oracle Pool Close Error:', err.message);
+        } finally {
+            pool = null;
+        }
     }
 }
 

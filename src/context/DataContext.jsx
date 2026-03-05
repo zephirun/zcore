@@ -639,17 +639,34 @@ export const DataProvider = ({ children }) => {
             offlineCache,
             syncOfflineCache: async () => {
                 try {
-                    // 1. Trigger backend sync (to ensure JSON is fresh)
+                    // Try to sync Oracle data for offline cache
+                    const promises = [];
+                    // We sync the key endpoints for the active unit
+                    // 1. Synthetic Summary (Current month, last month, this year)
+                    const today = new Date();
+                    const firstDay = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+                    const lastDay = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()}`;
+
+                    promises.push(fetchSyntheticSalesSummary(firstDay, lastDay, activeUnit).catch(() => null));
+
+                    // Wait for background tasks
+                    await Promise.allSettled(promises);
+
+                    // Attempt existing Dashboard cache sync natively
                     await fetch('http://localhost:3001/api/sync-cache', { method: 'POST' });
-                    // 2. Fetch the fresh cache
                     const freshCache = await fetchCachedDashboard();
+
+                    const time = new Date().toISOString();
                     if (freshCache && freshCache.data) {
                         setOfflineCache(freshCache.data);
-                        setLastSync(freshCache.lastSync);
+                        setLastSync(time);
                         localStorage.setItem('zcore_offline_cache', JSON.stringify(freshCache.data));
-                        localStorage.setItem('zcore_last_sync', freshCache.lastSync);
-                        return { success: true, lastSync: freshCache.lastSync };
+                        localStorage.setItem('zcore_last_sync', time);
+                    } else {
+                        setLastSync(time);
+                        localStorage.setItem('zcore_last_sync', time);
                     }
+                    return { success: true, lastSync: time };
                 } catch (e) {
                     console.error("Manual Sync Failed", e);
                     return { success: false, error: e.message };
@@ -657,8 +674,10 @@ export const DataProvider = ({ children }) => {
             },
             fetchSyntheticSummary: async (dtini, dtfim) => {
                 const results = await fetchSyntheticSalesSummary(dtini, dtfim, activeUnit);
-                if (userRole !== 'admin' && allowedVendor) {
-                    return results.filter(r => r.vendedor && r.vendedor.toLowerCase() === allowedVendor.toLowerCase());
+                if (userRole !== 'admin' && allowedVendor && Array.isArray(results)) {
+                    const filtered = results.filter(r => r.vendedor && r.vendedor.toLowerCase() === allowedVendor.toLowerCase());
+                    if (results._isCached) filtered._isCached = true;
+                    return filtered;
                 }
                 return results;
             },

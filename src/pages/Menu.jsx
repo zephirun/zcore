@@ -38,7 +38,7 @@ const Menu = () => {
     // Greeting logic based on São Paulo time
     const handlePrefetch = (modulePath) => {
         // Core Sales & Analysis Views
-        if (modulePath.includes('/sales/analysis') || modulePath.includes('/sales/synthetic-summary')) {
+        if (modulePath.includes('/sales/synthetic-summary')) {
             queryClient.prefetchQuery({ queryKey: ['sales', 'monthly-billing'], queryFn: () => fetchSalesData(activeUnit) });
         }
 

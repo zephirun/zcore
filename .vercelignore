@@ -1,0 +1,44 @@
+# Build artifacts
+dist
+storybook-static
+playwright-report
+test-results
+
+# Dependencies
+node_modules
+
+# Project metadata
+.git
+.github
+.agent
+.storybook
+
+# Local config and logs
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+backups
+
+# Scripts and non-source files
+scripts
+oracle-api
+docs
+tests
+*.cjs
+*.py
+*.ps1
+*.sh
+
+# Exclude all top-level .log files
+*.log
+
+# Ensure essential files are included
+!package.json
+!package-lock.json
+!vercel.json
+!vite.config.js
+!index.html
+!public
+!src

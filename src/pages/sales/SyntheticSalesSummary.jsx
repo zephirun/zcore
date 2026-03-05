@@ -122,9 +122,29 @@ const SyntheticSalesSummary = () => {
                         <p style={{
                             color: 'var(--text-muted)',
                             fontSize: '12px',
-                            margin: 0
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)'
                         }}>
                             Visão consolidada de performance por vendedor • ERP Viasoft
+                            {data._isCached && (
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '2px 6px',
+                                    background: 'var(--color-warning-light)',
+                                    color: 'var(--color-warning-strong)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    fontSize: '10px',
+                                    fontWeight: 'var(--font-bold)',
+                                    marginLeft: 'var(--space-4)'
+                                }}>
+                                    <AlertCircle size={10} />
+                                    DADOS OFFLINE (CACHE)
+                                </span>
+                            )}
                         </p>
                     </div>
 

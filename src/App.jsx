@@ -33,7 +33,7 @@ const ClientRecords = lazy(() => import('./pages/sales/ClientRecords'));
 const SalesTeamRecords = lazy(() => import('./pages/sales/SalesTeamRecords'));
 const SalesIntelligence = lazy(() => import('./pages/sales/SalesIntelligence'));
 const SalesSimulation = lazy(() => import('./pages/sales/SalesSimulation'));
-const SalesAnalysis = lazy(() => import('./pages/sales/SalesAnalysis'));
+
 
 // Purchases Pages
 const OrderControl = lazy(() => import('./pages/purchases/OrderControl'));
@@ -161,7 +161,7 @@ const AppRoutes = () => {
                     <Route path="/sales/team-records" element={<SalesTeamRecords />} />
                     <Route path="/sales/intelligence" element={<SalesIntelligence />} />
                     <Route path="/sales/simulation" element={<SalesSimulation />} />
-                    <Route path="/sales/analysis" element={<SalesAnalysis />} />
+                    } />
 
                     {/* Purchases Routes */}
                     <Route path="/purchases/order-control" element={<OrderControl />} />
