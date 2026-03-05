@@ -161,7 +161,6 @@ const AppRoutes = () => {
                     <Route path="/sales/team-records" element={<SalesTeamRecords />} />
                     <Route path="/sales/intelligence" element={<SalesIntelligence />} />
                     <Route path="/sales/simulation" element={<SalesSimulation />} />
-                    } />
 
                     {/* Purchases Routes */}
                     <Route path="/purchases/order-control" element={<OrderControl />} />
