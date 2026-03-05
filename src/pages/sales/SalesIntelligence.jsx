@@ -69,7 +69,7 @@ const SalesIntelligence = () => {
             const clientId = item.client?.id;
             if (clientId) {
                 // Filter by assigned vendor for non-admins
-                if (userRole !== 'admin' && allowedVendor && (item.client?.vendor || '').toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
+                if (userRole !== 'admin' && allowedVendor && !(item.client?.vendor || '').toLowerCase().trim().includes(allowedVendor.toLowerCase().trim())) {
                     return;
                 }
 

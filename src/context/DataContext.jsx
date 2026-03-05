@@ -348,7 +348,7 @@ export const DataProvider = ({ children }) => {
             if (userRole !== 'admin' && allowedVendor) {
                 const normalizedAllowed = allowedVendor.toLowerCase().trim();
                 finalData = finalData.filter(item =>
-                    item.client?.vendor?.toLowerCase().trim() === normalizedAllowed
+                    item.client?.vendor?.toLowerCase().trim().includes(normalizedAllowed)
                 );
             }
 

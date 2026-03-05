@@ -32,7 +32,7 @@ const Dashboard = () => {
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
             const representativeRow = row.client?.representative || '';
 
-            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim() === globalFilters.vendor.toLowerCase().trim();
+            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim().includes(globalFilters.vendor.toLowerCase().trim());
             const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted.toLowerCase().trim() === globalFilters.client.toLowerCase().trim();
             const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow.toLowerCase().trim() === globalFilters.representative.toLowerCase().trim();
 
@@ -306,6 +306,15 @@ const Dashboard = () => {
                     <Filters />
                 </div>
             )}
+
+            {/* DEBUG INFO */}
+            <div style={{ background: 'red', color: 'white', padding: '10px', marginBottom: '10px' }}>
+                DEBUG - salesData.length: {salesData?.length || 0} |
+                filteredData.length: {filteredData.length} |
+                vendorFilter: "{globalFilters.vendor}" |
+                repFilter: "{globalFilters.representative}" |
+                clientFilter: "{globalFilters.client}"
+            </div>
 
             {isSalesDataLoading ? (
                 <div style={{ marginBottom: 'var(--space-4)' }}>

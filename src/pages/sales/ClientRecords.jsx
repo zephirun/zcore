@@ -130,7 +130,7 @@ const ClientRecords = () => {
             if (!clientId) return;
 
             // Filter logic
-            if (userRole !== 'admin' && allowedVendor && (item.client?.vendor || '').toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
+            if (userRole !== 'admin' && allowedVendor && !(item.client?.vendor || '').toLowerCase().trim().includes(allowedVendor.toLowerCase().trim())) {
                 return;
             }
 

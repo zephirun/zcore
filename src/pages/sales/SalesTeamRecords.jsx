@@ -115,7 +115,7 @@ export default function SalesTeamRecords() {
             const vendorName = item.client?.vendor;
             if (!vendorName) return;
 
-            if (userRole !== 'admin' && allowedVendor && vendorName.toLowerCase().trim() !== allowedVendor.toLowerCase().trim()) {
+            if (userRole !== 'admin' && allowedVendor && !vendorName.toLowerCase().trim().includes(allowedVendor.toLowerCase().trim())) {
                 return;
             }
 

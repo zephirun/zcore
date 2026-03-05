@@ -32,7 +32,7 @@ const Report = () => {
             const clientFormatted = clientId ? `${clientName} - ${clientId}` : clientName;
             const representativeRow = row.client?.representative || '';
 
-            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim() === globalFilters.vendor.toLowerCase().trim();
+            const vendorMatch = !globalFilters.vendor || globalFilters.vendor === 'Selecionar Todos' || vendorRow.toLowerCase().trim().includes(globalFilters.vendor.toLowerCase().trim());
             const clientMatch = !globalFilters.client || globalFilters.client === 'Selecionar Todos' || clientFormatted.toLowerCase().trim() === globalFilters.client.toLowerCase().trim();
             const representativeMatch = !globalFilters.representative || globalFilters.representative === 'Selecionar Todos' || representativeRow.toLowerCase().trim() === globalFilters.representative.toLowerCase().trim();
 
