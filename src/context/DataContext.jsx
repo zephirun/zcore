@@ -649,11 +649,21 @@ export const DataProvider = ({ children }) => {
 
                     promises.push(fetchSyntheticSalesSummary(firstDay, lastDay, activeUnit).catch(() => null));
 
-                    // Wait for background tasks
-                    await Promise.allSettled(promises);
+                    // Wait for background tasks (up to 10 seconds) so UI doesn't hang
+                    await Promise.race([
+                        Promise.allSettled(promises),
+                        new Promise(resolve => setTimeout(resolve, 10000))
+                    ]);
 
                     // Attempt existing Dashboard cache sync natively
-                    await fetch('http://localhost:3001/api/sync-cache', { method: 'POST' });
+                    try {
+                        const controller = new AbortController();
+                        const id = setTimeout(() => controller.abort(), 6000);
+                        await fetch('http://localhost:3000/api/sync-cache', { method: 'POST', signal: controller.signal });
+                        clearTimeout(id);
+                    } catch (err) {
+                        console.warn('Dashboard native sync failed:', err.message);
+                    }
                     const freshCache = await fetchCachedDashboard();
 
                     const time = new Date().toISOString();

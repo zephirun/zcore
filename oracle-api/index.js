@@ -795,7 +795,7 @@ app.post('/api/sync-cache', async (req, res) => {
     try {
         console.log('🔄 Sync Dashboard Cache (n8n)...');
         const fetchLocal = async (route) => {
-            const response = await fetch(`http://127.0.0.1:${PORT}${route}`);
+            const response = await fetch(`http://localhost:${PORT}${route}`);
             return response.json();
         };
         const kpis = await fetchLocal('/api/kpis');

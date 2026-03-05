@@ -1,15 +1,15 @@
 {
-  "lastSync": "2026-02-20T19:31:47.018Z",
+  "lastSync": "2026-03-05T00:30:19.150Z",
   "data": {
     "kpis": {
-      "faturamento": 10585530.32,
-      "lucro": 3181461.22,
-      "margem": 39.89,
-      "devolucoes": 162636.13,
-      "descontos": 1818878.175901,
-      "frete": 57613.38,
-      "qtdVendas": 9888,
-      "ticketMedio": 1070.5431148867315
+      "faturamento": 2444961.9,
+      "lucro": 718594.43,
+      "margem": 38.85,
+      "devolucoes": 45282.29,
+      "descontos": 406108.82863668,
+      "frete": 12558.74,
+      "qtdVendas": 2131,
+      "ticketMedio": 1147.3307836696385
     },
     "clients": [
       {
@@ -696,7 +696,7 @@
         "seq": 1,
         "tipo": "Documentos",
         "idpess": 3401,
-        "idrepresentante": 34736,
+        "idrepresentante": 69709,
         "estab": 501,
         "iddocto": 229,
         "docto": "2149/12-1",
@@ -705,7 +705,7 @@
         "valor": 3230.5,
         "hist": "IMPORTACAO VIASOFT - DUPLICATAS",
         "parcela": null,
-        "repre": "Vendedor: JOBERSON CARLOS BONALDO 34736",
+        "repre": "Vendedor: DALMEI PATRICIO MARTINS 69709",
         "cliente": "MARCO ANTONIO MOTTA - 3401",
         "limite": 1
       },
@@ -1715,54 +1715,322 @@
     ],
     "sellers": [
       {
-        "nome": "VILMAR DA CUNHA JUNIOR",
-        "valor": 2235896.36,
+        "nome": "ELIANE RIBEIRO",
+        "valor": 404714.86,
         "percent": 100
       },
       {
-        "nome": "MAYARA DA SILVA",
-        "valor": 2063382.8,
-        "percent": 92.28436688362426
+        "nome": "VILMAR DA CUNHA JUNIOR",
+        "valor": 321299.5,
+        "percent": 79.3891037260159
       },
       {
         "nome": "CAMILLE CARDOSO CALEGARI",
-        "valor": 2027943.62,
-        "percent": 90.69935692368139
+        "valor": 291459.72,
+        "percent": 72.01606582965596
       },
       {
         "nome": "JOSE SEBASTIAO BORGES",
-        "valor": 1664488.04,
-        "percent": 74.44388164753755
+        "valor": 271170.76,
+        "percent": 67.00291657192919
       },
       {
-        "nome": "THIAGO ANDERSON DOS SANTOS SILVA",
-        "valor": 1425572.72,
-        "percent": 63.75844361587494
+        "nome": "MAYARA DA SILVA",
+        "valor": 260034.92,
+        "percent": 64.25138923735096
       },
       {
         "nome": "CLAUDIO DE FREITAS BARROS",
-        "valor": 1229505.38,
-        "percent": 54.989372584335705
-      },
-      {
-        "nome": "EDUARDA BORTOLI MORAES",
-        "valor": 1045711.84,
-        "percent": 46.769244706852156
+        "valor": 242144.6,
+        "percent": 59.83091404155508
       },
       {
         "nome": "ANA PAULA BORBA",
-        "valor": 1032437.6,
-        "percent": 46.17555708172449
+        "valor": 188506.14,
+        "percent": 46.57751879928501
+      },
+      {
+        "nome": "LEANDRO DE SOUZA",
+        "valor": 183317.44,
+        "percent": 45.29545566970287
+      },
+      {
+        "nome": "THIAGO ANDERSON DOS SANTOS SILVA",
+        "valor": 164896.74,
+        "percent": 40.74393018333945
       },
       {
         "nome": "SABRINA CARDOSO CALEGARI",
-        "valor": 1000707.68,
-        "percent": 44.7564430043618
+        "valor": 154271.36,
+        "percent": 38.11853115549056
+      }
+    ],
+    "synthetic": [
+      {
+        "idvendedorint": 17503,
+        "vendedor": "ELIANE RIBEIRO",
+        "vlrvda": 278103.68,
+        "custovda": 206636.88755,
+        "vlrdev": 59.06,
+        "custodev": 33.47,
+        "vlrfrete": 700,
+        "vdaliq": 278044.62,
+        "custoliq": 206603.41755,
+        "lucro": 71441.20245,
+        "lucrototal": 71441.20245,
+        "representatividade": 13.475766385855438
       },
       {
-        "nome": "BRYAN GONÇALVES DA ROSA",
-        "valor": 911402.36,
-        "percent": 40.76228112827198
+        "idvendedorint": 66092,
+        "vendedor": "VILMAR DA CUNHA JUNIOR",
+        "vlrvda": 265715.54,
+        "custovda": 196666.460728,
+        "vlrdev": 3071.49,
+        "custodev": 1998.3712,
+        "vlrfrete": 630,
+        "vdaliq": 262644.05,
+        "custoliq": 194668.089528,
+        "lucro": 67975.960472,
+        "lucrototal": 67975.960472,
+        "representatividade": 12.729359267713704
+      },
+      {
+        "idvendedorint": 62659,
+        "vendedor": "CAMILLE CARDOSO CALEGARI",
+        "vlrvda": 214872.23,
+        "custovda": 157221.150816,
+        "vlrdev": 7510.27,
+        "custodev": 6176.8059,
+        "vlrfrete": 865,
+        "vdaliq": 207361.96,
+        "custoliq": 151044.344916,
+        "lucro": 56317.615084,
+        "lucrototal": 56317.615084,
+        "representatividade": 10.050046392816736
+      },
+      {
+        "idvendedorint": 26904,
+        "vendedor": "JOSE SEBASTIAO BORGES",
+        "vlrvda": 200271.6,
+        "custovda": 144043.501064,
+        "vlrdev": 446.17,
+        "custodev": 236.5977,
+        "vlrfrete": 1080,
+        "vdaliq": 199825.43,
+        "custoliq": 143806.903364,
+        "lucro": 56018.526636,
+        "lucrototal": 56018.526636,
+        "representatividade": 9.6847794164588
+      },
+      {
+        "idvendedorint": 44529,
+        "vendedor": "LEANDRO DE SOUZA",
+        "vlrvda": 175471.55,
+        "custovda": 126617.02405,
+        "vlrdev": 329.25,
+        "custodev": 186.4872,
+        "vlrfrete": 440,
+        "vdaliq": 175142.3,
+        "custoliq": 126430.53685,
+        "lucro": 48711.76315,
+        "lucrototal": 48711.76315,
+        "representatividade": 8.488481881366411
+      },
+      {
+        "idvendedorint": 30902,
+        "vendedor": "ANA PAULA BORBA",
+        "vlrvda": 157814.68,
+        "custovda": 115644.573722,
+        "vlrdev": 2157.18,
+        "custodev": 1466.0298,
+        "vlrfrete": 980,
+        "vdaliq": 155657.5,
+        "custoliq": 114178.543922,
+        "lucro": 41478.956078,
+        "lucrototal": 41478.956078,
+        "representatividade": 7.544127651908147
+      },
+      {
+        "idvendedorint": 52,
+        "vendedor": "CLAUDIO DE FREITAS BARROS",
+        "vlrvda": 148549.12,
+        "custovda": 108620.552367,
+        "vlrdev": 995.89,
+        "custodev": 751.3954,
+        "vlrfrete": 1435,
+        "vdaliq": 147553.23,
+        "custoliq": 107869.156967,
+        "lucro": 39684.073033,
+        "lucrototal": 39684.073033,
+        "representatividade": 7.151344474704802
+      },
+      {
+        "idvendedorint": 36566,
+        "vendedor": "EDUARDA BORTOLI MORAES",
+        "vlrvda": 139363.38,
+        "custovda": 102954.145755,
+        "vlrdev": 1051.5,
+        "custodev": 820.0296,
+        "vlrfrete": 745,
+        "vdaliq": 138311.88,
+        "custoliq": 102134.116155,
+        "lucro": 36177.763845,
+        "lucrototal": 36177.763845,
+        "representatividade": 6.703451349889349
+      },
+      {
+        "idvendedorint": 9100,
+        "vendedor": "THIAGO ANDERSON DOS SANTOS SILVA",
+        "vlrvda": 130385.41,
+        "custovda": 90991.998562,
+        "vlrdev": 734.75,
+        "custodev": 430.8579,
+        "vlrfrete": 620,
+        "vdaliq": 129650.66,
+        "custoliq": 90561.140662,
+        "lucro": 39089.519338,
+        "lucrototal": 39089.519338,
+        "representatividade": 6.283674922147288
+      },
+      {
+        "idvendedorint": 30750,
+        "vendedor": "MAYARA DA SILVA",
+        "vlrvda": 151660.76,
+        "custovda": 111792.831567,
+        "vlrdev": 26665.99,
+        "custodev": 18927.9946,
+        "vlrfrete": 835,
+        "vdaliq": 124994.77,
+        "custoliq": 92864.836967,
+        "lucro": 32129.933033,
+        "lucrototal": 32129.933033,
+        "representatividade": 6.05802162247819
+      },
+      {
+        "idvendedorint": 64158,
+        "vendedor": "SABRINA CARDOSO CALEGARI",
+        "vlrvda": 97645.29,
+        "custovda": 68197.674068,
+        "vlrdev": 66.92,
+        "custodev": 29.7651,
+        "vlrfrete": 1114.8,
+        "vdaliq": 97578.37,
+        "custoliq": 68167.908968,
+        "lucro": 29410.461032,
+        "lucrototal": 29410.461032,
+        "representatividade": 4.729252874709695
+      },
+      {
+        "idvendedorint": 3349,
+        "vendedor": "ELIZABETH OSTRUFKA JANUARIO",
+        "vlrvda": 47216,
+        "custovda": 33067.858282,
+        "vlrdev": 184.72,
+        "custodev": 100.2651,
+        "vlrfrete": 120,
+        "vdaliq": 47031.28,
+        "custoliq": 32967.593182,
+        "lucro": 14063.686818,
+        "lucrototal": 14063.686818,
+        "representatividade": 2.279427460627561
+      },
+      {
+        "idvendedorint": 14337,
+        "vendedor": "EDSON PEREIRA",
+        "vlrvda": 32795.67,
+        "custovda": 22971.93185,
+        "vlrdev": 597.57,
+        "custodev": 423.894,
+        "vlrfrete": 550,
+        "vdaliq": 32198.1,
+        "custoliq": 22548.03785,
+        "lucro": 9650.06215,
+        "lucrototal": 9650.06215,
+        "representatividade": 1.560519580160954
+      },
+      {
+        "idvendedorint": 72271,
+        "vendedor": "ELAINE DE SOUZA SANTOS KNIESS",
+        "vlrvda": 24625.94,
+        "custovda": 15990.1781,
+        "vlrdev": 418.75,
+        "custodev": 249.2157,
+        "vlrfrete": 250,
+        "vdaliq": 24207.19,
+        "custoliq": 15740.9624,
+        "lucro": 8466.2276,
+        "lucrototal": 8466.2276,
+        "representatividade": 1.1732305314809397
+      },
+      {
+        "idvendedorint": 43029,
+        "vendedor": "JOZELENA ROSA MOREIRA DE SOUZA",
+        "vlrvda": 20852.18,
+        "custovda": 13415.6679,
+        "vlrdev": 40.95,
+        "custodev": 21.5535,
+        "vlrfrete": 100,
+        "vdaliq": 20811.23,
+        "custoliq": 13394.1144,
+        "lucro": 7417.1156,
+        "lucrototal": 7417.1156,
+        "representatividade": 1.008641252192926
+      },
+      {
+        "idvendedorint": 73781,
+        "vendedor": "MATHEUS DESIDERIO",
+        "vlrvda": 12101.03,
+        "custovda": 7527.0893,
+        "vlrdev": 111.25,
+        "custodev": 57.3599,
+        "vlrfrete": 220,
+        "vdaliq": 11989.78,
+        "custoliq": 7469.7294,
+        "lucro": 4520.0506,
+        "lucrototal": 4520.0506,
+        "representatividade": 0.5810990850957728
+      },
+      {
+        "idvendedorint": 68702,
+        "vendedor": "GUSTAVO PETRY BORGES",
+        "vlrvda": 11022.81,
+        "custovda": 7121.4568,
+        "vlrdev": 840.58,
+        "custodev": 418.408,
+        "vlrfrete": 60,
+        "vdaliq": 10182.23,
+        "custoliq": 6703.0488,
+        "lucro": 3479.1812,
+        "lucrototal": 3479.1812,
+        "representatividade": 0.493494003829489
+      },
+      {
+        "idvendedorint": 70661,
+        "vendedor": "LARISSA DOS SANTOS MORAIS",
+        "vlrvda": 103.44,
+        "custovda": 46.58,
+        "vlrdev": 0,
+        "custodev": 0,
+        "vlrfrete": 0,
+        "vdaliq": 103.44,
+        "custoliq": 46.58,
+        "lucro": 56.86,
+        "lucrototal": 56.86,
+        "representatividade": 0.005013343811338218
+      },
+      {
+        "idvendedorint": 72174,
+        "vendedor": "JULIA DAPHINE DOS SANTOS SILVA",
+        "vlrvda": 5.54,
+        "custovda": 3.26,
+        "vlrdev": 0,
+        "custodev": 0,
+        "vlrfrete": 0,
+        "vdaliq": 5.54,
+        "custoliq": 3.26,
+        "lucro": 2.28,
+        "lucrototal": 2.28,
+        "representatividade": 0.00026850275246339644
       }
     ]
   }

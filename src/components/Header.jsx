@@ -18,8 +18,6 @@ const Header = () => {
     } = useData();
 
     const [isSyncing, setIsSyncing] = useState(false);
-    const [isDataMenuOpen, setIsDataMenuOpen] = useState(false);
-    const dataRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -314,93 +312,39 @@ const Header = () => {
                     </div>
 
                     {/* Sync & Cache Controls */}
-                    <div ref={dataRef} style={{ position: 'relative' }}>
-                        <div
-                            onClick={() => setIsDataMenuOpen(!isDataMenuOpen)}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.2' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Atualizado</span>
+                            <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+                                {lastSync ? new Date(lastSync).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Nunca'}
+                            </span>
+                        </div>
+                        <button
+                            onClick={async () => {
+                                setIsSyncing(true);
+                                await syncOfflineCache();
+                                setIsSyncing(false);
+                            }}
+                            disabled={isSyncing}
                             style={{
                                 width: '32px', height: '32px',
                                 borderRadius: '8px',
-                                backgroundColor: isDataMenuOpen ? 'var(--bg-elevated)' : 'transparent',
+                                backgroundColor: 'transparent',
+                                border: '1px solid var(--border-color)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer',
+                                cursor: isSyncing ? 'wait' : 'pointer',
                                 transition: 'all 0.15s ease',
-                                border: `1px solid ${isDataMenuOpen ? 'var(--border-color)' : 'transparent'}`,
+                                color: 'var(--text-muted)'
                             }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                            onMouseLeave={e => { if (!isDataMenuOpen) e.currentTarget.style.backgroundColor = 'transparent'; }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                            title="Sincronizar Relatórios (Cache Offline)"
                         >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className={isSyncing ? 'spin' : ''} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M23 4v6h-6"></path>
                                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                             </svg>
-                        </div>
-
-                        {isDataMenuOpen && (
-                            <div style={{ ...dropdownStyle, top: '42px', right: '0', width: '240px', padding: '12px' }}>
-                                <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '10px' }}>
-                                    Controle de Dados (Local)
-                                </div>
-
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: '500' }}>Modo Offline</span>
-                                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Usar dados em cache</span>
-                                        </div>
-                                        <div
-                                            onClick={() => setDataMode(dataMode === 'live' ? 'cache' : 'live')}
-                                            style={{
-                                                width: '34px', height: '18px', borderRadius: '10px',
-                                                background: dataMode === 'cache' ? 'var(--color-info-strong)' : 'var(--bg-input)',
-                                                position: 'relative', transition: 'all 0.3s', cursor: 'pointer'
-                                            }}
-                                        >
-                                            <div style={{
-                                                width: '14px', height: '14px', borderRadius: '50%', background: '#fff',
-                                                position: 'absolute', top: '2px',
-                                                left: dataMode === 'cache' ? '18px' : '2px',
-                                                transition: 'all 0.3s ease'
-                                            }} />
-                                        </div>
-                                    </div>
-
-                                    <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
-
-                                    <div style={{ padding: '4px' }}>
-                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                                            Última Sincronização: <br />
-                                            <span style={{ color: 'var(--text-main)', fontWeight: '500' }}>
-                                                {lastSync ? new Date(lastSync).toLocaleString('pt-BR') : 'Nunca realizada'}
-                                            </span>
-                                        </div>
-
-                                        <button
-                                            onClick={async () => {
-                                                setIsSyncing(true);
-                                                await syncOfflineCache();
-                                                setIsSyncing(false);
-                                            }}
-                                            disabled={isSyncing}
-                                            style={{
-                                                width: '100%', padding: '8px', borderRadius: '6px',
-                                                background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                                                color: 'var(--text-main)', fontSize: '12px', cursor: isSyncing ? 'wait' : 'pointer',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                                transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                                        >
-                                            <svg className={isSyncing ? 'spin' : ''} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M23 4v6h-6"></path>
-                                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                                            </svg>
-                                            {isSyncing ? 'Sincronizando...' : 'Sincronizar Banco Agora'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        </button>
                     </div>
 
                     {/* Theme Switcher Top Level */}
