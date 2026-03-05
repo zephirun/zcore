@@ -474,17 +474,22 @@ const AdminPanel = () => {
                                 {errors.allowedUnit && <span style={{ color: 'var(--color-error)', fontSize: '11px', marginTop: '4px', display: 'block' }}>Selecione ao menos uma unidade.</span>}
                             </div>
 
-                            <Select
-                                label="Vendedor / Acesso Liberado"
-                                {...register('allowedVendor')}
-                            >
-                                <option value="">Acesso Irrestrito (Gerencial)</option>
-                                {[...new Set([...uniqueVendors, ...uniqueRepresentatives, watch('allowedVendor')])].filter(Boolean).sort().map(item => (
-                                    <option key={item} value={item.toString()}>
-                                        {item}
-                                    </option>
-                                ))}
-                            </Select>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <Input
+                                    label="Vendedor / Acesso Liberado"
+                                    list="vendors-list"
+                                    {...register('allowedVendor')}
+                                    placeholder="Digite o nome completo do vendedor no ERP"
+                                />
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                    Para restringir o acesso, digite o nome exato (ou parte principal) do Vendedor/Representante conforme ERP. Deixe em branco para acesso irrestrito.
+                                </span>
+                                <datalist id="vendors-list">
+                                    {[...new Set([...uniqueVendors, ...uniqueRepresentatives, watch('allowedVendor')])].filter(Boolean).sort().map(item => (
+                                        <option key={item} value={item.toString()} />
+                                    ))}
+                                </datalist>
+                            </div>
 
                             <ModulePermissionSelector
                                 selectedModules={watch('allowedModules')}
